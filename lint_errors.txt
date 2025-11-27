@@ -1,0 +1,2762 @@
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\assets\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\assets\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\assets\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:17:1
+   |
+15 | class AssetManager:
+16 |     """Manages Unity asset operations."""
+17 |     
+   | ^^^^
+18 |     def __init__(self, config):
+19 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:20:1
+   |
+18 |     def __init__(self, config):
+19 |         self.config = config
+20 |     
+   | ^^^^
+21 |     async def import_package(self, package_path: str, project_path: str, 
+22 |                            interactive: bool = False) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\assets\__init__.py:21:73
+   |
+19 |         self.config = config
+20 |     
+21 |     async def import_package(self, package_path: str, project_path: str, 
+   |                                                                         ^
+22 |                            interactive: bool = False) -> Dict[str, Any]:
+23 |         """Import Unity asset package."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:27:1
+   |
+25 |             if not Path(package_path).exists():
+26 |                 return {"status": "error", "message": f"Package not found: {package_path}"}
+27 |             
+   | ^^^^^^^^^^^^
+28 |             package_name = Path(package_path).stem
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:29:1
+   |
+28 |             package_name = Path(package_path).stem
+29 |             
+   | ^^^^^^^^^^^^
+30 |             # Unity command for package import
+31 |             import_result = {
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:43:1
+   |
+41 |                 ]
+42 |             }
+43 |             
+   | ^^^^^^^^^^^^
+44 |             return import_result
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:45:1
+   |
+44 |             return import_result
+45 |             
+   | ^^^^^^^^^^^^
+46 |         except Exception as e:
+47 |             logger.error(f"Failed to import package: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:49:1
+   |
+47 |             logger.error(f"Failed to import package: {e}")
+48 |             return {"status": "error", "message": str(e)}
+49 |     
+   | ^^^^
+50 |     async def optimize_textures(self, texture_paths: List[str], platform: str = "PC", 
+51 |                               quality: str = "High") -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\assets\__init__.py:50:86
+   |
+48 |             return {"status": "error", "message": str(e)}
+49 |     
+50 |     async def optimize_textures(self, texture_paths: List[str], platform: str = "PC", 
+   |                                                                                      ^
+51 |                               quality: str = "High") -> Dict[str, Any]:
+52 |         """Optimize textures for target platform."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:56:1
+   |
+54 |             optimized_count = 0
+55 |             optimization_results = []
+56 |             
+   | ^^^^^^^^^^^^
+57 |             for texture_path in texture_paths:
+58 |                 if not Path(texture_path).exists():
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:60:1
+   |
+58 |                 if not Path(texture_path).exists():
+59 |                     continue
+60 |                 
+   | ^^^^^^^^^^^^^^^^
+61 |                 texture_name = Path(texture_path).name
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:62:1
+   |
+61 |                 texture_name = Path(texture_path).name
+62 |                 
+   | ^^^^^^^^^^^^^^^^
+63 |                 # Platform-specific optimization settings
+64 |                 optimization_settings = self._get_texture_optimization_settings(platform, quality)
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:65:1
+   |
+63 |                 # Platform-specific optimization settings
+64 |                 optimization_settings = self._get_texture_optimization_settings(platform, quality)
+65 |                 
+   | ^^^^^^^^^^^^^^^^
+66 |                 result = {
+67 |                     "texture": texture_name,
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:74:1
+   |
+72 |                     "size_reduction": "45%"  # Placeholder
+73 |                 }
+74 |                 
+   | ^^^^^^^^^^^^^^^^
+75 |                 optimization_results.append(result)
+76 |                 optimized_count += 1
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:77:1
+   |
+75 |                 optimization_results.append(result)
+76 |                 optimized_count += 1
+77 |             
+   | ^^^^^^^^^^^^
+78 |             return {
+79 |                 "status": "success",
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:86:1
+   |
+84 |                 "optimization_results": optimization_results
+85 |             }
+86 |             
+   | ^^^^^^^^^^^^
+87 |         except Exception as e:
+88 |             logger.error(f"Failed to optimize textures: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\assets\__init__.py:90:1
+   |
+88 |             logger.error(f"Failed to optimize textures: {e}")
+89 |             return {"status": "error", "message": str(e)}
+90 |     
+   | ^^^^
+91 |     def _get_texture_optimization_settings(self, platform: str, quality: str) -> Dict[str, Any]:
+92 |         """Get texture optimization settings for platform."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:110:1
+    |
+108 |             }
+109 |         }
+110 |         
+    | ^^^^^^^^
+111 |         return settings_map.get(platform, {}).get(quality, settings_map["PC"]["Medium"])
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:115:1
+    |
+113 | class MaterialManager:
+114 |     """Manages Unity material operations."""
+115 |     
+    | ^^^^
+116 |     def __init__(self, config):
+117 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:118:1
+    |
+116 |     def __init__(self, config):
+117 |         self.config = config
+118 |     
+    | ^^^^
+119 |     async def convert_materials_vrchat(self, material_paths: List[str]) -> Dict[str, Any]:
+120 |         """Convert materials to VRChat compatible shaders."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:123:1
+    |
+121 |         try:
+122 |             converted_materials = []
+123 |             
+    | ^^^^^^^^^^^^
+124 |             for material_path in material_paths:
+125 |                 material_name = Path(material_path).stem
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:126:1
+    |
+124 |             for material_path in material_paths:
+125 |                 material_name = Path(material_path).stem
+126 |                 
+    | ^^^^^^^^^^^^^^^^
+127 |                 # VRChat shader conversion mapping
+128 |                 conversion_result = {
+    |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+   --> src\unity3d_mcp\assets\__init__.py:134:52
+    |
+132 |                     "properties_mapped": [
+133 |                         "Albedo -> Main Tex",
+134 |                         "Normal Map -> Normal Map", 
+    |                                                    ^
+135 |                         "Metallic -> Metallic",
+136 |                         "Smoothness -> Smoothness"
+    |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:144:1
+    |
+142 |                     ]
+143 |                 }
+144 |                 
+    | ^^^^^^^^^^^^^^^^
+145 |                 converted_materials.append(conversion_result)
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:146:1
+    |
+145 |                 converted_materials.append(conversion_result)
+146 |             
+    | ^^^^^^^^^^^^
+147 |             return {
+148 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:153:1
+    |
+151 |                 "vrchat_compatible": True
+152 |             }
+153 |             
+    | ^^^^^^^^^^^^
+154 |         except Exception as e:
+155 |             logger.error(f"Failed to convert materials: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:157:1
+    |
+155 |             logger.error(f"Failed to convert materials: {e}")
+156 |             return {"status": "error", "message": str(e)}
+157 |     
+    | ^^^^
+158 |     async def create_material(self, material_name: str, shader_name: str, 
+159 |                             properties: Dict[str, Any] = {}) -> Dict[str, Any]:
+    |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+   --> src\unity3d_mcp\assets\__init__.py:158:74
+    |
+156 |             return {"status": "error", "message": str(e)}
+157 |     
+158 |     async def create_material(self, material_name: str, shader_name: str, 
+    |                                                                          ^
+159 |                             properties: Dict[str, Any] = {}) -> Dict[str, Any]:
+160 |         """Create new Unity material."""
+    |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:163:1
+    |
+161 |         try:
+162 |             material_path = f"Assets/Materials/{material_name}.mat"
+163 |             
+    | ^^^^^^^^^^^^
+164 |             material_config = {
+165 |                 "name": material_name,
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:171:1
+    |
+169 |                 "keywords": []
+170 |             }
+171 |             
+    | ^^^^^^^^^^^^
+172 |             # Add shader-specific defaults
+173 |             if "Standard" in shader_name:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:180:1
+    |
+178 |                     "_Glossiness": {"type": "Float", "value": 0.5}
+179 |                 })
+180 |             
+    | ^^^^^^^^^^^^
+181 |             return {
+182 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\assets\__init__.py:188:1
+    |
+186 |                 "configuration": material_config
+187 |             }
+188 |             
+    | ^^^^^^^^^^^^
+189 |         except Exception as e:
+190 |             logger.error(f"Failed to create material: {e}")
+    |
+help: Remove whitespace from blank line
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\avatar\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\avatar\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\avatar\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:17:1
+   |
+15 | class VRMAvatarManager:
+16 |     """Manages VRM avatar import and configuration."""
+17 |     
+   | ^^^^
+18 |     def __init__(self, config):
+19 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:20:1
+   |
+18 |     def __init__(self, config):
+19 |         self.config = config
+20 |     
+   | ^^^^
+21 |     async def import_vrm(self, vrm_path: str, project_path: str, 
+22 |                         optimize_for_vrchat: bool = True, create_prefab: bool = True) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:21:65
+   |
+19 |         self.config = config
+20 |     
+21 |     async def import_vrm(self, vrm_path: str, project_path: str, 
+   |                                                                 ^
+22 |                         optimize_for_vrchat: bool = True, create_prefab: bool = True) -> Dict[str, Any]:
+23 |         """Import VRM avatar into Unity project."""
+   |
+help: Remove trailing whitespace
+
+E501 Line too long (104 > 100)
+  --> src\unity3d_mcp\avatar\__init__.py:22:101
+   |
+21 |     async def import_vrm(self, vrm_path: str, project_path: str, 
+22 |                         optimize_for_vrchat: bool = True, create_prefab: bool = True) -> Dict[str, Any]:
+   |                                                                                                     ^^^^
+23 |         """Import VRM avatar into Unity project."""
+24 |         try:
+   |
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:28:1
+   |
+26 |             if not Path(vrm_path).exists():
+27 |                 return {"status": "error", "message": f"VRM file not found: {vrm_path}"}
+28 |             
+   | ^^^^^^^^^^^^
+29 |             if not vrm_path.lower().endswith('.vrm'):
+30 |                 return {"status": "error", "message": "File is not a VRM file"}
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:31:1
+   |
+29 |             if not vrm_path.lower().endswith('.vrm'):
+30 |                 return {"status": "error", "message": "File is not a VRM file"}
+31 |             
+   | ^^^^^^^^^^^^
+32 |             # Copy VRM to Unity project
+33 |             assets_path = Path(project_path) / "Assets" / "Models"
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:35:1
+   |
+33 |             assets_path = Path(project_path) / "Assets" / "Models"
+34 |             assets_path.mkdir(parents=True, exist_ok=True)
+35 |             
+   | ^^^^^^^^^^^^
+36 |             vrm_name = Path(vrm_path).stem
+37 |             target_path = assets_path / f"{vrm_name}.vrm"
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:38:1
+   |
+36 |             vrm_name = Path(vrm_path).stem
+37 |             target_path = assets_path / f"{vrm_name}.vrm"
+38 |             
+   | ^^^^^^^^^^^^
+39 |             # Copy file (simplified)
+40 |             import shutil
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:42:1
+   |
+40 |             import shutil
+41 |             shutil.copy2(vrm_path, target_path)
+42 |             
+   | ^^^^^^^^^^^^
+43 |             result = {
+44 |                 "status": "success",
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:51:1
+   |
+49 |                 "prefab_created": create_prefab
+50 |             }
+51 |             
+   | ^^^^^^^^^^^^
+52 |             if optimize_for_vrchat:
+53 |                 result["vrchat_optimizations"] = await self._apply_vrchat_optimizations(vrm_name, project_path)
+   |
+help: Remove whitespace from blank line
+
+E501 Line too long (111 > 100)
+  --> src\unity3d_mcp\avatar\__init__.py:53:101
+   |
+52 |             if optimize_for_vrchat:
+53 |                 result["vrchat_optimizations"] = await self._apply_vrchat_optimizations(vrm_name, project_path)
+   |                                                                                                     ^^^^^^^^^^^
+54 |             
+55 |             if create_prefab:
+   |
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:54:1
+   |
+52 |             if optimize_for_vrchat:
+53 |                 result["vrchat_optimizations"] = await self._apply_vrchat_optimizations(vrm_name, project_path)
+54 |             
+   | ^^^^^^^^^^^^
+55 |             if create_prefab:
+56 |                 result["prefab_path"] = f"Assets/Prefabs/{vrm_name}.prefab"
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:57:1
+   |
+55 |             if create_prefab:
+56 |                 result["prefab_path"] = f"Assets/Prefabs/{vrm_name}.prefab"
+57 |             
+   | ^^^^^^^^^^^^
+58 |             return result
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:59:1
+   |
+58 |             return result
+59 |             
+   | ^^^^^^^^^^^^
+60 |         except Exception as e:
+61 |             logger.error(f"Failed to import VRM: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:63:1
+   |
+61 |             logger.error(f"Failed to import VRM: {e}")
+62 |             return {"status": "error", "message": str(e)}
+63 |     
+   | ^^^^
+64 |     async def _apply_vrchat_optimizations(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
+65 |         """Apply VRChat-specific optimizations."""
+   |
+help: Remove whitespace from blank line
+
+E501 Line too long (103 > 100)
+  --> src\unity3d_mcp\avatar\__init__.py:64:101
+   |
+62 |             return {"status": "error", "message": str(e)}
+63 |     
+64 |     async def _apply_vrchat_optimizations(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
+   |                                                                                                     ^^^
+65 |         """Apply VRChat-specific optimizations."""
+66 |         optimizations = {
+   |
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:73:1
+   |
+71 |             "sdk_components": "VRC Avatar Descriptor added"
+72 |         }
+73 |         
+   | ^^^^^^^^
+74 |         return optimizations
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:78:1
+   |
+76 | class AnimationManager:
+77 |     """Manages avatar animation and animator controllers."""
+78 |     
+   | ^^^^
+79 |     def __init__(self, config):
+80 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:81:1
+   |
+79 |     def __init__(self, config):
+80 |         self.config = config
+81 |     
+   | ^^^^
+82 |     async def setup_animator(self, avatar_path: str, animator_type: str = "humanoid", 
+83 |                            include_facial: bool = True) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:82:86
+   |
+80 |         self.config = config
+81 |     
+82 |     async def setup_animator(self, avatar_path: str, animator_type: str = "humanoid", 
+   |                                                                                      ^
+83 |                            include_facial: bool = True) -> Dict[str, Any]:
+84 |         """Setup animator controller for avatar."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\avatar\__init__.py:88:1
+   |
+86 |             avatar_name = Path(avatar_path).stem
+87 |             controller_path = f"Assets/Animators/{avatar_name}_Controller.controller"
+88 |             
+   | ^^^^^^^^^^^^
+89 |             # Create animator controller structure
+90 |             controller_config = {
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:107:1
+    |
+105 |                 ]
+106 |             }
+107 |             
+    | ^^^^^^^^^^^^
+108 |             if include_facial:
+109 |                 controller_config["layers"].append({
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:117:1
+    |
+115 |                     ]
+116 |                 })
+117 |                 
+    | ^^^^^^^^^^^^^^^^
+118 |                 controller_config["parameters"].extend([
+119 |                     {"name": "Expression", "type": "int", "default": 0},
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:122:1
+    |
+120 |                     {"name": "BlinkRate", "type": "float", "default": 1.0}
+121 |                 ])
+122 |             
+    | ^^^^^^^^^^^^
+123 |             return {
+124 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:131:1
+    |
+129 |                 "configuration": controller_config
+130 |             }
+131 |             
+    | ^^^^^^^^^^^^
+132 |         except Exception as e:
+133 |             logger.error(f"Failed to setup animator: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:135:1
+    |
+133 |             logger.error(f"Failed to setup animator: {e}")
+134 |             return {"status": "error", "message": str(e)}
+135 |     
+    | ^^^^
+136 |     async def create_animation_clip(self, clip_name: str, duration: float, 
+137 |                                   keyframes: List[Dict[str, Any]]) -> Dict[str, Any]:
+    |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:136:75
+    |
+134 |             return {"status": "error", "message": str(e)}
+135 |     
+136 |     async def create_animation_clip(self, clip_name: str, duration: float, 
+    |                                                                           ^
+137 |                                   keyframes: List[Dict[str, Any]]) -> Dict[str, Any]:
+138 |         """Create animation clip with keyframes."""
+    |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:141:1
+    |
+139 |         try:
+140 |             clip_path = f"Assets/Animations/{clip_name}.anim"
+141 |             
+    | ^^^^^^^^^^^^
+142 |             animation_data = {
+143 |                 "name": clip_name,
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:149:1
+    |
+147 |                 "curves": []
+148 |             }
+149 |             
+    | ^^^^^^^^^^^^
+150 |             # Process keyframes into animation curves
+151 |             for keyframe in keyframes:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:160:1
+    |
+158 |                 }
+159 |                 animation_data["curves"].append(curve)
+160 |             
+    | ^^^^^^^^^^^^
+161 |             return {
+162 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\avatar\__init__.py:169:1
+    |
+167 |                 "animation_data": animation_data
+168 |             }
+169 |             
+    | ^^^^^^^^^^^^
+170 |         except Exception as e:
+171 |             logger.error(f"Failed to create animation clip: {e}")
+    |
+help: Remove whitespace from blank line
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\build\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.List` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:11:31
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                               ^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:17:1
+   |
+15 | class BuildManager:
+16 |     """Manages Unity build pipeline operations."""
+17 |     
+   | ^^^^
+18 |     def __init__(self, config):
+19 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:20:1
+   |
+18 |     def __init__(self, config):
+19 |         self.config = config
+20 |     
+   | ^^^^
+21 |     async def build_project(self, project_path: str, build_target: str, output_path: str, 
+22 |                           development_build: bool = False) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\build\__init__.py:21:90
+   |
+19 |         self.config = config
+20 |     
+21 |     async def build_project(self, project_path: str, build_target: str, output_path: str, 
+   |                                                                                          ^
+22 |                           development_build: bool = False) -> Dict[str, Any]:
+23 |         """Build Unity project for target platform."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:30:1
+   |
+28 |                 "Android", "iOS", "WebGL", "WSAPlayer"
+29 |             ]
+30 |             
+   | ^^^^^^^^^^^^
+31 |             if build_target not in valid_targets:
+32 |                 return {"status": "error", "message": f"Invalid build target: {build_target}"}
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:33:1
+   |
+31 |             if build_target not in valid_targets:
+32 |                 return {"status": "error", "message": f"Invalid build target: {build_target}"}
+33 |             
+   | ^^^^^^^^^^^^
+34 |             # Create output directory
+35 |             Path(output_path).mkdir(parents=True, exist_ok=True)
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:36:1
+   |
+34 |             # Create output directory
+35 |             Path(output_path).mkdir(parents=True, exist_ok=True)
+36 |             
+   | ^^^^^^^^^^^^
+37 |             build_config = {
+38 |                 "project_path": project_path,
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:48:1
+   |
+46 |                 "build_options": []
+47 |             }
+48 |             
+   | ^^^^^^^^^^^^
+49 |             if development_build:
+50 |                 build_config["build_options"].extend([
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:55:1
+   |
+53 |                     "ConnectWithProfiler"
+54 |                 ])
+55 |             
+   | ^^^^^^^^^^^^
+56 |             # Simulate build process
+57 |             build_result = {
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:69:1
+   |
+67 |                 "configuration": build_config
+68 |             }
+69 |             
+   | ^^^^^^^^^^^^
+70 |             return build_result
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:71:1
+   |
+70 |             return build_result
+71 |             
+   | ^^^^^^^^^^^^
+72 |         except Exception as e:
+73 |             logger.error(f"Failed to build project: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:75:1
+   |
+73 |             logger.error(f"Failed to build project: {e}")
+74 |             return {"status": "error", "message": str(e)}
+75 |     
+   | ^^^^
+76 |     async def get_build_settings(self, project_path: str) -> Dict[str, Any]:
+77 |         """Get current build settings for project."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\build\__init__.py:93:1
+   |
+91 |                 "script_debugging": False
+92 |             }
+93 |             
+   | ^^^^^^^^^^^^
+94 |             return {
+95 |                 "status": "success",
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:99:1
+    |
+ 97 |                 "build_settings": build_settings
+ 98 |             }
+ 99 |             
+    | ^^^^^^^^^^^^
+100 |         except Exception as e:
+101 |             logger.error(f"Failed to get build settings: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:106:1
+    |
+104 | class PlatformManager:
+105 |     """Manages platform-specific configurations."""
+106 |     
+    | ^^^^
+107 |     def __init__(self, config):
+108 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:109:1
+    |
+107 |     def __init__(self, config):
+108 |         self.config = config
+109 |     
+    | ^^^^
+110 |     async def switch_platform(self, project_path: str, target_platform: str) -> Dict[str, Any]:
+111 |         """Switch Unity project to target platform."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:145:1
+    |
+143 |                 }
+144 |             }
+145 |             
+    | ^^^^^^^^^^^^
+146 |             if target_platform not in platform_configs:
+147 |                 return {"status": "error", "message": f"Unsupported platform: {target_platform}"}
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:148:1
+    |
+146 |             if target_platform not in platform_configs:
+147 |                 return {"status": "error", "message": f"Unsupported platform: {target_platform}"}
+148 |             
+    | ^^^^^^^^^^^^
+149 |             config = platform_configs[target_platform]
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:150:1
+    |
+149 |             config = platform_configs[target_platform]
+150 |             
+    | ^^^^^^^^^^^^
+151 |             return {
+152 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:159:1
+    |
+157 |                 "reimport_required": True
+158 |             }
+159 |             
+    | ^^^^^^^^^^^^
+160 |         except Exception as e:
+161 |             logger.error(f"Failed to switch platform: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:163:1
+    |
+161 |             logger.error(f"Failed to switch platform: {e}")
+162 |             return {"status": "error", "message": str(e)}
+163 |     
+    | ^^^^
+164 |     async def optimize_for_platform(self, project_path: str, platform: str) -> Dict[str, Any]:
+165 |         """Apply platform-specific optimizations."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:190:1
+    |
+188 |                 }
+189 |             }
+190 |             
+    | ^^^^^^^^^^^^
+191 |             if platform not in optimization_configs:
+192 |                 return {"status": "error", "message": f"No optimizations available for: {platform}"}
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:193:1
+    |
+191 |             if platform not in optimization_configs:
+192 |                 return {"status": "error", "message": f"No optimizations available for: {platform}"}
+193 |             
+    | ^^^^^^^^^^^^
+194 |             optimizations = optimization_configs[platform]
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:195:1
+    |
+194 |             optimizations = optimization_configs[platform]
+195 |             
+    | ^^^^^^^^^^^^
+196 |             return {
+197 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\build\__init__.py:204:1
+    |
+202 |                 "estimated_performance_gain": "15-30%"
+203 |             }
+204 |             
+    | ^^^^^^^^^^^^
+205 |         except Exception as e:
+206 |             logger.error(f"Failed to optimize for platform: {e}")
+    |
+help: Remove whitespace from blank line
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | import subprocess
+   |
+help: Remove unused import: `json`
+
+F401 `subprocess` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:10:8
+   |
+ 8 | import json
+ 9 | import logging
+10 | import subprocess
+   |        ^^^^^^^^^^
+11 | from pathlib import Path
+12 | from typing import Any, Dict, List, Optional
+   |
+help: Remove unused import: `subprocess`
+
+F401 `typing.List` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:12:31
+   |
+10 | import subprocess
+11 | from pathlib import Path
+12 | from typing import Any, Dict, List, Optional
+   |                               ^^^^
+13 |
+14 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.List`
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:18:1
+   |
+16 | class UnityEditorManager:
+17 |     """Manages Unity Editor instances and operations."""
+18 |     
+   | ^^^^
+19 |     def __init__(self, config):
+20 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:22:1
+   |
+20 |         self.config = config
+21 |         self.active_processes = {}
+22 |     
+   | ^^^^
+23 |     async def launch_editor(self, project_path: str, unity_version: str = "", 
+24 |                           batch_mode: bool = False, no_graphics: bool = False) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\core\__init__.py:23:78
+   |
+21 |         self.active_processes = {}
+22 |     
+23 |     async def launch_editor(self, project_path: str, unity_version: str = "", 
+   |                                                                              ^
+24 |                           batch_mode: bool = False, no_graphics: bool = False) -> Dict[str, Any]:
+25 |         """Launch Unity Editor with specified options."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:30:1
+   |
+28 |             if not unity_path:
+29 |                 return {"status": "error", "message": "Unity Editor not found"}
+30 |             
+   | ^^^^^^^^^^^^
+31 |             args = [unity_path, "-projectPath", project_path]
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:32:1
+   |
+31 |             args = [unity_path, "-projectPath", project_path]
+32 |             
+   | ^^^^^^^^^^^^
+33 |             if batch_mode:
+34 |                 args.append("-batchmode")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:37:1
+   |
+35 |             if no_graphics:
+36 |                 args.append("-nographics")
+37 |             
+   | ^^^^^^^^^^^^
+38 |             process = await asyncio.create_subprocess_exec(
+39 |                 *args,
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:43:1
+   |
+41 |                 stderr=asyncio.subprocess.PIPE
+42 |             )
+43 |             
+   | ^^^^^^^^^^^^
+44 |             self.active_processes[project_path] = process
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:45:1
+   |
+44 |             self.active_processes[project_path] = process
+45 |             
+   | ^^^^^^^^^^^^
+46 |             return {
+47 |                 "status": "success",
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:52:1
+   |
+50 |                 "unity_path": unity_path
+51 |             }
+52 |             
+   | ^^^^^^^^^^^^
+53 |         except Exception as e:
+54 |             logger.error(f"Failed to launch Unity Editor: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:56:1
+   |
+54 |             logger.error(f"Failed to launch Unity Editor: {e}")
+55 |             return {"status": "error", "message": str(e)}
+56 |     
+   | ^^^^
+57 |     async def execute_method(self, class_name: str, method_name: str, 
+58 |                            parameters: Dict[str, Any] = {}, project_path: str = "") -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\core\__init__.py:57:70
+   |
+55 |             return {"status": "error", "message": str(e)}
+56 |     
+57 |     async def execute_method(self, class_name: str, method_name: str, 
+   |                                                                      ^
+58 |                            parameters: Dict[str, Any] = {}, project_path: str = "") -> Dict[str, Any]:
+59 |         """Execute Unity Editor method via command line."""
+   |
+help: Remove trailing whitespace
+
+E501 Line too long (102 > 100)
+  --> src\unity3d_mcp\core\__init__.py:58:101
+   |
+57 |     async def execute_method(self, class_name: str, method_name: str, 
+58 |                            parameters: Dict[str, Any] = {}, project_path: str = "") -> Dict[str, Any]:
+   |                                                                                                     ^^
+59 |         """Execute Unity Editor method via command line."""
+60 |         try:
+   |
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:64:1
+   |
+62 |             if not unity_path:
+63 |                 return {"status": "error", "message": "Unity Editor not found"}
+64 |             
+   | ^^^^^^^^^^^^
+65 |             # Build method execution command
+66 |             method_call = f"{class_name}.{method_name}"
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:67:1
+   |
+65 |             # Build method execution command
+66 |             method_call = f"{class_name}.{method_name}"
+67 |             
+   | ^^^^^^^^^^^^
+68 |             args = [
+69 |                 unity_path,
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:74:1
+   |
+72 |                 "-executeMethod", method_call
+73 |             ]
+74 |             
+   | ^^^^^^^^^^^^
+75 |             if project_path:
+76 |                 args.extend(["-projectPath", project_path])
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:77:1
+   |
+75 |             if project_path:
+76 |                 args.extend(["-projectPath", project_path])
+77 |             
+   | ^^^^^^^^^^^^
+78 |             # Add parameters as command line arguments
+79 |             for key, value in parameters.items():
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:81:1
+   |
+79 |             for key, value in parameters.items():
+80 |                 args.extend([f"-{key}", str(value)])
+81 |             
+   | ^^^^^^^^^^^^
+82 |             result = await asyncio.create_subprocess_exec(
+83 |                 *args,
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:87:1
+   |
+85 |                 stderr=asyncio.subprocess.PIPE
+86 |             )
+87 |             
+   | ^^^^^^^^^^^^
+88 |             stdout, stderr = await result.communicate()
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\core\__init__.py:89:1
+   |
+88 |             stdout, stderr = await result.communicate()
+89 |             
+   | ^^^^^^^^^^^^
+90 |             return {
+91 |                 "status": "success" if result.returncode == 0 else "error",
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:98:1
+    |
+ 96 |                 "parameters": parameters
+ 97 |             }
+ 98 |             
+    | ^^^^^^^^^^^^
+ 99 |         except Exception as e:
+100 |             logger.error(f"Failed to execute Unity method: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:102:1
+    |
+100 |             logger.error(f"Failed to execute Unity method: {e}")
+101 |             return {"status": "error", "message": str(e)}
+102 |     
+    | ^^^^
+103 |     async def _resolve_unity_path(self, version: str = "") -> Optional[str]:
+104 |         """Resolve Unity Editor executable path."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:107:1
+    |
+105 |         if self.config.unity_editor_path and Path(self.config.unity_editor_path).exists():
+106 |             return self.config.unity_editor_path
+107 |         
+    | ^^^^^^^^
+108 |         # Auto-detect Unity installation
+109 |         if self.config.auto_detect_unity:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:115:1
+    |
+113 |                 r"C:\Program Files (x86)\Unity\Editor\Unity.exe"
+114 |             ]
+115 |             
+    | ^^^^^^^^^^^^
+116 |             for path_template in common_paths:
+117 |                 if version:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:121:1
+    |
+119 |                 else:
+120 |                     path = path_template.replace(r"\{version}", "")
+121 |                 
+    | ^^^^^^^^^^^^^^^^
+122 |                 if Path(path).exists():
+123 |                     return path
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:124:1
+    |
+122 |                 if Path(path).exists():
+123 |                     return path
+124 |         
+    | ^^^^^^^^
+125 |         return None
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:129:1
+    |
+127 | class ProjectManager:
+128 |     """Manages Unity project operations."""
+129 |     
+    | ^^^^
+130 |     def __init__(self, config):
+131 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:132:1
+    |
+130 |     def __init__(self, config):
+131 |         self.config = config
+132 |     
+    | ^^^^
+133 |     async def create_project(self, project_name: str, project_path: str, 
+134 |                            template: str = "3D", unity_version: str = "") -> Dict[str, Any]:
+    |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+   --> src\unity3d_mcp\core\__init__.py:133:73
+    |
+131 |         self.config = config
+132 |     
+133 |     async def create_project(self, project_name: str, project_path: str, 
+    |                                                                         ^
+134 |                            template: str = "3D", unity_version: str = "") -> Dict[str, Any]:
+135 |         """Create new Unity project."""
+    |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:140:1
+    |
+138 |             if not unity_path:
+139 |                 return {"status": "error", "message": "Unity Editor not found"}
+140 |             
+    | ^^^^^^^^^^^^
+141 |             full_project_path = Path(project_path) / project_name
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:142:1
+    |
+141 |             full_project_path = Path(project_path) / project_name
+142 |             
+    | ^^^^^^^^^^^^
+143 |             args = [
+144 |                 unity_path,
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:150:1
+    |
+148 |                 "-projectTemplate", template
+149 |             ]
+150 |             
+    | ^^^^^^^^^^^^
+151 |             result = await asyncio.create_subprocess_exec(
+152 |                 *args,
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:156:1
+    |
+154 |                 stderr=asyncio.subprocess.PIPE
+155 |             )
+156 |             
+    | ^^^^^^^^^^^^
+157 |             await result.communicate()
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:158:1
+    |
+157 |             await result.communicate()
+158 |             
+    | ^^^^^^^^^^^^
+159 |             if result.returncode == 0:
+160 |                 return {
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:171:1
+    |
+169 |                     "message": f"Failed to create project (return code: {result.returncode})"
+170 |                 }
+171 |                 
+    | ^^^^^^^^^^^^^^^^
+172 |         except Exception as e:
+173 |             logger.error(f"Failed to create Unity project: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:175:1
+    |
+173 |             logger.error(f"Failed to create Unity project: {e}")
+174 |             return {"status": "error", "message": str(e)}
+175 |     
+    | ^^^^
+176 |     async def _resolve_unity_path(self, version: str = "") -> Optional[str]:
+177 |         """Resolve Unity Editor path."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:184:1
+    |
+182 | class SceneManager:
+183 |     """Manages Unity scene operations."""
+184 |     
+    | ^^^^
+185 |     def __init__(self, config):
+186 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:187:1
+    |
+185 |     def __init__(self, config):
+186 |         self.config = config
+187 |     
+    | ^^^^
+188 |     async def create_scene(self, scene_name: str, project_path: str, 
+189 |                          template: str = "Basic") -> Dict[str, Any]:
+    |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+   --> src\unity3d_mcp\core\__init__.py:188:69
+    |
+186 |         self.config = config
+187 |     
+188 |     async def create_scene(self, scene_name: str, project_path: str, 
+    |                                                                     ^
+189 |                          template: str = "Basic") -> Dict[str, Any]:
+190 |         """Create new Unity scene."""
+    |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\core\__init__.py:200:1
+    |
+198 |                 "template": template
+199 |             }
+200 |             
+    | ^^^^^^^^^^^^
+201 |         except Exception as e:
+202 |             logger.error(f"Failed to create scene: {e}")
+    |
+help: Remove whitespace from blank line
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src\unity3d_mcp\utils\__init__.py:7:1
+   |
+ 5 |   """
+ 6 |
+ 7 | / import logging
+ 8 | | import json
+ 9 | | from pathlib import Path
+10 | | from typing import Any, Dict, List, Optional, Union
+   | |___________________________________________________^
+11 |
+12 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+
+F401 `typing.Union` imported but unused
+  --> src\unity3d_mcp\utils\__init__.py:10:47
+   |
+ 8 | import json
+ 9 | from pathlib import Path
+10 | from typing import Any, Dict, List, Optional, Union
+   |                                               ^^^^^
+11 |
+12 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Union`
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:16:1
+   |
+14 | class UnityPathResolver:
+15 |     """Resolves Unity Editor and project paths."""
+16 |     
+   | ^^^^
+17 |     def __init__(self, config):
+18 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:19:1
+   |
+17 |     def __init__(self, config):
+18 |         self.config = config
+19 |     
+   | ^^^^
+20 |     def find_unity_installations(self) -> List[Dict[str, str]]:
+21 |         """Find all Unity Editor installations."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:23:1
+   |
+21 |         """Find all Unity Editor installations."""
+22 |         installations = []
+23 |         
+   | ^^^^^^^^
+24 |         # Unity Hub installations
+25 |         hub_path = Path.home() / "AppData/Roaming/UnityHub/editors.json"
+   |
+help: Remove whitespace from blank line
+
+UP015 [*] Unnecessary mode argument
+  --> src\unity3d_mcp\utils\__init__.py:28:37
+   |
+26 |         if hub_path.exists():
+27 |             try:
+28 |                 with open(hub_path, 'r') as f:
+   |                                     ^^^
+29 |                     editors_data = json.load(f)
+30 |                     for editor_id, editor_info in editors_data.items():
+   |
+help: Remove mode argument
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:38:1
+   |
+36 |             except Exception as e:
+37 |                 logger.warning(f"Failed to parse Unity Hub editors: {e}")
+38 |         
+   | ^^^^^^^^
+39 |         # Manual installations
+40 |         common_paths = [
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:44:1
+   |
+42 |             r"C:\Program Files (x86)\Unity\Editor\Unity.exe"
+43 |         ]
+44 |         
+   | ^^^^^^^^
+45 |         for path_str in common_paths:
+46 |             path = Path(path_str)
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:53:1
+   |
+51 |                     "source": "Manual Installation"
+52 |                 })
+53 |         
+   | ^^^^^^^^
+54 |         return installations
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:55:1
+   |
+54 |         return installations
+55 |     
+   | ^^^^
+56 |     def resolve_project_path(self, project_identifier: str) -> Optional[str]:
+57 |         """Resolve project path from name or path."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:59:1
+   |
+57 |         """Resolve project path from name or path."""
+58 |         path = Path(project_identifier)
+59 |         
+   | ^^^^^^^^
+60 |         # If it's already a valid path, return it
+61 |         if path.exists() and (path / "Assets").exists():
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:63:1
+   |
+61 |         if path.exists() and (path / "Assets").exists():
+62 |             return str(path)
+63 |         
+   | ^^^^^^^^
+64 |         # Search common Unity project locations
+65 |         search_paths = [
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:70:1
+   |
+68 |             Path("C:/Unity Projects")
+69 |         ]
+70 |         
+   | ^^^^^^^^
+71 |         for search_path in search_paths:
+72 |             if search_path.exists():
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:76:1
+   |
+74 |                 if project_path.exists() and (project_path / "Assets").exists():
+75 |                     return str(project_path)
+76 |         
+   | ^^^^^^^^
+77 |         return None
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:81:1
+   |
+79 | class ConfigManager:
+80 |     """Manages Unity3D MCP configuration."""
+81 |     
+   | ^^^^
+82 |     def __init__(self, config):
+83 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:85:1
+   |
+83 |         self.config = config
+84 |         self.config_file = Path.home() / ".unity3d_mcp_config.json"
+85 |     
+   | ^^^^
+86 |     def load_config(self) -> Dict[str, Any]:
+87 |         """Load configuration from file."""
+   |
+help: Remove whitespace from blank line
+
+UP015 [*] Unnecessary mode argument
+  --> src\unity3d_mcp\utils\__init__.py:90:45
+   |
+88 |         if self.config_file.exists():
+89 |             try:
+90 |                 with open(self.config_file, 'r') as f:
+   |                                             ^^^
+91 |                     return json.load(f)
+92 |             except Exception as e:
+   |
+help: Remove mode argument
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:94:1
+   |
+92 |             except Exception as e:
+93 |                 logger.warning(f"Failed to load config: {e}")
+94 |         
+   | ^^^^^^^^
+95 |         return {}
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\utils\__init__.py:96:1
+   |
+95 |         return {}
+96 |     
+   | ^^^^
+97 |     def save_config(self, config_data: Dict[str, Any]) -> bool:
+98 |         """Save configuration to file."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:106:1
+    |
+104 |             logger.error(f"Failed to save config: {e}")
+105 |             return False
+106 |     
+    | ^^^^
+107 |     def get_recent_projects(self) -> List[str]:
+108 |         """Get list of recently used Unity projects."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:111:1
+    |
+109 |         config = self.load_config()
+110 |         return config.get("recent_projects", [])
+111 |     
+    | ^^^^
+112 |     def add_recent_project(self, project_path: str) -> None:
+113 |         """Add project to recent projects list."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:116:1
+    |
+114 |         config = self.load_config()
+115 |         recent = config.get("recent_projects", [])
+116 |         
+    | ^^^^^^^^
+117 |         # Remove if already exists
+118 |         if project_path in recent:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:120:1
+    |
+118 |         if project_path in recent:
+119 |             recent.remove(project_path)
+120 |         
+    | ^^^^^^^^
+121 |         # Add to front
+122 |         recent.insert(0, project_path)
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:123:1
+    |
+121 |         # Add to front
+122 |         recent.insert(0, project_path)
+123 |         
+    | ^^^^^^^^
+124 |         # Keep only last 10
+125 |         recent = recent[:10]
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:126:1
+    |
+124 |         # Keep only last 10
+125 |         recent = recent[:10]
+126 |         
+    | ^^^^^^^^
+127 |         config["recent_projects"] = recent
+128 |         self.save_config(config)
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:132:1
+    |
+130 | class LogManager:
+131 |     """Manages logging configuration."""
+132 |     
+    | ^^^^
+133 |     def __init__(self, config):
+134 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:136:1
+    |
+134 |         self.config = config
+135 |         self.setup_logging()
+136 |     
+    | ^^^^
+137 |     def setup_logging(self) -> None:
+138 |         """Setup logging configuration."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:140:1
+    |
+138 |         """Setup logging configuration."""
+139 |         log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
+140 |         
+    | ^^^^^^^^
+141 |         # Configure root logger
+142 |         logging.basicConfig(
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:150:1
+    |
+148 |             ]
+149 |         )
+150 |         
+    | ^^^^^^^^
+151 |         # Set specific logger levels
+152 |         logging.getLogger("unity3d_mcp").setLevel(log_level)
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:154:1
+    |
+152 |         logging.getLogger("unity3d_mcp").setLevel(log_level)
+153 |         logging.getLogger("asyncio").setLevel(logging.WARNING)
+154 |     
+    | ^^^^
+155 |     def get_log_file_path(self) -> str:
+156 |         """Get path to log file."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:161:1
+    |
+159 | class UnityVersionResolver:
+160 |     """Resolves Unity version requirements."""
+161 |     
+    | ^^^^
+162 |     def __init__(self):
+163 |         self.version_compatibility = {
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:169:1
+    |
+167 |             "HDRP": ["2019.4", "2020.3", "2021.3", "2022.3"]
+168 |         }
+169 |     
+    | ^^^^
+170 |     def get_recommended_version(self, requirements: List[str]) -> Optional[str]:
+171 |         """Get recommended Unity version for requirements."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:174:1
+    |
+172 |         if not requirements:
+173 |             return "2022.3"  # Latest LTS
+174 |         
+    | ^^^^^^^^
+175 |         compatible_versions = None
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:176:1
+    |
+175 |         compatible_versions = None
+176 |         
+    | ^^^^^^^^
+177 |         for requirement in requirements:
+178 |             req_versions = set(self.version_compatibility.get(requirement, []))
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:183:1
+    |
+181 |             else:
+182 |                 compatible_versions = compatible_versions.intersection(req_versions)
+183 |         
+    | ^^^^^^^^
+184 |         if compatible_versions:
+185 |             # Return newest compatible version
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:187:1
+    |
+185 |             # Return newest compatible version
+186 |             return max(compatible_versions)
+187 |         
+    | ^^^^^^^^
+188 |         return "2022.3"  # Fallback to latest LTS
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:189:1
+    |
+188 |         return "2022.3"  # Fallback to latest LTS
+189 |     
+    | ^^^^
+190 |     def check_compatibility(self, unity_version: str, requirements: List[str]) -> Dict[str, bool]:
+191 |         """Check compatibility of Unity version with requirements."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:193:1
+    |
+191 |         """Check compatibility of Unity version with requirements."""
+192 |         compatibility = {}
+193 |         
+    | ^^^^^^^^
+194 |         for requirement in requirements:
+195 |             compatible_versions = self.version_compatibility.get(requirement, [])
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:197:1
+    |
+195 |             compatible_versions = self.version_compatibility.get(requirement, [])
+196 |             compatibility[requirement] = unity_version in compatible_versions
+197 |         
+    | ^^^^^^^^
+198 |         return compatibility
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:202:1
+    |
+200 | class PerformanceProfiler:
+201 |     """Performance profiling utilities."""
+202 |     
+    | ^^^^
+203 |     def __init__(self):
+204 |         self.profiles = {}
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:205:1
+    |
+203 |     def __init__(self):
+204 |         self.profiles = {}
+205 |     
+    | ^^^^
+206 |     def profile_avatar(self, avatar_data: Dict[str, Any]) -> Dict[str, Any]:
+207 |         """Profile avatar performance metrics."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:211:1
+    |
+209 |         material_count = avatar_data.get("material_count", 0)
+210 |         texture_memory = avatar_data.get("texture_memory_mb", 0)
+211 |         
+    | ^^^^^^^^
+212 |         # VRChat performance ranking
+213 |         rank = "Excellent"
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:220:1
+    |
+218 |         if polygon_count > 70000 or material_count > 8 or texture_memory > 128:
+219 |             rank = "Poor"
+220 |         
+    | ^^^^^^^^
+221 |         recommendations = []
+222 |         if polygon_count > 20000:
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\utils\__init__.py:228:1
+    |
+226 |         if texture_memory > 40:
+227 |             recommendations.append("Optimize texture sizes and compression")
+228 |         
+    | ^^^^^^^^
+229 |         return {
+230 |             "performance_rank": rank,
+    |
+help: Remove whitespace from blank line
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\vrchat\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `pathlib.Path` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:10:21
+   |
+ 8 | import json
+ 9 | import logging
+10 | from pathlib import Path
+   |                     ^^^^
+11 | from typing import Any, Dict, List, Optional
+   |
+help: Remove unused import: `pathlib.Path`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:17:1
+   |
+15 | class VRChatSDKManager:
+16 |     """Manages VRChat SDK operations."""
+17 |     
+   | ^^^^
+18 |     def __init__(self, config):
+19 |         self.config = config
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:20:1
+   |
+18 |     def __init__(self, config):
+19 |         self.config = config
+20 |     
+   | ^^^^
+21 |     async def upload_avatar(self, avatar_prefab: str, avatar_name: str, 
+22 |                           description: str = "", tags: List[str] = []) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:21:72
+   |
+19 |         self.config = config
+20 |     
+21 |     async def upload_avatar(self, avatar_prefab: str, avatar_name: str, 
+   |                                                                        ^
+22 |                           description: str = "", tags: List[str] = []) -> Dict[str, Any]:
+23 |         """Upload avatar to VRChat using SDK."""
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:28:1
+   |
+26 |             if not avatar_prefab.endswith('.prefab'):
+27 |                 return {"status": "error", "message": "Invalid prefab file"}
+28 |             
+   | ^^^^^^^^^^^^
+29 |             # VRChat avatar validation
+30 |             validation_results = await self._validate_avatar(avatar_prefab)
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:33:39
+   |
+31 |             if not validation_results["valid"]:
+32 |                 return {
+33 |                     "status": "error", 
+   |                                       ^
+34 |                     "message": "Avatar validation failed",
+35 |                     "validation_errors": validation_results["errors"]
+   |
+help: Remove trailing whitespace
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:37:1
+   |
+35 |                     "validation_errors": validation_results["errors"]
+36 |                 }
+37 |             
+   | ^^^^^^^^^^^^
+38 |             # Simulate upload process
+39 |             upload_result = {
+   |
+help: Remove whitespace from blank line
+
+E501 Line too long (102 > 100)
+  --> src\unity3d_mcp\vrchat\__init__.py:52:101
+   |
+50 |                 "material_count": validation_results["material_count"],
+51 |                 "texture_memory": validation_results["texture_memory"],
+52 |                 "vrchat_url": f"https://vrchat.com/home/avatar/avtr_{hash(avatar_name) % 1000000:06d}"
+   |                                                                                                     ^^
+53 |             }
+   |
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:54:1
+   |
+52 |                 "vrchat_url": f"https://vrchat.com/home/avatar/avtr_{hash(avatar_name) % 1000000:06d}"
+53 |             }
+54 |             
+   | ^^^^^^^^^^^^
+55 |             return upload_result
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:56:1
+   |
+55 |             return upload_result
+56 |             
+   | ^^^^^^^^^^^^
+57 |         except Exception as e:
+58 |             logger.error(f"Failed to upload avatar: {e}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:60:1
+   |
+58 |             logger.error(f"Failed to upload avatar: {e}")
+59 |             return {"status": "error", "message": str(e)}
+60 |     
+   | ^^^^
+61 |     async def _validate_avatar(self, avatar_prefab: str) -> Dict[str, Any]:
+62 |         """Validate avatar against VRChat requirements."""
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:79:1
+   |
+77 |             "contacts": 0
+78 |         }
+79 |         
+   | ^^^^^^^^
+80 |         # Check polygon limits
+81 |         if validation["polygon_count"] > 70000:
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:84:1
+   |
+82 |             validation["errors"].append("Polygon count exceeds VRChat limits")
+83 |             validation["valid"] = False
+84 |         
+   | ^^^^^^^^
+85 |         # Check texture memory
+86 |         texture_mb = float(validation["texture_memory"].replace(" MB", ""))
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:90:1
+   |
+88 |             validation["warnings"].append("High texture memory usage")
+89 |             validation["performance_rank"] = "Poor"
+90 |         
+   | ^^^^^^^^
+91 |         return validation
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:92:1
+   |
+91 |         return validation
+92 |     
+   | ^^^^
+93 |     async def setup_avatar_descriptor(self, avatar_prefab: str, 
+94 |                                     viewpoint_position: List[float] = [0, 1.6, 0]) -> Dict[str, Any]:
+   |
+help: Remove whitespace from blank line
+
+W291 [*] Trailing whitespace
+  --> src\unity3d_mcp\vrchat\__init__.py:93:64
+   |
+91 |         return validation
+92 |     
+93 |     async def setup_avatar_descriptor(self, avatar_prefab: str, 
+   |                                                                ^
+94 |                                     viewpoint_position: List[float] = [0, 1.6, 0]) -> Dict[str, Any]:
+95 |         """Setup VRC Avatar Descriptor component."""
+   |
+help: Remove trailing whitespace
+
+E501 Line too long (101 > 100)
+  --> src\unity3d_mcp\vrchat\__init__.py:94:101
+   |
+93 |     async def setup_avatar_descriptor(self, avatar_prefab: str, 
+94 |                                     viewpoint_position: List[float] = [0, 1.6, 0]) -> Dict[str, Any]:
+   |                                                                                                     ^
+95 |         """Setup VRC Avatar Descriptor component."""
+96 |         try:
+   |
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:128:1
+    |
+126 |                 }
+127 |             }
+128 |             
+    | ^^^^^^^^^^^^
+129 |             return {
+130 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:135:1
+    |
+133 |                 "descriptor_configuration": descriptor_config
+134 |             }
+135 |             
+    | ^^^^^^^^^^^^
+136 |         except Exception as e:
+137 |             logger.error(f"Failed to setup avatar descriptor: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:142:1
+    |
+140 | class OSCManager:
+141 |     """Manages OSC communication with VRChat."""
+142 |     
+    | ^^^^
+143 |     def __init__(self, config):
+144 |         self.config = config
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:147:1
+    |
+145 |         self.osc_client = None
+146 |         self.osc_server = None
+147 |     
+    | ^^^^
+148 |     async def start_osc_server(self, port: int = 9001) -> Dict[str, Any]:
+149 |         """Start OSC server for receiving VRChat data."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:162:1
+    |
+160 |                 ]
+161 |             }
+162 |             
+    | ^^^^^^^^^^^^
+163 |             return {
+164 |                 "status": "success",
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:168:1
+    |
+166 |                 "configuration": server_config
+167 |             }
+168 |             
+    | ^^^^^^^^^^^^
+169 |         except Exception as e:
+170 |             logger.error(f"Failed to start OSC server: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:172:1
+    |
+170 |             logger.error(f"Failed to start OSC server: {e}")
+171 |             return {"status": "error", "message": str(e)}
+172 |     
+    | ^^^^
+173 |     async def send_avatar_parameter(self, parameter_name: str, value: Any) -> Dict[str, Any]:
+174 |         """Send avatar parameter via OSC."""
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:177:1
+    |
+175 |         try:
+176 |             osc_address = f"/avatar/parameters/{parameter_name}"
+177 |             
+    | ^^^^^^^^^^^^
+178 |             # Simulate OSC parameter send
+179 |             result = {
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:188:1
+    |
+186 |                 "timestamp": "2025-08-05T19:30:00Z"
+187 |             }
+188 |             
+    | ^^^^^^^^^^^^
+189 |             return result
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:190:1
+    |
+189 |             return result
+190 |             
+    | ^^^^^^^^^^^^
+191 |         except Exception as e:
+192 |             logger.error(f"Failed to send OSC parameter: {e}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:194:1
+    |
+192 |             logger.error(f"Failed to send OSC parameter: {e}")
+193 |             return {"status": "error", "message": str(e)}
+194 |     
+    | ^^^^
+195 |     async def send_chatbox_message(self, message: str, send_immediately: bool = True) -> Dict[str, Any]:
+196 |         """Send message to VRChat chatbox via OSC."""
+    |
+help: Remove whitespace from blank line
+
+E501 Line too long (104 > 100)
+   --> src\unity3d_mcp\vrchat\__init__.py:195:101
+    |
+193 |             return {"status": "error", "message": str(e)}
+194 |     
+195 |     async def send_chatbox_message(self, message: str, send_immediately: bool = True) -> Dict[str, Any]:
+    |                                                                                                     ^^^^
+196 |         """Send message to VRChat chatbox via OSC."""
+197 |         try:
+    |
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:206:1
+    |
+204 |                 "osc_address": "/chatbox/input"
+205 |             }
+206 |             
+    | ^^^^^^^^^^^^
+207 |             return result
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> src\unity3d_mcp\vrchat\__init__.py:208:1
+    |
+207 |             return result
+208 |             
+    | ^^^^^^^^^^^^
+209 |         except Exception as e:
+210 |             logger.error(f"Failed to send chatbox message: {e}")
+    |
+help: Remove whitespace from blank line
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\test_unity_controller.py:3:1
+  |
+1 |   '''Tests for Unity Editor controller operations.'''
+2 |
+3 | / import pytest
+4 | | from unittest.mock import Mock, patch, MagicMock
+  | |________________________________________________^
+  |
+help: Organize imports
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+ --> tests\test_unity_controller.py:4:40
+  |
+3 | import pytest
+4 | from unittest.mock import Mock, patch, MagicMock
+  |                                        ^^^^^^^^^
+  |
+help: Remove unused import: `unittest.mock.MagicMock`
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_unity_controller.py:14:1
+   |
+12 |         mock_process.poll.return_value = None  # Still running
+13 |         mock_popen.return_value = mock_process
+14 |         
+   | ^^^^^^^^
+15 |         # Would call: launch_unity_editor()
+16 |         # For now just verify mock works
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_unity_controller.py:26:1
+   |
+24 |     with patch('subprocess.run') as mock_run:
+25 |         mock_run.return_value = Mock(returncode=0, stdout='Project created')
+26 |         
+   | ^^^^^^^^
+27 |         # Would call: create_unity_project(name="TestProject")
+28 |         # Mock verification
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_unity_controller.py:38:1
+   |
+36 |     with patch('subprocess.run') as mock_run:
+37 |         mock_run.return_value = Mock(returncode=0, stdout='Build successful')
+38 |         
+   | ^^^^^^^^
+39 |         # Would call: build_project(target="Windows64")
+40 |         # Mock verification
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_unity_controller.py:50:1
+   |
+48 |     with patch('subprocess.run') as mock_run:
+49 |         mock_run.return_value = Mock(returncode=0, stdout='Scene saved')
+50 |         
+   | ^^^^^^^^
+51 |         # Would call: create_scene(name="MainScene")
+52 |         # Mock verification
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_unity_controller.py:61:1
+   |
+59 |     with patch('subprocess.run') as mock_run:
+60 |         mock_run.return_value = Mock(returncode=0, stdout='Asset imported')
+61 |         
+   | ^^^^^^^^
+62 |         # Would call: import_asset(path="model.fbx")
+63 |         # Mock verification
+   |
+help: Remove whitespace from blank line
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\test_vrchat.py:3:1
+  |
+1 |   '''Tests for VRChat SDK integration and operations.'''
+2 |
+3 | / import pytest
+4 | | from unittest.mock import Mock, patch, MagicMock
+  | |________________________________________________^
+  |
+help: Organize imports
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+ --> tests\test_vrchat.py:4:40
+  |
+3 | import pytest
+4 | from unittest.mock import Mock, patch, MagicMock
+  |                                        ^^^^^^^^^
+  |
+help: Remove unused import: `unittest.mock.MagicMock`
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:12:1
+   |
+10 |     with patch('subprocess.run') as mock_run:
+11 |         mock_run.return_value = Mock(returncode=0, stdout='SDK setup complete')
+12 |         
+   | ^^^^^^^^
+13 |         # Would call: setup_vrchat_avatar(avatar_root="Character")
+14 |         # Adds VRC Avatar Descriptor component
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:26:1
+   |
+24 |         {'name': 'HatToggle', 'type': 'Bool', 'default': True}
+25 |     ]
+26 |     
+   | ^^^^
+27 |     # VRChat limits:
+28 |     # - 16 bools, 16 ints, 16 floats
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:31:1
+   |
+29 |     bool_count = sum(1 for p in parameters if p['type'] == 'Bool')
+30 |     float_count = sum(1 for p in parameters if p['type'] == 'Float')
+31 |     
+   | ^^^^
+32 |     assert bool_count <= 16
+33 |     assert float_count <= 16
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:46:1
+   |
+44 |         'shaders_compatible': True
+45 |     }
+46 |     
+   | ^^^^
+47 |     # Validation checks before upload
+48 |     can_upload = all([
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:55:1
+   |
+53 |         avatar_valid['shaders_compatible']
+54 |     ])
+55 |     
+   | ^^^^
+56 |     assert can_upload is True
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:67:1
+   |
+65 |         {'name': 'SubMenu', 'type': 'SubMenu', 'menu': 'OtherMenu'}
+66 |     ]
+67 |     
+   | ^^^^
+68 |     # VRChat limit: 8 controls per menu
+69 |     assert len(menu_controls) <= 8
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:70:1
+   |
+68 |     # VRChat limit: 8 controls per menu
+69 |     assert len(menu_controls) <= 8
+70 |     
+   | ^^^^
+71 |     # All controls must have names and types
+72 |     for control in menu_controls:
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:83:1
+   |
+81 |         mock_client = Mock()
+82 |         mock_osc.return_value = mock_client
+83 |         
+   | ^^^^^^^^
+84 |         # Would call: send_osc_parameter(param="Smile", value=1.0)
+85 |         # OSC address: /avatar/parameters/Smile
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:86:1
+   |
+84 |         # Would call: send_osc_parameter(param="Smile", value=1.0)
+85 |         # OSC address: /avatar/parameters/Smile
+86 |         
+   | ^^^^^^^^
+87 |         client = mock_osc("127.0.0.1", 9000)
+88 |         client.send_message("/avatar/parameters/Smile", [1.0])
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+  --> tests\test_vrchat.py:89:1
+   |
+87 |         client = mock_osc("127.0.0.1", 9000)
+88 |         client.send_message("/avatar/parameters/Smile", [1.0])
+89 |         
+   | ^^^^^^^^
+90 |         mock_client.send_message.assert_called_once()
+   |
+help: Remove whitespace from blank line
+
+Found 236 errors.
+[*] 211 fixable with the `--fix` option.

@@ -1,0 +1,97 @@
+{
+  "mcpServers": {
+    "advanced-memory": {
+      "command": "py",
+      "args": [
+        "-3.13",
+        "-m",
+        "advanced_memory.mcp.server",
+        "--transport",
+        "stdio"
+      ],
+      "cwd": "D:/Dev/repos/advanced-memory-mcp",
+      "env": {
+        "PYTHONPATH": "D:/Dev/repos/advanced-memory-mcp/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "calibre": {
+      "command": "xxx python",
+      "args": [
+        "-m",
+        "calibre_mcp.server"
+      ],
+      "env": {
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "D:/Dev/repos/calibremcp/src",
+        "CALIBRE_LIBRARY_PATH": "L:/Multimedia Files/Written Word/Calibre-Bibliothek"
+      },
+      "cwd": "D:/Dev/repos/calibremcp"
+    },
+    "database-mcp": {
+      "command": "xxx py",
+      "args": [
+        "-3.13",
+        "-m",
+        "database_operations_mcp",
+        "--stdio"
+      ],
+      "cwd": "D:\\Dev\\repos\\database-operations-mcp",
+      "env": {
+        "SQLITE_DEFAULT_PATH": "L:\\Multimedia Files\\Written Word",
+        "PYTHONPATH": "D:/Dev/repos/database-operations-mcp/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "filesystem-ops": {
+      "command": "py",
+      "args": [
+        "-m",
+        "filesystem_mcp"
+      ],
+      "cwd": "d:/dev/repos/filesystem-mcp",
+      "env": {
+        "PYTHONPATH": "d:/dev/repos/filesystem-mcp/src",
+        "PYTHONUNBUFFERED": "1",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      }
+    },
+    "mcp-server-docker": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-docker"
+      ]
+    },
+    "fetch": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp/fetch"
+      ]
+    },
+    "brightdata": {
+      "command": "npx",
+      "args": [
+        "@brightdata/mcp"
+      ],
+      "env": {
+        "API_TOKEN": "991ea6a987fd04cbbb852552d8249c0f755b64055e2c7dfad9ae65ef51d4b001"
+      }
+    },
+    "fastsearch-mcp": {
+      "command": "py",
+      "args": [
+        "-3.13",
+        "-m",
+        "fastsearch_mcp"
+      ],
+      "env": {
+        "PYTHONPATH": "D:\\Dev\\repos\\fastsearch-mcp\\src",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "cwd": "D:\\Dev\\repos\\fastsearch-mcp"
+    }
+  }
+}

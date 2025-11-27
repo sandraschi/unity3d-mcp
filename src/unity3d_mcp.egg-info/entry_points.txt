@@ -1,0 +1,2 @@
+[console_scripts]
+unity3d-mcp = unity3d_mcp.server:main

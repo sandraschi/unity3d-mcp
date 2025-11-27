@@ -1,0 +1,29 @@
+.venv/
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.github/
+test_output.txt
+
+# 3D model files (large binaries)
+*.vrm
+*.fbx
+*.blend
+
+# Exception: keep test fixture placeholder
+!tests/fixtures/.gitkeep
+
+# Coverage
+coverage_html/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log

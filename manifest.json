@@ -1,0 +1,26 @@
+{
+    "manifest_version": "0.2",
+    "name": "unity3d-mcp",
+    "version": "1.0.0",
+    "description": "Comprehensive Unity 3D game development automation with VRM avatar pipeline and VRChat integration - Professional game development workflows with Austrian precision",
+    "author": {
+        "name": "Sandra",
+        "email": "sandra@example.com"
+    },
+    "license": "MIT",
+    "server": {
+        "type": "python",
+        "entry_point": "src/unity3d_mcp/server.py",
+        "mcp_config": {
+            "command": "python",
+            "args": [
+                "-m",
+                "unity3d_mcp.server"
+            ],
+            "env": {
+                "PYTHONPATH": "${PWD}",
+                "PYTHONUNBUFFERED": "1"
+            }
+        }
+    }
+}

@@ -1,0 +1,221 @@
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\assets\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\assets\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\assets\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\avatar\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\avatar\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\avatar\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\build\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `typing.List` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:11:31
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                               ^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\build\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | import subprocess
+   |
+help: Remove unused import: `json`
+
+F401 `subprocess` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:10:8
+   |
+ 8 | import json
+ 9 | import logging
+10 | import subprocess
+   |        ^^^^^^^^^^
+11 | from pathlib import Path
+12 | from typing import Any, Dict, List, Optional
+   |
+help: Remove unused import: `subprocess`
+
+F401 `typing.List` imported but unused
+  --> src\unity3d_mcp\core\__init__.py:12:31
+   |
+10 | import subprocess
+11 | from pathlib import Path
+12 | from typing import Any, Dict, List, Optional
+   |                               ^^^^
+13 |
+14 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.List`
+
+F401 `typing.Union` imported but unused
+  --> src\unity3d_mcp\utils\__init__.py:10:47
+   |
+ 8 | import logging
+ 9 | from pathlib import Path
+10 | from typing import Any, Dict, List, Optional, Union
+   |                                               ^^^^^
+11 |
+12 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Union`
+
+F401 `asyncio` imported but unused
+ --> src\unity3d_mcp\vrchat\__init__.py:7:8
+  |
+5 | """
+6 |
+7 | import asyncio
+  |        ^^^^^^^
+8 | import json
+9 | import logging
+  |
+help: Remove unused import: `asyncio`
+
+F401 `json` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:8:8
+   |
+ 7 | import asyncio
+ 8 | import json
+   |        ^^^^
+ 9 | import logging
+10 | from pathlib import Path
+   |
+help: Remove unused import: `json`
+
+F401 `pathlib.Path` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:10:21
+   |
+ 8 | import json
+ 9 | import logging
+10 | from pathlib import Path
+   |                     ^^^^
+11 | from typing import Any, Dict, List, Optional
+   |
+help: Remove unused import: `pathlib.Path`
+
+F401 `typing.Optional` imported but unused
+  --> src\unity3d_mcp\vrchat\__init__.py:11:37
+   |
+ 9 | import logging
+10 | from pathlib import Path
+11 | from typing import Any, Dict, List, Optional
+   |                                     ^^^^^^^^
+12 |
+13 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Optional`
+
+E501 Line too long (103 > 100)
+  --> src\unity3d_mcp\vrchat\__init__.py:54:101
+   |
+52 |                 "material_count": validation_results["material_count"],
+53 |                 "texture_memory": validation_results["texture_memory"],
+54 |                 "vrchat_url": f"https://vrchat.com/home/avatar/avtr_{hash(avatar_name) % 1000000:06d}",
+   |                                                                                                     ^^^
+55 |             }
+   |
+
+Found 19 errors.

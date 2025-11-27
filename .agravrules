@@ -1,0 +1,41 @@
+# Antigravity Rulebook (.agravrules)
+
+## 1. General Guidelines
+- Treat the repository as a **single source of truth**. All changes must be version‑controlled.
+- Use **semantic commit messages** (`feat:`, `fix:`, `docs:`, `refactor:` etc.).
+- Run the test suite (`pytest`) locally before pushing.
+- Keep the repository **clean** – no generated files (`dist/`, `__pycache__/`, `*.pyc`) in commits.
+
+## 2. Code Style
+- Follow **PEP 8** for Python code. Use `black` and `ruff` in CI.
+- Type‑annotate all public functions and classes.
+- Use **docstrings** (Google style) for every module, class, and function.
+- Limit line length to **100 characters**.
+
+## 3. MCP Configuration
+- All MCP servers must be declared in `manifest.json` under the `server` key.
+- The entry point must be a **module path** (e.g., `src/unity3d_mcp/server.py`).
+- Environment variables for MCP should be defined in `mcp_config.json` and never hard‑coded.
+
+## 4. Testing
+- Place tests in the `tests/` directory mirroring the source layout.
+- Use **pytest fixtures** for shared resources.
+- Aim for **≥ 80 % coverage**; CI will enforce this.
+
+## 5. Documentation
+- Keep high‑level docs in `docs/` (Markdown).
+- Every public API gets a corresponding entry in `docs/api/`.
+- Update the **status_report.md** after any major change.
+
+## 6. Community & Collaboration
+- Use the **`.cursorrules`** file (if present) for IDE‑specific shortcuts.
+- For Antigravity‑specific settings, refer to this `.agravrules` file.
+- Discuss breaking changes in a PR comment before merging.
+
+## 7. Release Process
+- Tag releases with `vMAJOR.MINOR.PATCH`.
+- Run `mcpb pack` to generate the distribution package.
+- Verify the package with the `build` CI job before publishing.
+
+---
+*This rulebook is version‑controlled and should evolve with the project.*

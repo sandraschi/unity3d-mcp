@@ -1,0 +1,207 @@
+Metadata-Version: 2.4
+Name: unity3d-mcp
+Version: 1.0.0
+Summary: Unity 3D MCP Server - Comprehensive Unity automation with VRM avatar pipeline and VRChat integration
+Author-email: Sandra <sandra@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/sandraschi/unity3d-mcp
+Project-URL: Bug Reports, https://github.com/sandraschi/unity3d-mcp/issues
+Project-URL: Source, https://github.com/sandraschi/unity3d-mcp
+Project-URL: Documentation, https://github.com/sandraschi/unity3d-mcp/blob/main/README.md
+Keywords: unity3d,mcp,vrm,vrchat,avatar,automation,fastmcp
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Games/Entertainment
+Classifier: Topic :: Multimedia :: Graphics :: 3D Modeling
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: fastmcp>=2.10.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: uvicorn>=0.23.0
+Requires-Dist: asyncio-mqtt>=0.11.0
+Requires-Dist: python-osc>=1.8.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pathlib
+Requires-Dist: typing-extensions>=4.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: ruff>=0.3.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: mkdocs>=1.5.0; extra == "docs"
+Requires-Dist: mkdocs-material>=9.0.0; extra == "docs"
+Requires-Dist: mkdocstrings[python]>=0.22.0; extra == "docs"
+
+# Unity3D MCP Server
+
+Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
+
+## Features
+
+### Core Unity Automation
+
+- **Unity Editor Management**: Launch, control, and automate Unity Editor
+- **Project Operations**: Create, configure, and manage Unity projects
+- **Scene Management**: Create and manipulate Unity scenes
+- **Build Pipeline**: Automated builds for multiple platforms
+
+### Avatar & VRM Pipeline
+
+- **VRM Import**: Import and configure VRM avatars for Unity
+- **Avatar Optimization**: Optimize avatars for VRChat compatibility
+- **Animation System**: Setup animator controllers and animation clips
+- **Performance Profiling**: Analyze and optimize avatar performance
+
+### Asset Management
+
+- **Package Import**: Import Unity asset packages
+- **Texture Optimization**: Platform-specific texture optimization
+- **Material Management**: Create and convert materials for VRChat
+- **Asset Organization**: Automated asset organization and versioning
+
+### VRChat Integration
+
+- **SDK Automation**: Automate VRChat SDK operations
+- **Avatar Upload**: Upload avatars to VRChat platform
+- **OSC Communication**: Real-time OSC parameter control
+- **Performance Validation**: VRChat-specific performance validation
+
+### Advanced Features
+
+- **Dual Interface**: Both stdio and HTTP interfaces
+- **FastMCP 2.10**: Modern MCP server architecture
+- **Comprehensive Logging**: Structured logging with performance metrics
+- **Platform Management**: Multi-platform build and optimization
+- **Path Resolution**: Intelligent Unity installation detection
+
+## Installation
+
+### Via Claude Desktop (DXT Package)
+
+1. Download the latest `.dxt` package from releases
+2. Install via Claude Desktop MCP settings
+3. Configure Unity Editor path in settings
+
+### Manual Installation
+
+```bash
+pip install unity3d-mcp
+```
+
+## Configuration
+
+Create a configuration file or use environment variables:
+
+```json
+{
+  "unity_editor_path": "C:/Program Files/Unity/Hub/Editor/2022.3.0f1/Editor/Unity.exe",
+  "project_path": "D:/Unity Projects",
+  "auto_detect_unity": true,
+  "enable_http": true,
+  "http_port": 8080,
+  "log_level": "INFO"
+}
+```
+
+## Usage
+
+### Command Line
+
+```bash
+# Start in stdio mode
+unity3d-mcp --mode stdio
+
+# Start HTTP server
+unity3d-mcp --mode http --port 8080
+
+# Dual mode (stdio + HTTP)
+unity3d-mcp --mode dual
+```
+
+### MCP Tools
+
+#### Core Unity Operations
+
+- `launch_unity_editor`: Launch Unity Editor with project
+- `create_unity_project`: Create new Unity project
+- `execute_unity_method`: Execute Unity Editor methods
+
+#### Avatar Management
+
+- `import_vrm_avatar`: Import VRM avatar into Unity
+- `setup_avatar_animator`: Configure animator controller
+- `optimize_for_vrchat`: Apply VRChat optimizations
+
+#### Asset Operations
+
+- `import_asset_package`: Import Unity packages
+- `optimize_textures`: Optimize textures for platforms
+- `create_material`: Create Unity materials
+
+#### Build Pipeline
+
+- `build_unity_project`: Build for target platforms
+- `switch_platform`: Switch Unity platform
+- `optimize_for_platform`: Apply platform optimizations
+
+#### VRChat Integration
+
+- `upload_vrchat_avatar`: Upload avatar to VRChat
+- `setup_avatar_descriptor`: Configure VRC Avatar Descriptor
+- `send_avatar_parameter`: Send OSC parameters
+- `send_chatbox_message`: Send VRChat chatbox messages
+
+## Architecture
+
+```
+unity3d_mcp/
+├── core/           # Unity Editor automation
+├── avatar/         # VRM avatar management
+├── assets/         # Asset import and optimization
+├── build/          # Build pipeline management
+├── vrchat/         # VRChat SDK integration
+└── utils/          # Shared utilities
+```
+
+## Requirements
+
+- Python 3.8+
+- Unity Editor (2019.4 LTS or newer)
+- VRChat SDK (for VRChat features)
+- Windows 10/11 (primary support)
+
+## Performance
+
+Optimized for:
+
+- VRChat avatar requirements
+- Mobile VR platforms
+- Multi-platform deployment
+- Real-time OSC communication
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## Support
+
+- Documentation: [GitHub Wiki](https://github.com/sandraschi/unity3d-mcp/wiki)
+- Issues: [GitHub Issues](https://github.com/sandraschi/unity3d-mcp/issues)
+- Discussions: [GitHub Discussions](https://github.com/sandraschi/unity3d-mcp/discussions)

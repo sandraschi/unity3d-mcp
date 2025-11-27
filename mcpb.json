@@ -1,0 +1,27 @@
+{
+    "name": "unity3d-mcp",
+    "version": "1.0.0",
+    "description": "Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration",
+    "author": "Sandra",
+    "license": "MIT",
+    "outputDir": "dist",
+    "mcp": {
+        "version": "2.12.0",
+        "server": {
+            "command": "python",
+            "args": [
+                "-m",
+                "unity3d_mcp.server"
+            ],
+            "transport": "stdio"
+        },
+        "capabilities": {
+            "tools": true,
+            "resources": true,
+            "prompts": true
+        }
+    },
+    "dependencies": {
+        "python": ">=3.8"
+    }
+}
