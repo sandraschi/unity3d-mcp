@@ -262,6 +262,33 @@ ruff format src/ --check
 
 ---
 
+## MCPB Packaging Status
+
+### ✅ MCPB Compliance
+Unity3D-MCP includes full MCPB (Model Context Protocol Builder) packaging:
+
+**Files Present:**
+- `manifest.json` - MCPB manifest configuration
+- `mcpb.json` - MCPB build configuration
+- `mcpb/assets/` - Icons, prompts, resources
+- `mcpb/server/` - Packaged server entry point
+- `mcpb/requirements.txt` - Runtime dependencies
+
+**Manifest Version:** 0.2 (current standard)
+
+**Prompt Templates:**
+- `build_deployment.md` - Build and deployment workflows
+- `game_development.md` - Game development automation
+- `performance_optimization.md` - Performance tuning
+- `system.md` - System operations
+- `troubleshooting.md` - Debugging assistance
+- `vrchat_integration.md` - VRChat workflows
+- `vrm_avatar_pipeline.md` - Avatar creation pipelines
+
+**Note:** DXT is obsolete - all MCP servers now use MCPB for packaging.
+
+---
+
 ## Next Steps
 
 ### Recommended
@@ -269,12 +296,32 @@ ruff format src/ --check
 2. ✅ Verify structured logging output
 3. ✅ Test tool functionality with Claude Desktop
 4. ✅ Monitor for any runtime errors
+5. ✅ Verify MCPB packaging is current
 
 ### Optional Enhancements
 - [ ] Add persistent storage if stateful operations needed
 - [ ] Implement custom metrics/monitoring
 - [ ] Add integration tests for all 27 tools
-- [ ] Consider implementing prompt templates (FastMCP 2.13+ feature)
+- [ ] Enhance prompt templates with more workflow examples
+- [ ] Consider Glama.ai registry submission
+
+---
+
+## MCPB vs DXT
+
+**IMPORTANT:** DXT is obsolete as of 2025.
+
+**Current Standard: MCPB (Model Context Protocol Builder)**
+- Industry standard for MCP packaging
+- Manifest-based configuration
+- Asset management (icons, prompts)
+- Multi-transport support
+- Version 0.2 specification
+
+**Obsolete: DXT (Deprecated eXchange Transport)**
+- No longer maintained
+- Replaced by MCPB across all projects
+- Should not be referenced in new documentation
 
 ---
 
@@ -282,6 +329,7 @@ ruff format src/ --check
 
 - **FastMCP Migration Guide**: `D:\Dev\repos\mcp-central-docs\docs\fastmcp\migration-guide.md`
 - **MCP Standards**: `D:\Dev\repos\mcp-central-docs\STANDARDS.md`
+- **MCPB Packaging**: `D:\Dev\repos\mcp-central-docs\MCPB_PACKAGING_STANDARDS.md`
 - **Portmanteau Pattern**: `D:\Dev\repos\mcp-central-docs\patterns\PORTMANTEAU_CONCEPT.md`
 
 ---
