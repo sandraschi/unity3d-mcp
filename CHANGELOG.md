@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **UPGRADED to FastMCP 2.13+**: Complete migration to SOTA standards
+  - FastMCP dependency updated to `>=2.13.0,<2.14.0` (from 2.10)
+  - Added server lifespan context manager for proper startup/shutdown
+  - Migrated to structured logging with `structlog` (JSON output)
+  - All logging now uses stderr (stdout reserved for MCP protocol)
+  - Removed all `description=` parameters from `@mcp.tool` decorators
+  - Enhanced all tool docstrings with comprehensive Args/Returns/Examples
+  - All docstrings now follow FastMCP 2.13+ standards (200+ lines for complex tools)
+  - Security fixes: CVE-2025-62801 (command injection), CVE-2025-62800 (XSS)
+  - Module docstring updated to reflect FastMCP 2.13+ compliance
 - **BREAKING**: Removed `OSCManager` - use `oscmcp` for OSC functionality
 - OSC operations now require FastMCP server composition with `oscmcp`
 - See module docstring in `vrchat/__init__.py` for composition example

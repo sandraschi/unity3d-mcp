@@ -1,6 +1,6 @@
 # Unity3D MCP Server
 
-Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
+**FastMCP 2.13+ Compliant** - Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
 
 ## Features
 
@@ -45,6 +45,14 @@ Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integratio
 - **ChilloutVR**: CCK detection, CVRAvatar setup, validation
 - **Resonite**: Direct VRM/GLB import (no Unity needed!)
 - **Cluster**: Japanese social VR with VRM support
+
+### Technical Standards
+
+- **FastMCP 2.13+**: Latest MCP protocol implementation with security fixes
+- **Structured Logging**: JSON-formatted logs via `structlog` for production monitoring
+- **Server Lifespan**: Proper startup/shutdown lifecycle management
+- **Comprehensive Documentation**: 200+ line tool docstrings with Args/Returns/Examples
+- **Security**: CVE-2025-62801 and CVE-2025-62800 fixes applied
 
 ### World Labs Integration
 
