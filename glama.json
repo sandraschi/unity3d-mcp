@@ -1,0 +1,128 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["sandraschi"],
+  "name": "unity3d-mcp",
+  "description": "Unity 3D automation server with VRM avatar pipeline and VRChat integration. Unity Editor management, scene manipulation, and build pipeline automation. Beta status.",
+  "type": "mcp_server",
+  "status": "beta",
+  "framework": "FastMCP 2.13+",
+  "tools": 60,
+  "transport": ["stdio", "http"],
+  "keywords": [
+    "unity",
+    "unity3d",
+    "game-development",
+    "vrm",
+    "vrchat",
+    "avatar",
+    "mcp-server",
+    "fastmcp",
+    "automation",
+    "build-pipeline"
+  ],
+  "features": {
+    "unity_editor": {
+      "enabled": true,
+      "operations": ["launch", "control", "automate"]
+    },
+    "project_management": {
+      "enabled": true
+    },
+    "scene_management": {
+      "enabled": true
+    },
+    "build_pipeline": {
+      "enabled": true,
+      "platforms": ["multiple"]
+    },
+    "vrm_pipeline": {
+      "enabled": true,
+      "features": ["import", "optimization", "vrchat_compatibility"]
+    },
+    "vrchat_integration": {
+      "enabled": true,
+      "sdk_automation": true
+    },
+    "unity_api_tools": {
+      "enabled": false,
+      "status": "scaffolded",
+      "note": "Requires Unity Editor plugin development",
+      "operations": [
+        "api_execute_method",
+        "api_get_scene_objects",
+        "api_modify_object",
+        "api_create_prefab",
+        "api_run_simulation",
+        "api_batch_operations"
+      ]
+    },
+    "path_movement": {
+      "enabled": false,
+      "status": "scaffolded",
+      "note": "Requires Unity Editor plugin development",
+      "path_types": ["straight", "bezier", "spline", "catmull_rom"],
+      "dimensions": ["2d", "3d"],
+      "features": [
+        "path_animation",
+        "path_visualization",
+        "follow_path_2d",
+        "follow_path_3d",
+        "banking_angles",
+        "smooth_rotation",
+        "deceleration_control"
+      ]
+    },
+    "motor_control": {
+      "enabled": false,
+      "status": "scaffolded",
+      "note": "Requires Unity Editor plugin development",
+      "motor_types": ["wheel", "propeller", "linear", "rotary", "continuous"],
+      "features": [
+        "motor_attachment",
+        "speed_control",
+        "acceleration_control",
+        "physics_simulation",
+        "power_monitoring",
+        "efficiency_tracking",
+        "emergency_stop",
+        "terrain_adaptation"
+      ]
+    },
+    "import_export": {
+      "enabled": false,
+      "status": "scaffolded",
+      "note": "Requires Unity Editor plugin development",
+      "import_formats": ["unitypackage", "fbx", "obj", "gltf", "glb", "png", "jpg", "tga"],
+      "export_formats": ["fbx", "unitypackage", "prefab"],
+      "features": [
+        "asset_package_import",
+        "3d_model_import",
+        "texture_import",
+        "fbx_export",
+        "package_export",
+        "prefab_export",
+        "batch_operations",
+        "progress_tracking",
+        "format_validation",
+        "dependency_resolution"
+      ]
+    },
+    "vrm_avatar": {
+      "enabled": false,
+      "status": "scaffolded",
+      "note": "Unity-specific VRM integration with avatar-mcp compositing",
+      "integration": ["avatar-mcp"],
+      "unity_features": [
+        "unity_project_import",
+        "unity_rigging_setup",
+        "unity_material_config",
+        "unity_package_build",
+        "avatar_mcp_integration",
+        "progress_tracking"
+      ],
+      "avatar_formats": ["vrm"],
+      "unity_versions": ["2021.3+", "2022.x"]
+    }
+  }
+}
+

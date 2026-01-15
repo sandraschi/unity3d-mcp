@@ -46,6 +46,57 @@
 - **Resonite**: Direct VRM/GLB import (no Unity needed!)
 - **Cluster**: Japanese social VR with VRM support
 
+### Unity Editor API Tools (Advanced)
+
+**⚠️ Future Enhancement** - Scaffolded for Unity Editor API integration
+
+These tools provide direct Unity Editor API access for advanced operations that CLI cannot handle:
+
+#### Core API Tools
+- **Method Execution**: `api_execute_method()` - Execute Unity methods with complex parameters
+- **Scene Inspection**: `api_get_scene_objects()` - Get detailed scene object information
+- **Object Manipulation**: `api_modify_object()` - Direct object property modification
+- **Prefab Creation**: `api_create_prefab()` - Create prefabs with proper references
+- **Physics Simulation**: `api_run_simulation()` - Run physics simulation with data recording
+- **Batch Operations**: `api_batch_operations()` - Atomic multi-operation execution
+
+#### Path Movement Tools
+- **Path Animation**: `api_move_along_path()` - Move objects along straight/spline/2D/3D paths
+- **Path Visualization**: `api_create_path_visualization()` - Create visual path representations
+- **2D Path Following**: `api_follow_path_2d()` - 2D movement with rotation and look-ahead
+- **3D Path Following**: `api_follow_path_3d()` - 3D movement with banking and elevation
+- **Movement Control**: `api_stop_path_movement()` - Stop path movement with deceleration
+
+#### Motor Control Tools
+- **Add Motor**: `api_add_motor()` - Attach configurable motors to objects
+- **Start Motor**: `api_start_motor()` - Start motors with speed/acceleration control
+- **Stop Motor**: `api_stop_motor()` - Stop motors with deceleration options
+- **Set Speed**: `api_set_motor_speed()` - Dynamic speed adjustments during operation
+- **Motor Status**: `api_get_motor_status()` - Real-time motor monitoring and diagnostics
+- **Physics Config**: `api_configure_motor_physics()` - Realistic motor physics simulation
+
+#### Import/Export Tools
+- **Import Package**: `import_asset_package()` - Import Unity .unitypackage files
+- **Import 3D Model**: `import_3d_model()` - Import FBX, OBJ, GLTF, etc.
+- **Import Texture**: `import_texture()` - Import textures with type-specific settings
+- **Export FBX**: `export_fbx()` - Export objects to FBX format
+- **Export Package**: `export_unity_package()` - Create .unitypackage files
+- **Export Prefab**: `export_prefab()` - Export objects as prefabs
+- **Batch Import**: `batch_import()` - Perform multiple imports at once
+- **Import Status**: `get_import_status()` - Monitor import operation progress
+- **Export Status**: `get_export_status()` - Monitor export operation progress
+
+#### VRM Avatar Tools (Unity Integration)
+- **Import VRM to Unity**: `import_vrm_to_unity()` - Import VRM into Unity projects
+- **Unity Rigging Setup**: `setup_unity_avatar_rigging()` - Configure Unity humanoid rigging
+- **Unity Materials**: `configure_unity_materials()` - Setup Unity-specific materials
+- **Build Avatar Package**: `build_unity_avatar_package()` - Create complete Unity packages
+- **Avatar-mcp Integration**: `integrate_with_avatarmcp()` - Connect to avatar-mcp for compositing
+- **Import Status**: `get_unity_import_status()` - Monitor Unity VRM import progress
+- **Legacy VRM Import**: `import_vrm_avatar()` - Basic VRM import (delegates to avatar-mcp)
+
+*Note: These tools are currently scaffolded and return "not implemented" status. They require Unity Editor plugin development for full functionality.*
+
 ### Technical Standards
 
 - **FastMCP 2.13+**: Latest MCP protocol implementation with security fixes

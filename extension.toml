@@ -1,0 +1,10 @@
+id = "unity3d-mcp"
+name = "Unity3DGameDevelopment"
+version = "0.1.0"
+schema_version = 1
+authors = ["Sandra <sandraschipal@hotmail.com>"]
+description = "Unity game development and asset pipeline tools"
+repository = "https://github.com/sandraschi/unity3d-mcp"
+
+[context_servers.unity3d-mcp]
+name = "Unity Development Tools"
