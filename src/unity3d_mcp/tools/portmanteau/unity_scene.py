@@ -57,13 +57,11 @@ class UnitySceneToolManager:
             if operation == "create_light":
                 if not light_name:
                     return {"success": False, "error": "light_name required for create_light"}
-                return await self.scene_manager.create_light(
-                    light_name, light_type, color, intensity, position
-                )
+                return await self.scene_manager.create_light(light_name, light_type, color, intensity, position)
 
             else:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": ["create_light"]
+                    "available_operations": ["create_light"],
                 }

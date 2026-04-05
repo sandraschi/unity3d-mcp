@@ -56,5 +56,5 @@ class UnityAssetToolManager:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": ["optimize_textures"]
+                    "available_operations": ["optimize_textures"],
                 }

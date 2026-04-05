@@ -6,7 +6,7 @@ from pathlib import Path
 # Add src to python path
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
-from unity3d_mcp.server import Unity3DMCP, Unity3DConfig
+from unity3d_mcp.server import Unity3DConfig, Unity3DMCP
 
 
 async def verify_pipeline():
@@ -32,7 +32,7 @@ async def verify_pipeline():
 
     # 2. Setup Avatar Descriptor (Note: Unity might need UniVRM for full VRM support)
     # For now, we verify the file is present in Assets
-    print(f"\n2. Verifying Asset Presence...")
+    print("\n2. Verifying Asset Presence...")
     expected_path = Path(project_path) / "Assets" / "Nekomimi-chan.vrm"
     if expected_path.exists():
         print(f"SUCCESS: VRM file found at {expected_path}")

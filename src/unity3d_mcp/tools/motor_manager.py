@@ -5,9 +5,8 @@ Provides comprehensive motor control capabilities for robotics and vehicle simul
 including motor configuration, speed control, physics simulation, and status monitoring.
 """
 
-import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -49,17 +48,12 @@ class MotorManager:
                 "object_name": object_name,
                 "motor_type": motor_type,
                 "motor_id": motor_id,
-                "message": f"Added {motor_type} motor to {object_name}"
+                "message": f"Added {motor_type} motor to {object_name}",
             }
 
         except Exception as e:
             logger.error(f"Failed to add motor to {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motor_type": motor_type
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motor_type": motor_type}
 
     async def start_motor(
         self,
@@ -76,7 +70,7 @@ class MotorManager:
                 return {
                     "success": False,
                     "error": f"No motors found for object {object_name}",
-                    "object_name": object_name
+                    "object_name": object_name,
                 }
 
             motors = self.active_motors[object_name]
@@ -88,7 +82,7 @@ class MotorManager:
                     return {
                         "success": False,
                         "error": f"No motors configured for {object_name}",
-                        "object_name": object_name
+                        "object_name": object_name,
                     }
                 motor_id = motor_ids[0]  # Start first motor
 
@@ -97,7 +91,7 @@ class MotorManager:
                     "success": False,
                     "error": f"Motor {motor_id} not found on {object_name}",
                     "object_name": object_name,
-                    "motor_id": motor_id
+                    "motor_id": motor_id,
                 }
 
             motor = motors[motor_id]
@@ -111,17 +105,12 @@ class MotorManager:
                 "motor_id": motor_id,
                 "target_speed": motor["target_speed"],
                 "acceleration": motor["acceleration"],
-                "message": f"Started motor {motor_id} on {object_name}"
+                "message": f"Started motor {motor_id} on {object_name}",
             }
 
         except Exception as e:
             logger.error(f"Failed to start motor on {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motor_id": motor_id
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motor_id": motor_id}
 
     async def stop_motor(
         self,
@@ -138,7 +127,7 @@ class MotorManager:
                 return {
                     "success": False,
                     "error": f"No motors found for object {object_name}",
-                    "object_name": object_name
+                    "object_name": object_name,
                 }
 
             motors = self.active_motors[object_name]
@@ -150,7 +139,7 @@ class MotorManager:
                     return {
                         "success": False,
                         "error": f"No motors configured for {object_name}",
-                        "object_name": object_name
+                        "object_name": object_name,
                     }
                 motor_id = motor_ids[0]  # Stop first motor
 
@@ -159,7 +148,7 @@ class MotorManager:
                     "success": False,
                     "error": f"Motor {motor_id} not found on {object_name}",
                     "object_name": object_name,
-                    "motor_id": motor_id
+                    "motor_id": motor_id,
                 }
 
             motor = motors[motor_id]
@@ -180,17 +169,12 @@ class MotorManager:
                 "deceleration": motor["acceleration"] if not emergency_stop else None,
                 "emergency_stop": emergency_stop,
                 "final_speed": final_speed,
-                "message": f"Stopped motor {motor_id} on {object_name}"
+                "message": f"Stopped motor {motor_id} on {object_name}",
             }
 
         except Exception as e:
             logger.error(f"Failed to stop motor on {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motor_id": motor_id
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motor_id": motor_id}
 
     async def set_motor_speed(
         self,
@@ -207,7 +191,7 @@ class MotorManager:
                 return {
                     "success": False,
                     "error": f"No motors found for object {object_name}",
-                    "object_name": object_name
+                    "object_name": object_name,
                 }
 
             motors = self.active_motors[object_name]
@@ -219,7 +203,7 @@ class MotorManager:
                     return {
                         "success": False,
                         "error": f"No motors configured for {object_name}",
-                        "object_name": object_name
+                        "object_name": object_name,
                     }
                 motor_id = motor_ids[0]  # Use first motor
 
@@ -228,7 +212,7 @@ class MotorManager:
                     "success": False,
                     "error": f"Motor {motor_id} not found on {object_name}",
                     "object_name": object_name,
-                    "motor_id": motor_id
+                    "motor_id": motor_id,
                 }
 
             motor = motors[motor_id]
@@ -244,17 +228,12 @@ class MotorManager:
                 "target_speed": target_speed,
                 "current_speed": current_speed,
                 "acceleration": motor["acceleration"],
-                "message": f"Set motor {motor_id} speed to {target_speed}"
+                "message": f"Set motor {motor_id} speed to {target_speed}",
             }
 
         except Exception as e:
             logger.error(f"Failed to set motor speed on {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motor_id": motor_id
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motor_id": motor_id}
 
     async def get_motor_status(
         self,
@@ -271,7 +250,7 @@ class MotorManager:
                     "error": f"No motors found for object {object_name}",
                     "object_name": object_name,
                     "motors": [],
-                    "motor_count": 0
+                    "motor_count": 0,
                 }
 
             motors = self.active_motors[object_name]
@@ -283,7 +262,7 @@ class MotorManager:
                     "object_name": object_name,
                     "motor_id": motor_id,
                     "motors": [],
-                    "motor_count": 0
+                    "motor_count": 0,
                 }
 
             # Get requested motors or all motors
@@ -293,34 +272,30 @@ class MotorManager:
             for mid in requested_motors:
                 if mid in motors:
                     motor = motors[mid]
-                    motor_statuses.append({
-                        "motor_id": mid,
-                        "motor_type": motor["type"],
-                        "is_running": motor["is_running"],
-                        "current_speed": motor["current_speed"],
-                        "target_speed": motor["target_speed"],
-                        "acceleration": motor["acceleration"],
-                        "temperature": motor.get("temperature", 25.0),  # Default room temp
-                        "power_consumption": self._calculate_power_consumption(motor),
-                        "efficiency": self._calculate_efficiency(motor)
-                    })
+                    motor_statuses.append(
+                        {
+                            "motor_id": mid,
+                            "motor_type": motor["type"],
+                            "is_running": motor["is_running"],
+                            "current_speed": motor["current_speed"],
+                            "target_speed": motor["target_speed"],
+                            "acceleration": motor["acceleration"],
+                            "temperature": motor.get("temperature", 25.0),  # Default room temp
+                            "power_consumption": self._calculate_power_consumption(motor),
+                            "efficiency": self._calculate_efficiency(motor),
+                        }
+                    )
 
             return {
                 "success": True,
                 "object_name": object_name,
                 "motors": motor_statuses,
-                "motor_count": len(motor_statuses)
+                "motor_count": len(motor_statuses),
             }
 
         except Exception as e:
             logger.error(f"Failed to get motor status for {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motors": [],
-                "motor_count": 0
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motors": [], "motor_count": 0}
 
     async def configure_motor_physics(
         self,
@@ -337,7 +312,7 @@ class MotorManager:
                     "success": False,
                     "error": f"No motors found for object {object_name}",
                     "object_name": object_name,
-                    "motor_id": motor_id
+                    "motor_id": motor_id,
                 }
 
             motors = self.active_motors[object_name]
@@ -347,7 +322,7 @@ class MotorManager:
                     "success": False,
                     "error": f"Motor {motor_id} not found on {object_name}",
                     "object_name": object_name,
-                    "motor_id": motor_id
+                    "motor_id": motor_id,
                 }
 
             motor = motors[motor_id]
@@ -363,17 +338,12 @@ class MotorManager:
                 "object_name": object_name,
                 "motor_id": motor_id,
                 "physics_applied": list(physics_config.keys()),
-                "message": f"Configured physics for motor {motor_id}"
+                "message": f"Configured physics for motor {motor_id}",
             }
 
         except Exception as e:
             logger.error(f"Failed to configure motor physics for {object_name}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "object_name": object_name,
-                "motor_id": motor_id
-            }
+            return {"success": False, "error": str(e), "object_name": object_name, "motor_id": motor_id}
 
     def _calculate_power_consumption(self, motor: Dict[str, Any]) -> float:
         """Calculate power consumption based on motor state."""
@@ -511,7 +481,9 @@ class MotorToolManager:
                     target_speed=1000  # RPM
                 )
             """
-            return await self.motor_manager.start_motor(object_name, motor_id, target_speed, acceleration, project_path, scene_path)
+            return await self.motor_manager.start_motor(
+                object_name, motor_id, target_speed, acceleration, project_path, scene_path
+            )
 
         @self.app.tool
         async def api_stop_motor(
@@ -558,7 +530,9 @@ class MotorToolManager:
                     emergency_stop=True
                 )
             """
-            return await self.motor_manager.stop_motor(object_name, motor_id, deceleration, emergency_stop, project_path, scene_path)
+            return await self.motor_manager.stop_motor(
+                object_name, motor_id, deceleration, emergency_stop, project_path, scene_path
+            )
 
         @self.app.tool
         async def api_set_motor_speed(
@@ -607,7 +581,9 @@ class MotorToolManager:
                     motor_id="propeller_front_left"
                 )
             """
-            return await self.motor_manager.set_motor_speed(object_name, target_speed, motor_id, acceleration, project_path, scene_path)
+            return await self.motor_manager.set_motor_speed(
+                object_name, target_speed, motor_id, acceleration, project_path, scene_path
+            )
 
         @self.app.tool
         async def api_get_motor_status(
@@ -702,4 +678,6 @@ class MotorToolManager:
                     }
                 )
             """
-            return await self.motor_manager.configure_motor_physics(object_name, motor_id, physics_config, project_path, scene_path)
+            return await self.motor_manager.configure_motor_physics(
+                object_name, motor_id, physics_config, project_path, scene_path
+            )

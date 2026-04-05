@@ -51,7 +51,10 @@ class UnityBuildToolManager:
 
             if operation == "build_project":
                 if not project_path or not build_target or not output_path:
-                    return {"success": False, "error": "project_path, build_target, and output_path required for build_project"}
+                    return {
+                        "success": False,
+                        "error": "project_path, build_target, and output_path required for build_project",
+                    }
                 return await self.build_manager.build_project(
                     project_path, build_target, output_path, development_build
                 )
@@ -60,5 +63,5 @@ class UnityBuildToolManager:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": ["build_project"]
+                    "available_operations": ["build_project"],
                 }

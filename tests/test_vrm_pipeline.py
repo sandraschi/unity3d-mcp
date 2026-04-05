@@ -1,11 +1,9 @@
 """Tests for VRM avatar pipeline operations."""
 
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
-
-from fixtures.factories import requires_vrm_file, VRM_TEST_FILE
+from fixtures.factories import VRM_TEST_FILE, requires_vrm_file
 
 
 @pytest.mark.asyncio
@@ -78,14 +76,10 @@ async def test_performance_rank_calculation():
 
     # This should be "Good" rank
     is_excellent = (
-        avatar_stats["triangles"] < 7500
-        and avatar_stats["materials"] < 10
-        and avatar_stats["texture_memory"] < 10
+        avatar_stats["triangles"] < 7500 and avatar_stats["materials"] < 10 and avatar_stats["texture_memory"] < 10
     )
     is_good = (
-        avatar_stats["triangles"] < 10000
-        and avatar_stats["materials"] < 8
-        and avatar_stats["texture_memory"] < 40
+        avatar_stats["triangles"] < 10000 and avatar_stats["materials"] < 8 and avatar_stats["texture_memory"] < 40
     )
 
     assert not is_excellent
@@ -95,6 +89,7 @@ async def test_performance_rank_calculation():
 # ============================================================================
 # Tests using real VRM file (skipped if not present)
 # ============================================================================
+
 
 @requires_vrm_file
 def test_vrm_file_exists():

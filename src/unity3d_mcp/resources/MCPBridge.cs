@@ -2,60 +2,188 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace MCP {
-    [Serializable]
-    public class LightData {
-        public string name;
-        public string type;
-        public float[] color;
-        public float intensity;
-        public float[] position;
-        public float[] rotation;
-    }
-
+    /// <summary>
+    /// SOTA Unity Editor Bridge for MCP (2026 Edition).
+    /// Provides real-time "Hands-In" control of the Unity Editor via HTTP.
+    /// </summary>
+    [InitializeOnLoad]
     public class MCPBridge {
-        public static void CreateLight() {
+        private static HttpListener _listener;
+        private static Thread _listenerThread;
+        private static readonly ConcurrentQueue<Action> _executionQueue = new ConcurrentQueue<Action>();
+        private const int PORT = 10835;
+
+        static MCPBridge() {
+            StartServer();
+            EditorApplication.update += Update;
+        }
+
+        private static void StartServer() {
             try {
-                // Read parameters from project root
-                string paramsPath = Path.Combine(Directory.GetCurrentDirectory(), "mcp_params.json");
-                if (!File.Exists(paramsPath)) {
-                    Debug.LogError("[MCP] Param file not found: " + paramsPath);
-                    return;
-                }
-                
-                string json = File.ReadAllText(paramsPath);
-                LightData data = JsonUtility.FromJson<LightData>(json);
+                if (_listener != null) StopServer();
 
-                GameObject go = new GameObject(data.name);
-                Light light = go.AddComponent<Light>();
+                _listener = new HttpListener();
+                _listener.Prefixes.Add($"http://localhost:{PORT}/");
+                _listener.Start();
 
-                if (Enum.TryParse<LightType>(data.type, out LightType lType)) {
-                    light.type = lType;
-                } else {
-                    light.type = LightType.Spot; // Default
-                }
+                _listenerThread = new Thread(Listen);
+                _listenerThread.IsBackground = true;
+                _listenerThread.Start();
 
-                if (data.color != null && data.color.Length >= 3) {
-                    light.color = new Color(data.color[0], data.color[1], data.color[2], data.color.Length > 3 ? data.color[3] : 1f);
-                }
-
-                light.intensity = data.intensity;
-
-                if (data.position != null && data.position.Length >= 3) {
-                    go.transform.position = new Vector3(data.position[0], data.position[1], data.position[2]);
-                }
-                
-                if (data.rotation != null && data.rotation.Length >= 3) {
-                    go.transform.rotation = Quaternion.Euler(data.rotation[0], data.rotation[1], data.rotation[2]);
-                }
-                
-                Debug.Log($"[MCP] Created light: {data.name}");
-
+                Debug.Log($"<color=cyan>[MCP]</color> Bridge active on <b>http://localhost:{PORT}</b>");
             } catch (Exception e) {
-                Debug.LogError("[MCP] Error creating light: " + e.Message);
+                Debug.LogError($"[MCP] Failed to start bridge: {e.Message}");
             }
         }
+
+        private static void StopServer() {
+            _listener?.Stop();
+            _listenerThread?.Abort();
+            Debug.Log("[MCP] Bridge stopped.");
+        }
+
+        private static void Update() {
+            while (_executionQueue.TryDequeue(out var action)) {
+                try {
+                    action.Invoke();
+                } catch (Exception e) {
+                    Debug.LogError($"[MCP] Execution Error: {e.Message}");
+                }
+            }
+        }
+
+        private static void Listen() {
+            while (_listener.IsListening) {
+                try {
+                    var context = _listener.GetContext();
+                    var request = context.Request;
+                    
+                    if (request.HttpMethod == "POST") {
+                        using (var reader = new StreamReader(request.InputStream, request.ContentEncoding)) {
+                            string json = reader.ReadToEnd();
+                            ProcessCommand(json, context);
+                        }
+                    } else {
+                        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                        context.Response.Close();
+                    }
+                } catch (Exception) {
+                    // Ignored (usually listener closing)
+                }
+            }
+        }
+
+        private static void ProcessCommand(string json, HttpListenerContext context) {
+            try {
+                var cmd = JsonUtility.FromJson<CommandRequest>(json);
+                _executionQueue.Enqueue(() => {
+                    string result = HandleCommand(cmd);
+                    SendResponse(context, result);
+                });
+            } catch (Exception e) {
+                SendResponse(context, "{\"error\": \"" + e.Message + "\"}", HttpStatusCode.BadRequest);
+            }
+        }
+
+        private static string HandleCommand(CommandRequest cmd) {
+            switch (cmd.action) {
+                case "ping":
+                    return "{\"status\": \"ok\", \"version\": \"3.2.0\"}";
+                
+                case "get_hierarchy":
+                    return GetHierarchyJson();
+
+                case "transform_object":
+                    return TransformObject(cmd);
+
+                case "create_object":
+                    return CreateObject(cmd);
+
+                case "delete_object":
+                    return DeleteObject(cmd);
+
+                default:
+                    return "{\"error\": \"Unknown action: " + cmd.action + "\"}";
+            }
+        }
+
+        private static string GetHierarchyJson() {
+            var objects = GameObject.FindObjectsOfType<GameObject>();
+            var list = new List<string>();
+            foreach (var obj in objects) {
+                list.Add("{\"name\":\"" + obj.name + "\", \"id\":\"" + obj.GetInstanceID() + "\"}");
+            }
+            return "{\"objects\": [" + string.Join(",", list) + "]}";
+        }
+
+        private static string TransformObject(CommandRequest cmd) {
+            GameObject target = FindGameObject(cmd.target);
+            if (target == null) return "{\"error\": \"Target not found: " + cmd.target + "\"}";
+
+            if (cmd.position != null && cmd.position.Length == 3)
+                target.transform.position = new Vector3(cmd.position[0], cmd.position[1], cmd.position[2]);
+            
+            if (cmd.rotation != null && cmd.rotation.Length == 3)
+                target.transform.rotation = Quaternion.Euler(cmd.rotation[0], cmd.rotation[1], cmd.rotation[2]);
+
+            return "{\"status\": \"success\"}";
+        }
+
+        private static string CreateObject(CommandRequest cmd) {
+            GameObject go = new GameObject(cmd.name ?? "New Object");
+            if (cmd.type == "Light") go.AddComponent<Light>();
+            else if (cmd.type == "Camera") go.AddComponent<Camera>();
+            
+            return "{\"status\": \"created\", \"instanceID\": " + go.GetInstanceID() + "}";
+        }
+
+        private static string DeleteObject(CommandRequest cmd) {
+            GameObject target = FindGameObject(cmd.target);
+            if (target == null) return "{\"error\": \"Target not found\"}";
+            
+            GameObject.DestroyImmediate(target);
+            return "{\"status\": \"deleted\"}";
+        }
+
+        private static GameObject FindGameObject(string identifier) {
+            if (int.TryParse(identifier, out int id)) {
+                foreach (var go in GameObject.FindObjectsOfType<GameObject>()) {
+                    if (go.GetInstanceID() == id) return go;
+                }
+            }
+            return GameObject.Find(identifier);
+        }
+
+        private static void SendResponse(HttpListenerContext context, string responseString, HttpStatusCode code = HttpStatusCode.OK) {
+            byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+            context.Response.StatusCode = (int)code;
+            context.Response.ContentType = "application/json";
+            context.Response.ContentLength64 = buffer.Length;
+            context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+            context.Response.Close();
+        }
+
+        [Serializable]
+        private class CommandRequest {
+            public string action;
+            public string target;
+            public string name;
+            public string type;
+            public float[] position;
+            public float[] rotation;
+        }
+
+        [MenuItem("MCP/Start Bridge")]
+        public static void ForceStart() => StartServer();
+
+        [MenuItem("MCP/Stop Bridge")]
+        public static void ForceStop() => StopServer();
     }
 }

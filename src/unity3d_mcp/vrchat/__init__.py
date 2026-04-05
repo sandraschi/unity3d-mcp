@@ -8,14 +8,14 @@ NOTE: OSC functionality has been moved to oscmcp.
 Use FastMCP server composition to combine unity3d-mcp with oscmcp:
 
     from fastmcp import FastMCP
-    
+
     orchestrator = FastMCP(name="VRChat-Pipeline")
     orchestrator.mount(unity3d_mcp, prefix="unity")
     orchestrator.mount(osc_mcp, prefix="osc")
-    
+
     # VRChat OSC addresses:
     # - /avatar/parameters/{name} - Avatar parameters
-    # - /avatar/change - Avatar change events  
+    # - /avatar/change - Avatar change events
     # - /chatbox/input - Chatbox messages
 """
 
@@ -50,23 +50,20 @@ class VRChatSDKManager:
         """Check if VRChat SDK is installed in the Unity project."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
-            
+
             if not manifest_path.exists():
                 return {
                     "installed": False,
                     "error": "Not a valid Unity project (no Packages/manifest.json)",
                 }
 
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
-            
+
             # Check for VRChat SDK packages
-            vrchat_packages = {
-                k: v for k, v in dependencies.items() 
-                if "vrchat" in k.lower()
-            }
+            vrchat_packages = {k: v for k, v in dependencies.items() if "vrchat" in k.lower()}
 
             if not vrchat_packages:
                 return {
@@ -106,7 +103,7 @@ class VRChatSDKManager:
                 auth_file = config_path / self.VRCHAT_AUTH_FILE
                 if auth_file.exists():
                     try:
-                        with open(auth_file, "r") as f:
+                        with open(auth_file) as f:
                             auth_data = json.load(f)
                         if auth_data.get("authToken"):
                             self._auth_token = auth_data["authToken"]
@@ -143,10 +140,10 @@ class VRChatSDKManager:
         """Check Unity EditorPrefs for VRChat credentials (Windows)."""
         try:
             import winreg
-            
+
             # VRChat SDK stores auth in Unity's EditorPrefs
             key_path = r"Software\Unity Technologies\Unity Editor 5.x"
-            
+
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
                 # Look for VRChat-related prefs
                 i = 0
@@ -169,15 +166,15 @@ class VRChatSDKManager:
         return {"authenticated": False}
 
     async def authenticate(
-        self, 
-        username: Optional[str] = None, 
+        self,
+        username: Optional[str] = None,
         password: Optional[str] = None,
         totp_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Authenticate with VRChat API."""
         try:
             import aiohttp
-            
+
             username = username or os.environ.get("VRCHAT_USERNAME")
             password = password or os.environ.get("VRCHAT_PASSWORD")
 
@@ -199,7 +196,7 @@ class VRChatSDKManager:
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
-                        
+
                         # Check if 2FA is required
                         if data.get("requiresTwoFactorAuth"):
                             if not totp_code:
@@ -208,7 +205,7 @@ class VRChatSDKManager:
                                     "message": "Two-factor authentication required",
                                     "methods": data.get("requiresTwoFactorAuth", []),
                                 }
-                            
+
                             # Verify 2FA
                             async with session.post(
                                 "https://api.vrchat.cloud/api/1/auth/twofactorauth/totp/verify",
@@ -265,10 +262,13 @@ class VRChatSDKManager:
 
             auth_file = config_path / self.VRCHAT_AUTH_FILE
             with open(auth_file, "w") as f:
-                json.dump({
-                    "authToken": auth_token,
-                    "username": username,
-                }, f)
+                json.dump(
+                    {
+                        "authToken": auth_token,
+                        "username": username,
+                    },
+                    f,
+                )
 
             logger.info(f"Credentials stored at {auth_file}")
 
@@ -300,9 +300,7 @@ class VRChatSDKManager:
                 return {"valid": False, "errors": ["Unity Editor not found"]}
 
             # Create validation script call
-            validation_result = await self._run_unity_validation(
-                unity_path, project_path, avatar_prefab
-            )
+            validation_result = await self._run_unity_validation(unity_path, project_path, avatar_prefab)
 
             return validation_result
 
@@ -310,53 +308,12 @@ class VRChatSDKManager:
             logger.error(f"Avatar validation failed: {e}")
             return {"valid": False, "errors": [str(e)]}
 
-    async def _run_unity_validation(
-        self, unity_path: str, project_path: str, avatar_prefab: str
-    ) -> Dict[str, Any]:
+    async def _run_unity_validation(self, unity_path: str, project_path: str, avatar_prefab: str) -> Dict[str, Any]:
         """Run VRChat SDK validation via Unity batch mode."""
         try:
             # The VRChat SDK has built-in validation that can be called
             # We create a temporary C# script to run validation
 
-            validation_script = '''
-using UnityEngine;
-using UnityEditor;
-using VRC.SDK3.Avatars.Components;
-using VRC.SDKBase.Validation.Performance;
-
-public class VRChatValidationRunner
-{
-    [MenuItem("VRChat/MCP/ValidateAvatar")]
-    public static void ValidateAvatar()
-    {
-        string prefabPath = System.Environment.GetEnvironmentVariable("VRCHAT_AVATAR_PREFAB");
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-        
-        if (prefab == null)
-        {
-            Debug.LogError("VALIDATION_ERROR:Avatar prefab not found");
-            return;
-        }
-
-        var descriptor = prefab.GetComponent<VRCAvatarDescriptor>();
-        if (descriptor == null)
-        {
-            Debug.LogError("VALIDATION_ERROR:No VRCAvatarDescriptor found");
-            return;
-        }
-
-        // Run performance scan
-        var stats = new AvatarPerformanceStats();
-        AvatarPerformance.CalculatePerformanceStats(prefab.name, prefab, stats);
-
-        Debug.Log($"VALIDATION_RESULT:valid=true");
-        Debug.Log($"VALIDATION_RESULT:performance_rank={stats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall)}");
-        Debug.Log($"VALIDATION_RESULT:polygon_count={stats.polyCount}");
-        Debug.Log($"VALIDATION_RESULT:material_count={stats.materialCount}");
-        Debug.Log($"VALIDATION_RESULT:bone_count={stats.boneCount}");
-    }
-}
-'''
             # For now, return estimated validation based on file analysis
             # Real implementation would execute the Unity script
             return {
@@ -466,9 +423,12 @@ public class VRChatValidationRunner
                 unity_path,
                 "-batchmode",
                 "-quit",
-                "-projectPath", project_path,
-                "-executeMethod", "VRC.SDKBase.Editor.BuildPipeline.BuildAndUploadAvatar",
-                "-logFile", "-",  # Log to stdout
+                "-projectPath",
+                project_path,
+                "-executeMethod",
+                "VRC.SDKBase.Editor.BuildPipeline.BuildAndUploadAvatar",
+                "-logFile",
+                "-",  # Log to stdout
             ]
 
             logger.info(f"Executing VRChat upload: {' '.join(args)}")
@@ -492,7 +452,7 @@ public class VRChatValidationRunner
             if process.returncode == 0:
                 # Try to extract avatar ID from output
                 avatar_id = self._extract_avatar_id(stdout_text)
-                
+
                 return {
                     "status": "success",
                     "message": f"Avatar uploaded: {avatar_name}",
@@ -507,7 +467,7 @@ public class VRChatValidationRunner
             else:
                 # Check for common errors
                 error_msg = self._parse_unity_error(stdout_text, stderr_text)
-                
+
                 return {
                     "status": "error",
                     "message": error_msg,
@@ -528,9 +488,9 @@ public class VRChatValidationRunner
     def _extract_avatar_id(self, output: str) -> Optional[str]:
         """Extract avatar ID from Unity output."""
         import re
-        
+
         # VRChat avatar IDs start with "avtr_"
-        match = re.search(r'avtr_[a-f0-9-]{36}', output, re.IGNORECASE)
+        match = re.search(r"avtr_[a-f0-9-]{36}", output, re.IGNORECASE)
         if match:
             return match.group(0)
         return None
@@ -538,7 +498,7 @@ public class VRChatValidationRunner
     def _parse_unity_error(self, stdout: str, stderr: str) -> str:
         """Parse Unity output for error messages."""
         combined = stdout + stderr
-        
+
         # Common VRChat SDK errors
         if "not logged in" in combined.lower():
             return "Not logged into VRChat. Login via Unity Editor first."

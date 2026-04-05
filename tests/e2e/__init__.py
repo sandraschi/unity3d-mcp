@@ -8,4 +8,3 @@ These tests require:
 
 Run with: pytest tests/e2e/ -v --run-e2e
 """
-

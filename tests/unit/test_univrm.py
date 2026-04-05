@@ -1,7 +1,6 @@
 """Unit tests for UniVRM installation and detection."""
 
 import json
-from pathlib import Path
 
 import pytest
 
@@ -28,7 +27,7 @@ class TestUniVRMDetection:
 
         # Add UniVRM to manifest
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         manifest["dependencies"]["com.vrmc.univrm"] = "https://github.com/vrm-c/UniVRM.git"
@@ -64,16 +63,14 @@ class TestUniVRMInstallation:
         from unity3d_mcp.core import ProjectManager
 
         manager = ProjectManager(mock_config)
-        result = await manager.install_univrm(
-            str(mock_unity_project), vrm_version="vrm0", refresh_unity=False
-        )
+        result = await manager.install_univrm(str(mock_unity_project), vrm_version="vrm0", refresh_unity=False)
 
         assert result["status"] == "success"
         assert len(result["packages_installed"]) >= 3  # univrm, univrm-core, vrm0
 
         # Verify manifest was updated
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         assert "com.vrmc.univrm" in manifest["dependencies"]
@@ -85,15 +82,13 @@ class TestUniVRMInstallation:
         from unity3d_mcp.core import ProjectManager
 
         manager = ProjectManager(mock_config)
-        result = await manager.install_univrm(
-            str(mock_unity_project), vrm_version="vrm1", refresh_unity=False
-        )
+        result = await manager.install_univrm(str(mock_unity_project), vrm_version="vrm1", refresh_unity=False)
 
         assert result["status"] == "success"
 
         # Verify VRM 1.0 package added
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         assert "com.vrmc.vrm" in manifest["dependencies"]
@@ -146,7 +141,7 @@ class TestUniVRMUninstallation:
 
         # Verify manifest was cleaned
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         for pkg in ["com.vrmc.univrm", "com.vrmc.vrm", "com.vrmc.vrmshaders"]:
@@ -159,7 +154,6 @@ class TestProjectWithUniVRM:
     @pytest.mark.asyncio
     async def test_create_project_with_univrm(self, tmp_path, mock_config, monkeypatch):
         """Test creating project with UniVRM pre-installed."""
-        from unittest.mock import AsyncMock, MagicMock
         from unity3d_mcp.core import ProjectManager
 
         manager = ProjectManager(mock_config)
@@ -178,11 +172,8 @@ class TestProjectWithUniVRM:
 
         manager.create_project = mock_create_project
 
-        result = await manager.create_project_with_univrm(
-            "TestVRMProject", str(tmp_path), vrm_version="vrm0"
-        )
+        result = await manager.create_project_with_univrm("TestVRMProject", str(tmp_path), vrm_version="vrm0")
 
         assert result["status"] == "success"
         assert result["univrm_installed"] is True
         assert "TestVRMProject" in result["project_path"]
-

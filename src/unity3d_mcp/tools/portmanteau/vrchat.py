@@ -113,7 +113,11 @@ class VRChatToolManager:
                     "success": False,
                     "error": f"Unknown operation: {operation}",
                     "available_operations": [
-                        "check_auth", "authenticate", "check_sdk",
-                        "validate_avatar", "setup_descriptor", "upload_avatar"
-                    ]
+                        "check_auth",
+                        "authenticate",
+                        "check_sdk",
+                        "validate_avatar",
+                        "setup_descriptor",
+                        "upload_avatar",
+                    ],
                 }

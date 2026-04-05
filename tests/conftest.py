@@ -11,8 +11,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -21,21 +20,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../s
 
 # Import fixture factories
 from fixtures.factories import (
-    create_unity_project_structure,
+    MOCK_VRCHAT_2FA_RESPONSE,
+    MOCK_VRCHAT_USER_RESPONSE,
+    VRM_TEST_FILE,
     create_avatar_prefab,
     create_mock_unity_executable,
-    create_vrchat_auth_file,
-    MOCK_VRCHAT_USER_RESPONSE,
-    MOCK_VRCHAT_2FA_RESPONSE,
-    VRM_TEST_FILE,
-    has_vrm_test_file,
-    requires_vrm_file,
+    create_unity_project_structure,
 )
-
 
 # ============================================================================
 # Event Loop Configuration
 # ============================================================================
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -49,11 +45,12 @@ def event_loop():
 # Configuration Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def mock_config():
     """Create a mock Unity3DConfig with test defaults."""
     from unity3d_mcp.server import Unity3DConfig
-    
+
     return Unity3DConfig(
         unity_editor_path="",
         project_path="",
@@ -68,7 +65,7 @@ def mock_config():
 def mock_config_with_project(mock_unity_project: Path):
     """Create a mock config with project path set."""
     from unity3d_mcp.server import Unity3DConfig
-    
+
     return Unity3DConfig(
         unity_editor_path="C:\\Program Files\\Unity\\Editor\\Unity.exe",
         project_path=str(mock_unity_project),
@@ -80,6 +77,7 @@ def mock_config_with_project(mock_unity_project: Path):
 # ============================================================================
 # Unity Project Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def mock_unity_project(tmp_path: Path) -> Path:
@@ -108,7 +106,7 @@ def mock_unity_exe(tmp_path: Path) -> Path:
 @pytest.fixture
 def vrm_test_file() -> Path:
     """Get path to VRM test file (Nekomimi-chan.vrm).
-    
+
     Use with @requires_vrm_file decorator to skip if missing.
     """
     return VRM_TEST_FILE
@@ -118,10 +116,12 @@ def vrm_test_file() -> Path:
 # Manager Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def mcp_server(mock_config):
     """Create a Unity3DMCP server instance."""
     from unity3d_mcp.server import Unity3DMCP
+
     return Unity3DMCP(mock_config)
 
 
@@ -129,6 +129,7 @@ def mcp_server(mock_config):
 def vrchat_manager(mock_config):
     """Create a VRChatSDKManager instance."""
     from unity3d_mcp.vrchat import VRChatSDKManager
+
     return VRChatSDKManager(mock_config)
 
 
@@ -142,6 +143,7 @@ def vrchat_manager(mock_config):
 # ============================================================================
 # Environment Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def vrchat_env_credentials(monkeypatch):
@@ -167,6 +169,7 @@ def clean_env(monkeypatch):
 # Mock Response Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def mock_vrchat_auth_response():
     """Mock VRChat API authentication response."""
@@ -183,13 +186,16 @@ def mock_vrchat_2fa_response():
 # Utility Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def async_mock():
     """Helper to create async mock functions."""
+
     def _create_async_mock(return_value=None):
         mock = AsyncMock()
         mock.return_value = return_value
         return mock
+
     return _create_async_mock
 
 
@@ -197,5 +203,6 @@ def async_mock():
 def capture_logs(caplog):
     """Capture log output at DEBUG level."""
     import logging
+
     caplog.set_level(logging.DEBUG)
     return caplog

@@ -4,11 +4,9 @@ Build Pipeline Management
 Unity build automation and platform management.
 """
 
-import asyncio
-import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +53,7 @@ class BuildManager:
             }
 
             if development_build:
-                build_config["build_options"].extend(
-                    ["Development", "AllowDebugging", "ConnectWithProfiler"]
-                )
+                build_config["build_options"].extend(["Development", "AllowDebugging", "ConnectWithProfiler"])
 
             # Simulate build process
             build_result = {

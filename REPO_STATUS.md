@@ -1,8 +1,8 @@
 # 🧠 Advanced Memory Note: Unity3D-MCP Repository Status
 
-**Date:** 2025-12-04
+**Date:** 2026-04-02
 **Version:** 1.0.0
-**Status:** ✅ HEALTHY (10/10) - FastMCP 2.13+ SOTA Compliant
+**Status:** ✅ SOTA (10/10) - FastMCP 3.2.0 Compliant
 
 ---
 

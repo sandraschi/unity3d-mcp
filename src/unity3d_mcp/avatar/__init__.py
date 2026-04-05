@@ -4,11 +4,9 @@ Avatar and VRM Management
 VRM avatar import, configuration, and animation setup for Unity.
 """
 
-import asyncio
-import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +55,7 @@ class VRMAvatarManager:
             }
 
             if optimize_for_vrchat:
-                result["vrchat_optimizations"] = await self._apply_vrchat_optimizations(
-                    vrm_name, project_path
-                )
+                result["vrchat_optimizations"] = await self._apply_vrchat_optimizations(vrm_name, project_path)
 
             if create_prefab:
                 result["prefab_path"] = f"Assets/Prefabs/{vrm_name}.prefab"
@@ -70,9 +66,7 @@ class VRMAvatarManager:
             logger.error(f"Failed to import VRM: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def _apply_vrchat_optimizations(
-        self, avatar_name: str, project_path: str
-    ) -> Dict[str, Any]:
+    async def _apply_vrchat_optimizations(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
         """Apply VRChat-specific optimizations."""
         optimizations = {
             "material_conversion": "Standard to VRChat compatible",

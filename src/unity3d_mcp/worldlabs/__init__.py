@@ -9,7 +9,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class WorldLabsManager:
 
     # Supported mesh formats from Marble
     SUPPORTED_MESH_FORMATS = [".obj", ".fbx", ".glb", ".gltf"]
-    
+
     # Gaussian splat formats
     SPLAT_FORMATS = [".ply", ".splat"]
 
@@ -42,7 +42,7 @@ class WorldLabsManager:
         optimize_for_vrchat: bool = False,
     ) -> Dict[str, Any]:
         """Import a World Labs Marble-generated world into Unity.
-        
+
         Args:
             source_path: Path to exported Marble assets (folder or file)
             project_path: Unity project path
@@ -57,9 +57,7 @@ class WorldLabsManager:
 
             # Determine import type
             if source.is_file():
-                return await self._import_single_file(
-                    source, project_path, asset_name, optimize_for_vrchat
-                )
+                return await self._import_single_file(source, project_path, asset_name, optimize_for_vrchat)
             else:
                 return await self._import_marble_folder(
                     source, project_path, asset_name, include_colliders, optimize_for_vrchat
@@ -87,7 +85,9 @@ class WorldLabsManager:
         else:
             return {
                 "status": "error",
-                "message": f"Unsupported format: {suffix}. Supported: {self.SUPPORTED_MESH_FORMATS + self.SPLAT_FORMATS}",
+                "message": (
+                    f"Unsupported format: {suffix}. Supported: {self.SUPPORTED_MESH_FORMATS + self.SPLAT_FORMATS}"
+                ),
             }
 
     async def _import_marble_folder(
@@ -100,13 +100,13 @@ class WorldLabsManager:
     ) -> Dict[str, Any]:
         """Import a folder of Marble exports."""
         name = asset_name or source.name
-        
+
         # Create destination folders
         dest_base = Path(project_path) / "Assets" / "WorldLabs" / name
         dest_visuals = dest_base / "Visuals"
         dest_colliders = dest_base / "Colliders"
         dest_splats = dest_base / "Splats"
-        
+
         for folder in [dest_visuals, dest_colliders, dest_splats]:
             folder.mkdir(parents=True, exist_ok=True)
 
@@ -118,7 +118,7 @@ class WorldLabsManager:
                 continue
 
             suffix = file.suffix.lower()
-            
+
             # Meshes
             if suffix in self.SUPPORTED_MESH_FORMATS:
                 if "collider" in file.stem.lower() or "collision" in file.stem.lower():
@@ -182,7 +182,7 @@ class WorldLabsManager:
         """Import a single mesh file."""
         dest_folder = Path(project_path) / "Assets" / "WorldLabs" / name
         dest_folder.mkdir(parents=True, exist_ok=True)
-        
+
         dest_file = dest_folder / source.name
         shutil.copy2(source, dest_file)
 
@@ -218,7 +218,7 @@ class WorldLabsManager:
 
         dest_folder = Path(project_path) / "Assets" / "WorldLabs" / name / "Splats"
         dest_folder.mkdir(parents=True, exist_ok=True)
-        
+
         dest_file = dest_folder / source.name
         shutil.copy2(source, dest_file)
 
@@ -248,7 +248,7 @@ class WorldLabsManager:
             if not manifest_path.exists():
                 return {"status": "error", "installed": False, "message": "Not a valid Unity project"}
 
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
@@ -306,7 +306,7 @@ class WorldLabsManager:
                     "already_installed": True,
                 }
 
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
@@ -339,7 +339,7 @@ class WorldLabsManager:
         target_polygon_count: int = 50000,
     ) -> Dict[str, Any]:
         """Provide optimization recommendations for VRChat.
-        
+
         Note: Actual mesh decimation requires Unity Editor operations.
         This provides analysis and recommendations.
         """
@@ -358,56 +358,64 @@ class WorldLabsManager:
 
             # Mesh recommendations
             if meshes:
-                recommendations.append({
-                    "category": "Meshes",
-                    "count": len(meshes),
-                    "actions": [
-                        f"Target polygon count: {target_polygon_count}",
-                        "Enable 'Optimize Mesh' in import settings",
-                        "Set mesh compression to 'High'",
-                        "Generate lightmap UVs for baked lighting",
-                    ],
-                })
+                recommendations.append(
+                    {
+                        "category": "Meshes",
+                        "count": len(meshes),
+                        "actions": [
+                            f"Target polygon count: {target_polygon_count}",
+                            "Enable 'Optimize Mesh' in import settings",
+                            "Set mesh compression to 'High'",
+                            "Generate lightmap UVs for baked lighting",
+                        ],
+                    }
+                )
 
             # Texture recommendations
             if textures:
                 total_size = sum(t.stat().st_size for t in textures)
-                recommendations.append({
-                    "category": "Textures",
-                    "count": len(textures),
-                    "total_size_mb": round(total_size / (1024 * 1024), 2),
-                    "actions": [
-                        "Set max texture size to 2048 or lower",
-                        "Use DXT1 compression for opaque textures",
-                        "Use DXT5 for textures with alpha",
-                        "Consider texture atlasing",
-                    ],
-                })
+                recommendations.append(
+                    {
+                        "category": "Textures",
+                        "count": len(textures),
+                        "total_size_mb": round(total_size / (1024 * 1024), 2),
+                        "actions": [
+                            "Set max texture size to 2048 or lower",
+                            "Use DXT1 compression for opaque textures",
+                            "Use DXT5 for textures with alpha",
+                            "Consider texture atlasing",
+                        ],
+                    }
+                )
 
             # Splat warnings
             if splats:
-                recommendations.append({
-                    "category": "Gaussian Splats",
-                    "count": len(splats),
-                    "warning": "Gaussian Splats may not be VRChat-compatible",
-                    "actions": [
-                        "Convert to mesh using Marble's mesh export option",
-                        "Or bake splats to textured mesh before upload",
-                        "Check VRChat allowlist for supported components",
-                    ],
-                })
+                recommendations.append(
+                    {
+                        "category": "Gaussian Splats",
+                        "count": len(splats),
+                        "warning": "Gaussian Splats may not be VRChat-compatible",
+                        "actions": [
+                            "Convert to mesh using Marble's mesh export option",
+                            "Or bake splats to textured mesh before upload",
+                            "Check VRChat allowlist for supported components",
+                        ],
+                    }
+                )
 
             # General VRChat recommendations
-            recommendations.append({
-                "category": "VRChat Setup",
-                "actions": [
-                    "Install VRChat SDK if not present",
-                    "Add VRC_SceneDescriptor to scene",
-                    "Set spawn point and respawn height",
-                    "Use VRWorld Toolkit for validation",
-                    "Test in VRChat before public upload",
-                ],
-            })
+            recommendations.append(
+                {
+                    "category": "VRChat Setup",
+                    "actions": [
+                        "Install VRChat SDK if not present",
+                        "Add VRC_SceneDescriptor to scene",
+                        "Set spawn point and respawn height",
+                        "Use VRWorld Toolkit for validation",
+                        "Test in VRChat before public upload",
+                    ],
+                }
+            )
 
             return {
                 "status": "success",
@@ -424,4 +432,3 @@ class WorldLabsManager:
         except Exception as e:
             logger.error(f"Failed to analyze for VRChat: {e}")
             return {"status": "error", "message": str(e)}
-

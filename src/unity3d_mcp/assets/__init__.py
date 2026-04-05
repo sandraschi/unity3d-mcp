@@ -4,11 +4,9 @@ Asset Management
 Unity asset import, optimization, and management tools.
 """
 
-import asyncio
-import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +17,7 @@ class AssetManager:
     def __init__(self, config):
         self.config = config
 
-    async def import_package(
-        self, package_path: str, project_path: str, interactive: bool = False
-    ) -> Dict[str, Any]:
+    async def import_package(self, package_path: str, project_path: str, interactive: bool = False) -> Dict[str, Any]:
         """Import Unity asset package."""
         try:
             if not Path(package_path).exists():

@@ -4,8 +4,9 @@ Unit test specific fixtures.
 These fixtures are only available to tests in the unit/ directory.
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 
 @pytest.fixture
@@ -29,6 +30,7 @@ def mock_osc_client():
 def editor_manager(mock_config):
     """Create UnityEditorManager for unit testing."""
     from unity3d_mcp.core import UnityEditorManager
+
     return UnityEditorManager(mock_config)
 
 
@@ -36,6 +38,7 @@ def editor_manager(mock_config):
 def project_manager(mock_config):
     """Create ProjectManager for unit testing."""
     from unity3d_mcp.core import ProjectManager
+
     return ProjectManager(mock_config)
 
 
@@ -43,5 +46,5 @@ def project_manager(mock_config):
 def scene_manager(mock_config):
     """Create SceneManager for unit testing."""
     from unity3d_mcp.core import SceneManager
-    return SceneManager(mock_config)
 
+    return SceneManager(mock_config)

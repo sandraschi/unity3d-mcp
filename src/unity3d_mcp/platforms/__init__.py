@@ -10,14 +10,14 @@ Support for multiple social VR platforms beyond VRChat:
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class ChilloutVRManager:
     """ChilloutVR integration via CCK (Content Creation Kit).
-    
+
     ChilloutVR is Unity-based like VRChat, uses similar workflow.
     CCK package: https://docs.abinteractive.net/cck/
     """
@@ -85,7 +85,7 @@ class ChilloutVRManager:
 
     async def install_cck(self, project_path: str) -> Dict[str, Any]:
         """Install ChilloutVR CCK package.
-        
+
         Note: CCK requires manual download from ABI website due to licensing.
         This provides instructions rather than auto-install.
         """
@@ -110,7 +110,7 @@ class ChilloutVRManager:
         voice_position: Optional[Dict[str, float]] = None,
     ) -> Dict[str, Any]:
         """Setup CVRAvatar component on avatar.
-        
+
         This generates the configuration - actual component addition
         requires Unity Editor execution.
         """
@@ -138,9 +138,7 @@ class ChilloutVRManager:
             "unity_method": "ChilloutVRSetup.ConfigureAvatar",
         }
 
-    async def validate_for_chillout(
-        self, avatar_name: str, project_path: str
-    ) -> Dict[str, Any]:
+    async def validate_for_chillout(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
         """Validate avatar for ChilloutVR upload."""
         # ChilloutVR is more permissive than VRChat
         return {
@@ -159,13 +157,13 @@ class ChilloutVRManager:
 
 class ResoniteManager:
     """Resonite (formerly NeosVR) integration.
-    
+
     Resonite supports direct VRM/GLB import - no Unity required!
     Content is created/edited directly in-world.
     """
 
     SUPPORTED_FORMATS = [".vrm", ".glb", ".gltf", ".fbx", ".obj"]
-    
+
     # Resonite has very generous limits
     PERFORMANCE_RECOMMENDATIONS = {
         "avatar_polygons": 100000,  # Recommended max
@@ -182,7 +180,7 @@ class ResoniteManager:
         optimize: bool = True,
     ) -> Dict[str, Any]:
         """Prepare a model for Resonite import.
-        
+
         Resonite imports VRM/GLB directly - no SDK needed!
         """
         path = Path(model_path)
@@ -214,7 +212,9 @@ class ResoniteManager:
                 "VRM files import with expressions/blend shapes",
                 "Humanoid rig is auto-detected",
                 "Can be equipped directly as avatar",
-            ] if suffix == ".vrm" else [],
+            ]
+            if suffix == ".vrm"
+            else [],
             "optimization_tips": [
                 "Use GLB for smaller file sizes",
                 "VRM 1.0 is well supported",
@@ -261,13 +261,13 @@ class ResoniteManager:
 
 class ClusterManager:
     """Cluster (Japanese social VR) integration.
-    
+
     Cluster uses Unity + Cluster Creator Kit.
     Popular in Japan, supports VRM avatars.
     """
 
     CREATOR_KIT_URL = "https://creator.cluster.mu/"
-    
+
     def __init__(self, config):
         self.config = config
 
@@ -396,9 +396,7 @@ class PlatformManager:
             },
         }
 
-    async def check_platform_sdk(
-        self, platform: str, project_path: str
-    ) -> Dict[str, Any]:
+    async def check_platform_sdk(self, platform: str, project_path: str) -> Dict[str, Any]:
         """Check if platform SDK is installed."""
         platform = platform.lower()
 
@@ -418,4 +416,3 @@ class PlatformManager:
                 "message": f"Unknown platform: {platform}",
                 "supported": ["vrchat", "chilloutvr", "resonite", "cluster"],
             }
-

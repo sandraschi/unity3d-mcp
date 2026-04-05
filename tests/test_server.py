@@ -1,8 +1,5 @@
 """Tests for Unity3D MCP Server initialization and tool registration."""
 
-import pytest
-from unittest.mock import patch, MagicMock
-
 
 class TestServerInitialization:
     """Tests for server initialization."""
@@ -10,15 +7,15 @@ class TestServerInitialization:
     def test_server_creates_successfully(self, mock_config):
         """Test that server initializes without errors."""
         from unity3d_mcp.server import Unity3DMCP
-        
+
         server = Unity3DMCP(mock_config)
         assert server is not None
         assert server.app is not None
 
     def test_server_default_config(self):
         """Test server with default configuration."""
-        from unity3d_mcp.server import Unity3DMCP, Unity3DConfig
-        
+        from unity3d_mcp.server import Unity3DConfig, Unity3DMCP
+
         server = Unity3DMCP()
         assert server.config is not None
         assert isinstance(server.config, Unity3DConfig)
@@ -63,7 +60,7 @@ class TestConfig:
     def test_config_defaults(self):
         """Test default configuration values."""
         from unity3d_mcp.server import Unity3DConfig
-        
+
         config = Unity3DConfig()
         assert config.unity_editor_path == ""
         assert config.project_path == ""
@@ -75,14 +72,14 @@ class TestConfig:
     def test_config_custom_values(self):
         """Test configuration with custom values."""
         from unity3d_mcp.server import Unity3DConfig
-        
+
         config = Unity3DConfig(
             unity_editor_path="C:\\Unity\\Editor\\Unity.exe",
             project_path="D:\\Projects\\Game",
             auto_detect_unity=False,
             http_port=9000,
         )
-        
+
         assert config.unity_editor_path == "C:\\Unity\\Editor\\Unity.exe"
         assert config.project_path == "D:\\Projects\\Game"
         assert config.auto_detect_unity is False
@@ -95,15 +92,14 @@ class TestCreateApp:
     def test_create_app_no_config(self):
         """Test create_app without config."""
         from unity3d_mcp.server import create_app
-        
+
         app = create_app()
         assert app is not None
 
     def test_create_app_with_config(self, mock_config):
         """Test create_app with config."""
         from unity3d_mcp.server import create_app
-        
+
         app = create_app(mock_config)
         assert app is not None
         assert app.config == mock_config
-

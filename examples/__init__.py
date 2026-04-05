@@ -6,4 +6,3 @@ Demonstrates various usage patterns including:
 - VRChat pipeline workflows
 - Multi-platform social VR deployment
 """
-

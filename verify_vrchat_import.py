@@ -1,12 +1,11 @@
 import asyncio
 import os
 import sys
-from pathlib import Path
 
 # Add src to python path
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
-from unity3d_mcp.server import Unity3DMCP, Unity3DConfig
+from unity3d_mcp.server import Unity3DConfig, Unity3DMCP
 
 
 async def verify_pipeline():
@@ -31,7 +30,7 @@ async def verify_pipeline():
         return
 
     # 2. Setup Avatar Descriptor
-    print(f"\n2. Setting up Avatar Descriptor...")
+    print("\n2. Setting up Avatar Descriptor...")
     avatar_prefab = "Assets/scout_model.blend"  # Using .blend file directly as asset path
     try:
         # Note: server.vrchat_sdk might not be directly exposed as tool, but we registered it in server.py
@@ -44,7 +43,7 @@ async def verify_pipeline():
         # Proceeding even if setup fails to test upload (which normally requires setup)
 
     # 3. Upload Avatar
-    print(f"\n3. Uploading Avatar...")
+    print("\n3. Uploading Avatar...")
     try:
         upload_result = await server.vrchat_sdk.upload_avatar(
             avatar_prefab=avatar_prefab,

@@ -18,4 +18,3 @@ VRM_AVATAR_PATH = FIXTURES_DIR / "Nekomimi-chan.vrm"
 def get_fixture_path(name: str) -> Path:
     """Get path to a fixture file."""
     return FIXTURES_DIR / name
-

@@ -5,9 +5,16 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - 2026-04-02
 
 ### Changed
+- **UPGRADED to FastMCP 3.2.0**: Latest SOTA protocol standards.
+  - Migrated from FastMCP 2.13 to **FastMCP 3.2.0**.
+  - **ASGI Compatibility Fix**: Fixed startup failure by exposing global `app` attribute in `unity3d_mcp.server`.
+  - Standardized webapp backend port to **10831** and frontend to **10830**.
+  - Synchronized `server.py` with unified transport module (`transport.py`).
+  - Improved `run_stdio` and `run_http` methods for better error handling and SOTA compliance.
+
 - **UPGRADED to FastMCP 2.13+**: Complete migration to SOTA standards
   - FastMCP dependency updated to `>=2.13.0,<2.14.0` (from 2.10)
   - Added server lifespan context manager for proper startup/shutdown

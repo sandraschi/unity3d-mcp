@@ -12,7 +12,7 @@ Usage:
     python -m examples.server_composition
 """
 
-from fastmcp import FastMCP, Client
+from fastmcp import Client, FastMCP
 
 # Create orchestrator server
 vr_pipeline = FastMCP(name="VRChat-Pipeline")
@@ -22,20 +22,22 @@ vr_pipeline = FastMCP(name="VRChat-Pipeline")
 # Option 1: Mount external servers (when installed as packages)
 # ============================================================================
 
+
 def setup_with_packages():
     """Mount servers when installed as pip packages."""
     try:
-        from unity3d_mcp.server import Unity3DMCP
         from oscmcp.server import server as osc_server
-        
+
+        from unity3d_mcp.server import Unity3DMCP
+
         unity3d = Unity3DMCP()
-        
+
         # Mount with live linking (as_proxy=True)
         vr_pipeline.mount(unity3d.app, prefix="unity", as_proxy=True)
         vr_pipeline.mount(osc_server, prefix="osc", as_proxy=True)
-        
+
         print("Mounted unity3d-mcp and oscmcp")
-        
+
     except ImportError as e:
         print(f"Package not found: {e}")
         print("Install with: pip install unity3d-mcp oscmcp")
@@ -45,10 +47,11 @@ def setup_with_packages():
 # Option 2: Create cross-server workflow tools
 # ============================================================================
 
+
 @vr_pipeline.tool
 async def vrchat_send_parameter(parameter_name: str, value: float) -> dict:
     """Send VRChat avatar parameter via OSC.
-    
+
     This is a convenience wrapper that uses oscmcp under the hood.
     """
     async with Client(vr_pipeline) as client:
@@ -57,7 +60,7 @@ async def vrchat_send_parameter(parameter_name: str, value: float) -> dict:
             host="127.0.0.1",
             port=9000,
             address=f"/avatar/parameters/{parameter_name}",
-            values=[value]
+            values=[value],
         )
 
 
@@ -70,7 +73,7 @@ async def vrchat_chatbox(message: str, send_immediately: bool = True) -> dict:
             host="127.0.0.1",
             port=9000,
             address="/chatbox/input",
-            values=[message, send_immediately, False]
+            values=[message, send_immediately, False],
         )
 
 
@@ -81,7 +84,7 @@ async def full_avatar_deploy(
     avatar_name: str,
 ) -> dict:
     """Deploy VRM avatar end-to-end: import → validate → upload.
-    
+
     Args:
         vrm_path: Path to VRM file
         unity_project: Path to Unity project with VRChat SDK
@@ -94,35 +97,33 @@ async def full_avatar_deploy(
             vrm_path=vrm_path,
             project_path=unity_project,
             create_prefab=True,
-            optimize_for_vrchat=True
+            optimize_for_vrchat=True,
         )
-        
+
         if import_result.get("status") == "error":
             return {"status": "error", "step": "import", "details": import_result}
-        
+
         # 2. Validate for VRChat
         validate_result = await client.call_tool(
-            "unity_vrchat_validate_avatar",
-            avatar_name=avatar_name,
-            project_path=unity_project
+            "unity_vrchat_validate_avatar", avatar_name=avatar_name, project_path=unity_project
         )
-        
+
         if validate_result.get("status") == "error":
             return {"status": "error", "step": "validate", "details": validate_result}
-        
+
         # 3. Upload to VRChat
         upload_result = await client.call_tool(
             "unity_upload_vrchat_avatar",
             avatar_prefab=import_result.get("prefab_path", f"Assets/{avatar_name}.prefab"),
-            avatar_name=avatar_name
+            avatar_name=avatar_name,
         )
-        
+
         return {
             "status": "success",
             "avatar_name": avatar_name,
             "import": import_result,
             "validation": validate_result,
-            "upload": upload_result
+            "upload": upload_result,
         }
 
 
@@ -134,16 +135,13 @@ VRCHAT_OSC_ADDRESSES = {
     # Avatar Parameters
     "parameter": "/avatar/parameters/{name}",
     "change": "/avatar/change",
-    
     # Chatbox
     "chatbox_input": "/chatbox/input",  # [message, send_immediately, play_sound]
     "chatbox_typing": "/chatbox/typing",  # [is_typing]
-    
     # Tracking
     "head": "/tracking/trackers/head/position",
     "left_hand": "/tracking/trackers/1/position",
     "right_hand": "/tracking/trackers/2/position",
-    
     # Input
     "vertical": "/input/Vertical",
     "horizontal": "/input/Horizontal",
@@ -156,10 +154,11 @@ VRCHAT_OSC_ADDRESSES = {
 # Main
 # ============================================================================
 
+
 def main():
     """Run the composed server."""
     setup_with_packages()
-    
+
     # List available tools
     print("\n=== VRChat Pipeline Tools ===")
     print("From unity3d-mcp (prefix: unity_):")
@@ -178,11 +177,10 @@ def main():
     print("  - full_avatar_deploy")
     print("")
     print("Starting server...")
-    
+
     # Run in stdio mode
     vr_pipeline.run()
 
 
 if __name__ == "__main__":
     main()
-

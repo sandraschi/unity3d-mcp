@@ -7,9 +7,7 @@ Supports multiple formats and provides batch operations for efficiency.
 """
 
 import asyncio
-import json
 import logging
-import os
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -716,9 +714,7 @@ class ImportExportToolManager:
                     export_settings={"include_animation": True}
                 )
             """
-            return await self.import_export_manager.export_fbx(
-                object_names, output_path, project_path, export_settings
-            )
+            return await self.import_export_manager.export_fbx(object_names, output_path, project_path, export_settings)
 
         @self.app.tool
         async def export_unity_package(

@@ -29,9 +29,7 @@ class TestWorldLabsImport:
         return export_dir
 
     @pytest.mark.asyncio
-    async def test_import_marble_folder(
-        self, mock_unity_project, mock_config, marble_export_folder
-    ):
+    async def test_import_marble_folder(self, mock_unity_project, mock_config, marble_export_folder):
         """Test importing a Marble export folder."""
         from unity3d_mcp.worldlabs import WorldLabsManager
 
@@ -151,7 +149,7 @@ class TestGaussianSplatting:
 
         # Add package to manifest
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         manifest["dependencies"]["com.aras-p.gaussian-splatting"] = "https://github.com/..."
@@ -179,7 +177,7 @@ class TestGaussianSplatting:
 
         # Verify manifest was updated
         manifest_path = mock_unity_project / "Packages" / "manifest.json"
-        with open(manifest_path, "r") as f:
+        with open(manifest_path) as f:
             manifest = json.load(f)
 
         assert "com.aras-p.gaussian-splatting" in manifest["dependencies"]
@@ -222,9 +220,7 @@ class TestVRChatOptimization:
         return "WorldLabs/TestWorld"
 
     @pytest.mark.asyncio
-    async def test_vrchat_optimization_analysis(
-        self, mock_unity_project, mock_config, worldlabs_assets
-    ):
+    async def test_vrchat_optimization_analysis(self, mock_unity_project, mock_config, worldlabs_assets):
         """Test VRChat optimization recommendations."""
         from unity3d_mcp.worldlabs import WorldLabsManager
 
@@ -240,10 +236,7 @@ class TestVRChatOptimization:
         assert len(result["recommendations"]) >= 1
 
         # Check for Gaussian Splat warning
-        splat_rec = next(
-            (r for r in result["recommendations"] if r["category"] == "Gaussian Splats"),
-            None
-        )
+        splat_rec = next((r for r in result["recommendations"] if r["category"] == "Gaussian Splats"), None)
         assert splat_rec is not None
         assert "warning" in splat_rec
 
@@ -266,9 +259,7 @@ class TestImportWithVRChatOptimization:
     """Test importing with VRChat optimization flags."""
 
     @pytest.mark.asyncio
-    async def test_import_with_vrchat_flag(
-        self, mock_unity_project, mock_config, tmp_path
-    ):
+    async def test_import_with_vrchat_flag(self, mock_unity_project, mock_config, tmp_path):
         """Test import with VRChat optimization enabled."""
         from unity3d_mcp.worldlabs import WorldLabsManager
 
@@ -286,4 +277,3 @@ class TestImportWithVRChatOptimization:
         assert result["status"] == "success"
         assert "vrchat_optimization" in result
         assert "recommended_actions" in result["vrchat_optimization"]
-

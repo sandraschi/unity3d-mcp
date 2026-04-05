@@ -11,7 +11,7 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -28,7 +28,7 @@ classifiers = [
 keywords = ["unity3d", "mcp", "vrm", "vrchat", "avatar", "automation", "fastmcp"]
 
 dependencies = [
-    "fastmcp>=2.14.0,<3.0.0",
+    "fastmcp>=3.2.0,<4",
     "pydantic>=2.0.0",
     "uvicorn>=0.23.0",
     "asyncio-mqtt>=0.11.0",
@@ -37,17 +37,26 @@ dependencies = [
     "aiohttp>=3.9.0",
     "pathlib",
     "typing-extensions>=4.0.0",
-    "structlog>=23.0.0"
+    "structlog>=23.0.0",
+    "httpx>=0.27.0",
+    "UnityPy>=1.20.0",
 ]
+
+
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
-    "ruff>=0.3.0",
-    "mypy>=1.0.0"
+    "ruff>=0.15.2",
+    "mypy>=1.0.0",
+    "mcpb>=0.1.0"
 ]
+apps = [
+    "prefab-ui>=0.1.0"
+]
+
 docs = [
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.0.0",
@@ -70,7 +79,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py38']
 include = '\.pyi?$'
 extend-exclude = '''
@@ -135,13 +144,30 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-line-length = 100
-target-version = "py38"
+line-length = 120
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
-ignore = []
+# Hardened v13.1 Rule Set
+select = [
+    "E", "F", "I", "UP", "B", "S", "A", "ANN", "COM", "C4", "DTZ", "PIE", "T20", "PYI", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "PERF", "FURB", "LOG", "RUF"
+]
+ignore = [
+    "ANN101", # Missing type annotation for self
+    "ANN102", # Missing type annotation for cls
+    "COM812", # Trailing comma missing (handled by formatter)
+    "ISC001", # Single line implicit string concatenation (handled by formatter)
+    "PLR0913", # Too many arguments
+    "S101",   # Use of assert (standard for pytest)
+    "TRY003", # Avoid specifying long messages in exceptions
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "ANN", "PLR", "TRY", "S105", "S106", "SLF001", "ARG002", "PLC0415"]
+"server.py" = ["T20", "ARG001", "ARG002"]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

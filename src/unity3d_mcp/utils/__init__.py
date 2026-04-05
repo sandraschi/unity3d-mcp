@@ -7,7 +7,7 @@ Shared utilities for path resolution, configuration, and logging.
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,7 @@ class UnityPathResolver:
         for path_str in common_paths:
             path = Path(path_str)
             if path.exists():
-                installations.append(
-                    {"version": "unknown", "path": str(path), "source": "Manual Installation"}
-                )
+                installations.append({"version": "unknown", "path": str(path), "source": "Manual Installation"})
 
         return installations
 

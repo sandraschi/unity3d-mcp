@@ -82,9 +82,7 @@ class PlatformToolManager:
             elif operation == "setup_cvr_avatar":
                 if not avatar_object or not project_path:
                     return {"success": False, "error": "avatar_object and project_path required for setup_cvr_avatar"}
-                return await self.platforms.chillout.setup_cvr_avatar(
-                    avatar_object, project_path, eye_height
-                )
+                return await self.platforms.chillout.setup_cvr_avatar(avatar_object, project_path, eye_height)
 
             elif operation == "validate_cvr":
                 if not avatar_name or not project_path:
@@ -116,8 +114,14 @@ class PlatformToolManager:
                     "success": False,
                     "error": f"Unknown operation: {operation}",
                     "available_operations": [
-                        "list_platforms", "check_sdk", "check_cck", "setup_cvr_avatar",
-                        "validate_cvr", "prepare_resonite", "check_resonite_compat",
-                        "check_cluster_kit", "prepare_cluster"
-                    ]
+                        "list_platforms",
+                        "check_sdk",
+                        "check_cck",
+                        "setup_cvr_avatar",
+                        "validate_cvr",
+                        "prepare_resonite",
+                        "check_resonite_compat",
+                        "check_cluster_kit",
+                        "prepare_cluster",
+                    ],
                 }

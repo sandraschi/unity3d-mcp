@@ -12,7 +12,7 @@ class TestServerIntegration:
     @pytest.mark.asyncio
     async def test_full_server_initialization(self):
         """Test complete server initialization flow."""
-        from unity3d_mcp.server import Unity3DMCP, Unity3DConfig
+        from unity3d_mcp.server import Unity3DConfig, Unity3DMCP
 
         config = Unity3DConfig(
             auto_detect_unity=False,
@@ -29,12 +29,10 @@ class TestServerIntegration:
         # OSC moved to oscmcp
 
     @pytest.mark.asyncio
-    async def test_tool_chain_vrchat_upload(
-        self, mock_vrchat_project, mock_avatar_prefab, vrchat_env_credentials
-    ):
+    async def test_tool_chain_vrchat_upload(self, mock_vrchat_project, mock_avatar_prefab, vrchat_env_credentials):
         """Test complete VRChat upload workflow."""
-        from unity3d_mcp.vrchat import VRChatSDKManager
         from unity3d_mcp.server import Unity3DConfig
+        from unity3d_mcp.vrchat import VRChatSDKManager
 
         config = Unity3DConfig(project_path=str(mock_vrchat_project))
         manager = VRChatSDKManager(config)
@@ -48,10 +46,7 @@ class TestServerIntegration:
         assert auth_result["authenticated"] is True
 
         # Step 3: Validate avatar (will succeed with mock)
-        validate_result = await manager.validate_avatar(
-            "Assets/Prefabs/TestAvatar.prefab",
-            str(mock_vrchat_project)
-        )
+        validate_result = await manager.validate_avatar("Assets/Prefabs/TestAvatar.prefab", str(mock_vrchat_project))
         assert "valid" in validate_result
 
 
@@ -78,11 +73,7 @@ class TestProjectWorkflow:
             mock_exec.return_value = mock_process
 
             # Create project
-            result = await manager.create_project(
-                "IntegrationTest",
-                str(tmp_path),
-                template="3D"
-            )
+            result = await manager.create_project("IntegrationTest", str(tmp_path), template="3D")
 
             assert result["status"] == "success"
 
@@ -111,12 +102,12 @@ class TestErrorHandling:
     async def test_graceful_auth_failure(self, mock_config):
         """Test graceful handling of auth failure."""
         from unity3d_mcp.vrchat import VRChatSDKManager
-        
+
         manager = VRChatSDKManager(mock_config)
-        
-        with patch.dict("os.environ", {}, clear=True), \
-             patch.object(manager, "_check_unity_editorprefs", return_value={"authenticated": False}), \
-             patch("pathlib.Path.exists", return_value=False):
+
+        with patch.dict("os.environ", {}, clear=True), patch.object(
+            manager, "_check_unity_editorprefs", return_value={"authenticated": False}
+        ), patch("pathlib.Path.exists", return_value=False):
             result = await manager.check_authentication()
 
         assert result["authenticated"] is False
@@ -125,9 +116,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_graceful_invalid_project(self, vrchat_manager, tmp_path):
         """Test graceful handling of invalid project."""
-        result = await vrchat_manager.check_sdk_installed(
-            str(tmp_path / "nonexistent")
-        )
+        result = await vrchat_manager.check_sdk_installed(str(tmp_path / "nonexistent"))
 
         assert result["installed"] is False
         assert "error" in result
@@ -139,16 +128,10 @@ class TestConcurrency:
     # test_concurrent_osc_sends removed - OSC moved to oscmcp
 
     @pytest.mark.asyncio
-    async def test_concurrent_validations(
-        self, vrchat_manager, mock_vrchat_project
-    ):
+    async def test_concurrent_validations(self, vrchat_manager, mock_vrchat_project):
         """Test concurrent avatar validations."""
-        tasks = [
-            vrchat_manager.check_sdk_installed(str(mock_vrchat_project))
-            for _ in range(5)
-        ]
+        tasks = [vrchat_manager.check_sdk_installed(str(mock_vrchat_project)) for _ in range(5)]
 
         results = await asyncio.gather(*tasks)
 
         assert all(r["installed"] is True for r in results)
-

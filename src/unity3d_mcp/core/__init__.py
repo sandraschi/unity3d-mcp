@@ -7,10 +7,7 @@ Unity Editor automation, project management, and scene operations.
 import asyncio
 import json
 import logging
-import os
 import shutil
-import subprocess
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -81,13 +78,11 @@ class UnityEditorManager:
                 version_file = Path(project_path) / "ProjectSettings" / "ProjectVersion.txt"
                 if version_file.exists():
                     try:
-                        with open(version_file, "r") as f:
+                        with open(version_file) as f:
                             for line in f:
                                 if line.startswith("m_EditorVersion:"):
                                     unity_version = line.split(":")[1].strip()
-                                    logger.info(
-                                        f"Detected Unity version from project: {unity_version}"
-                                    )
+                                    logger.info(f"Detected Unity version from project: {unity_version}")
                                     break
                     except Exception as e:
                         logger.warning(f"Failed to read Unity version from project: {e}")
@@ -98,7 +93,7 @@ class UnityEditorManager:
                 logger.warning("Unity not found with version, trying without version")
                 unity_path = await self._resolve_unity_path("")
                 if not unity_path:
-                    error_msg = f"Unity Editor not found"
+                    error_msg = "Unity Editor not found"
                     if unity_version:
                         error_msg += f" (looking for version {unity_version})"
                     return {"status": "error", "message": error_msg}
@@ -131,7 +126,8 @@ class UnityEditorManager:
             if parameters:
                 logger.info(f"Method parameters provided but not passed to Unity: {parameters}")
                 logger.warning(
-                    "Unity -executeMethod doesn't support parameters via command line. Consider using static fields or Unity Editor API."
+                    "Unity -executeMethod doesn't support parameters via command line. "
+                    "Consider using static fields or Unity Editor API."
                 )
 
             result = await asyncio.create_subprocess_exec(
@@ -209,7 +205,7 @@ class UnityEditorManager:
             hub_editors_path = Path.home() / "AppData/Roaming/Unity Hub/editors.json"
             if hub_editors_path.exists():
                 try:
-                    with open(hub_editors_path, "r", encoding="utf-8") as f:
+                    with open(hub_editors_path, encoding="utf-8") as f:
                         editors_data = json.load(f)
                         editors = []
 
@@ -225,9 +221,7 @@ class UnityEditorManager:
                             else:
                                 # Check if it's a dict with editor IDs as keys
                                 for key, value in editors_data.items():
-                                    if isinstance(value, dict) and (
-                                        "version" in value or "location" in value
-                                    ):
+                                    if isinstance(value, dict) and ("version" in value or "location" in value):
                                         editors.append(value)
                         elif isinstance(editors_data, list):
                             editors = editors_data
@@ -240,9 +234,7 @@ class UnityEditorManager:
                                 if isinstance(editor, dict):
                                     editor_version = editor.get("version", "")
                                     editor_path = editor.get("location", "")
-                                    if editor_path and (
-                                        version in editor_version or editor_version in version
-                                    ):
+                                    if editor_path and (version in editor_version or editor_version in version):
                                         unity_exe = Path(editor_path) / "Editor" / "Unity.exe"
                                         if unity_exe.exists():
                                             logger.info(f"Found Unity {version} at: {unity_exe}")
@@ -280,9 +272,7 @@ class UnityEditorManager:
                 if hub_base.exists():
                     # Find latest version (sort by directory name, which usually contains version)
                     try:
-                        versions = sorted(
-                            [d for d in hub_base.iterdir() if d.is_dir()], reverse=True
-                        )
+                        versions = sorted([d for d in hub_base.iterdir() if d.is_dir()], reverse=True)
                         for version_dir in versions:
                             unity_exe = version_dir / "Editor" / "Unity.exe"
                             if unity_exe.exists():
@@ -414,7 +404,7 @@ class ProjectManager:
                     "message": f"Not a valid Unity project (manifest.json not found): {project_path}",
                 }
 
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
@@ -487,7 +477,7 @@ class ProjectManager:
                 }
 
             # Read current manifest
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
@@ -552,7 +542,7 @@ class ProjectManager:
             if not manifest_path.exists():
                 return {"status": "error", "message": "Not a valid Unity project"}
 
-            with open(manifest_path, "r") as f:
+            with open(manifest_path) as f:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
@@ -598,9 +588,7 @@ class SceneManager:
         self.config = config
         self.unity_editor = UnityEditorManager(config)
 
-    async def create_scene(
-        self, scene_name: str, project_path: str, template: str = "Basic"
-    ) -> Dict[str, Any]:
+    async def create_scene(self, scene_name: str, project_path: str, template: str = "Basic") -> Dict[str, Any]:
         """Create new Unity scene."""
         try:
             # This would typically use Unity's EditorSceneManager
@@ -641,12 +629,8 @@ class SceneManager:
                 "type": light_type,
                 "color": color or [1.0, 1.0, 1.0, 1.0],
                 "intensity": intensity,
-                "position": [position.get("x", 0), position.get("y", 0), position.get("z", 0)]
-                if position
-                else None,
-                "rotation": [rotation.get("x", 0), rotation.get("y", 0), rotation.get("z", 0)]
-                if rotation
-                else None,
+                "position": [position.get("x", 0), position.get("y", 0), position.get("z", 0)] if position else None,
+                "rotation": [rotation.get("x", 0), rotation.get("y", 0), rotation.get("z", 0)] if rotation else None,
             }
 
             # 3. Write Parameters

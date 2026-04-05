@@ -9,14 +9,12 @@ These tests require:
 Run with: pytest tests/e2e/test_vrm_unity_load.py -v --run-e2e
 """
 
-import asyncio
 import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
-
 from fixtures.factories import VRM_TEST_FILE, requires_vrm_file
+
 from e2e.conftest import requires_unity, requires_unity_project, requires_univrm
 
 
@@ -79,9 +77,7 @@ class TestVRMImportIntoUnity:
         return temp_vrm
 
     @pytest.mark.asyncio
-    async def test_vrm_import_to_project(
-        self, unity_config, unity_project, temp_vrm_copy
-    ):
+    async def test_vrm_import_to_project(self, unity_config, unity_project, temp_vrm_copy):
         """Test importing VRM into Unity project Assets folder."""
         from unity3d_mcp.avatar import VRMAvatarManager
 
@@ -106,9 +102,7 @@ class TestVRMImportIntoUnity:
             imported_path.unlink()
 
     @pytest.mark.asyncio
-    async def test_vrm_import_with_optimization(
-        self, unity_config, unity_project, temp_vrm_copy
-    ):
+    async def test_vrm_import_with_optimization(self, unity_config, unity_project, temp_vrm_copy):
         """Test VRM import with VRChat optimizations."""
         from unity3d_mcp.avatar import VRMAvatarManager
 
@@ -144,7 +138,7 @@ class TestVRMUnityBatchImport:
     def vrm_importer_script(self, tmp_path):
         """Create a C# script to import VRM in Unity."""
         script = tmp_path / "VRMImporter.cs"
-        script.write_text('''
+        script.write_text("""
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -174,20 +168,18 @@ public class VRMImporter
         string destPath = Path.Combine(Application.dataPath, "Models", fileName);
         Directory.CreateDirectory(Path.GetDirectoryName(destPath));
         File.Copy(vrmPath, destPath, true);
-        
+
         AssetDatabase.Refresh();
-        
+
         Debug.Log($"VRM imported: {destPath}");
         EditorApplication.Exit(0);
     }
 }
-''')
+""")
         return script
 
     @pytest.mark.asyncio
-    async def test_unity_batch_vrm_import(
-        self, unity_executable, unity_project, vrm_importer_script
-    ):
+    async def test_unity_batch_vrm_import(self, unity_executable, unity_project, vrm_importer_script):
         """Test VRM import via Unity batch mode."""
         import os
         import subprocess
@@ -208,9 +200,12 @@ public class VRMImporter
                 str(unity_executable),
                 "-batchmode",
                 "-quit",
-                "-projectPath", str(unity_project),
-                "-executeMethod", "VRMImporter.ImportVRM",
-                "-logFile", "-",
+                "-projectPath",
+                str(unity_project),
+                "-executeMethod",
+                "VRMImporter.ImportVRM",
+                "-logFile",
+                "-",
             ]
 
             result = subprocess.run(
@@ -229,7 +224,7 @@ public class VRMImporter
             # Cleanup
             if dest_script.exists():
                 dest_script.unlink()
-            
+
             # Remove imported VRM
             imported = unity_project / "Assets" / "Models" / VRM_TEST_FILE.name
             if imported.exists():
@@ -265,8 +260,10 @@ class TestUnityEditorLaunch:
             str(unity_executable),
             "-batchmode",
             "-quit",
-            "-projectPath", str(unity_project),
-            "-logFile", "-",
+            "-projectPath",
+            str(unity_project),
+            "-logFile",
+            "-",
         ]
 
         result = subprocess.run(
@@ -278,4 +275,3 @@ class TestUnityEditorLaunch:
 
         # Unity should exit cleanly
         assert result.returncode == 0, f"Unity failed: {result.stderr}"
-

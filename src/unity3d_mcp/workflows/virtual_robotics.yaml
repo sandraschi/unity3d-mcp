@@ -1,0 +1,45 @@
+arazzo: 1.0.1
+info:
+  title: Virtual Robotics Sync
+  version: 1.0.0
+  description: Multi-platform character synchronization between Unity3D, VRChat, and Resonite.
+sourceDescriptions:
+  - name: unity3d-mcp
+    url: http://localhost:10740/openapi.json
+    type: openapi
+  - name: vrchat-mcp
+    url: http://localhost:10750/openapi.json
+    type: openapi
+  - name: resonite-mcp
+    url: http://localhost:10760/openapi.json
+    type: openapi
+workflows:
+  - workflowId: sync-virtual-robot
+    summary: Synchronizes a Unity3D robotic platform to VR social spaces.
+    steps:
+      - stepId: init-unity
+        description: Load robotic asset in Unity3D.
+        operationId: unity3d-mcp.load_asset
+        parameters:
+          - name: asset_id
+            in: query
+            value: "MoorebotScout"
+      - stepId: sync-vrchat
+        description: Spawn corresponding avatar in VRChat.
+        operationId: vrchat-mcp.spawn_avatar
+        parameters:
+          - name: avatar_id
+            in: query
+            value: "ScoutVRC"
+      - stepId: establish-osc
+        description: Connect OSC bridge for real-time motion.
+        operationId: osc-mcp.send_osc_message
+        parameters:
+          - name: address
+            in: query
+            value: "/robot/sync"
+          - name: value
+            in: query
+            value: 1.0
+outputs:
+  syncStatus: "$steps.establish-osc.outputs.status"

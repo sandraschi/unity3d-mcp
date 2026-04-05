@@ -111,9 +111,7 @@ class UnityAPIToolManager:
                 return await self._api_get_scene_objects(project_path, scene_path, object_filter)
 
             elif operation == "modify_object":
-                return await self._api_modify_object(
-                    object_name, modifications, project_path, scene_path
-                )
+                return await self._api_modify_object(object_name, modifications, project_path, scene_path)
 
             elif operation == "create_prefab":
                 return await self._api_create_prefab(object_name, prefab_name, project_path, scene_path)
@@ -126,26 +124,22 @@ class UnityAPIToolManager:
 
             elif operation == "move_along_path":
                 return await self._api_move_along_path(
-                    object_name, path_type, path_points, duration, loop, ease_type,
-                    project_path, scene_path
+                    object_name, path_type, path_points, duration, loop, ease_type, project_path, scene_path
                 )
 
             elif operation == "create_path_visualization":
                 return await self._api_create_path_visualization(
-                    path_points, path_type, visualization_type, color, thickness,
-                    project_path, scene_path
+                    path_points, path_type, visualization_type, color, thickness, project_path, scene_path
                 )
 
             elif operation == "follow_path_2d":
                 return await self._api_follow_path_2d(
-                    object_name, path_points, speed, look_ahead, smooth_rotation,
-                    project_path, scene_path
+                    object_name, path_points, speed, look_ahead, smooth_rotation, project_path, scene_path
                 )
 
             elif operation == "follow_path_3d":
                 return await self._api_follow_path_3d(
-                    object_name, path_points, speed, bank_angle, look_ahead,
-                    project_path, scene_path
+                    object_name, path_points, speed, bank_angle, look_ahead, project_path, scene_path
                 )
 
             elif operation == "stop_path_movement":
@@ -158,11 +152,18 @@ class UnityAPIToolManager:
                     "success": False,
                     "error": f"Unknown operation: {operation}",
                     "available_operations": [
-                        "execute_method", "get_scene_objects", "modify_object", "create_prefab",
-                        "run_simulation", "batch_operations", "move_along_path",
-                        "create_path_visualization", "follow_path_2d", "follow_path_3d",
-                        "stop_path_movement"
-                    ]
+                        "execute_method",
+                        "get_scene_objects",
+                        "modify_object",
+                        "create_prefab",
+                        "run_simulation",
+                        "batch_operations",
+                        "move_along_path",
+                        "create_path_visualization",
+                        "follow_path_2d",
+                        "follow_path_3d",
+                        "stop_path_movement",
+                    ],
                 }
 
     # Unity Editor API Implementation Methods (currently scaffolded)

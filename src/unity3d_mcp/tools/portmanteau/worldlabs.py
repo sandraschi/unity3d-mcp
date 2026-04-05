@@ -77,15 +77,16 @@ class WorldLabsToolManager:
             elif operation == "optimize_for_vrchat":
                 if not project_path or not asset_name:
                     return {"success": False, "error": "project_path and asset_name required for optimize_for_vrchat"}
-                return await self.worldlabs.optimize_for_vrchat(
-                    project_path, asset_name, target_polygon_count
-                )
+                return await self.worldlabs.optimize_for_vrchat(project_path, asset_name, target_polygon_count)
 
             else:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
                     "available_operations": [
-                        "import_marble", "check_gaussian", "install_gaussian", "optimize_for_vrchat"
-                    ]
+                        "import_marble",
+                        "check_gaussian",
+                        "install_gaussian",
+                        "optimize_for_vrchat",
+                    ],
                 }

@@ -73,16 +73,12 @@ class UnityCoreToolManager:
             if operation == "launch_editor":
                 if not project_path:
                     return {"success": False, "error": "project_path required for launch_editor"}
-                return await self.unity_editor.launch_editor(
-                    project_path, unity_version, batch_mode, no_graphics
-                )
+                return await self.unity_editor.launch_editor(project_path, unity_version, batch_mode, no_graphics)
 
             elif operation == "create_project":
                 if not project_name or not project_path:
                     return {"success": False, "error": "project_name and project_path required for create_project"}
-                return await self.project_manager.create_project(
-                    project_name, project_path, template, unity_version
-                )
+                return await self.project_manager.create_project(project_name, project_path, template, unity_version)
 
             elif operation == "execute_method":
                 if not class_name or not method_name:
@@ -99,13 +95,14 @@ class UnityCoreToolManager:
             elif operation == "install_univrm":
                 if not project_path:
                     return {"success": False, "error": "project_path required for install_univrm"}
-                return await self.project_manager.install_univrm(
-                    project_path, vrm_version, refresh_unity
-                )
+                return await self.project_manager.install_univrm(project_path, vrm_version, refresh_unity)
 
             elif operation == "create_project_with_univrm":
                 if not project_name or not project_path:
-                    return {"success": False, "error": "project_name and project_path required for create_project_with_univrm"}
+                    return {
+                        "success": False,
+                        "error": "project_name and project_path required for create_project_with_univrm",
+                    }
                 return await self.project_manager.create_project_with_univrm(
                     project_name, project_path, template, unity_version, vrm_version
                 )
@@ -115,7 +112,11 @@ class UnityCoreToolManager:
                     "success": False,
                     "error": f"Unknown operation: {operation}",
                     "available_operations": [
-                        "launch_editor", "create_project", "execute_method",
-                        "check_univrm", "install_univrm", "create_project_with_univrm"
-                    ]
+                        "launch_editor",
+                        "create_project",
+                        "execute_method",
+                        "check_univrm",
+                        "install_univrm",
+                        "create_project_with_univrm",
+                    ],
                 }

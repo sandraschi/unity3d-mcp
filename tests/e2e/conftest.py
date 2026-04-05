@@ -5,7 +5,6 @@ These fixtures detect and interact with real Unity installations.
 """
 
 import os
-import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -70,6 +69,7 @@ def check_univrm_installed(project_path: Path) -> bool:
         return False
 
     import json
+
     with open(manifest_path) as f:
         manifest = json.load(f)
 
@@ -79,21 +79,12 @@ def check_univrm_installed(project_path: Path) -> bool:
 
 # Pytest markers
 def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "e2e: mark test as end-to-end (requires Unity)"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
+    config.addinivalue_line("markers", "e2e: mark test as end-to-end (requires Unity)")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--run-e2e",
-        action="store_true",
-        default=False,
-        help="Run end-to-end tests requiring Unity"
-    )
+    parser.addoption("--run-e2e", action="store_true", default=False, help="Run end-to-end tests requiring Unity")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -105,6 +96,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 # Fixtures
+
 
 @pytest.fixture(scope="session")
 def unity_executable() -> Optional[Path]:
@@ -146,18 +138,11 @@ def unity_config(unity_executable, unity_project):
 
 # Skip decorators
 
-requires_unity = pytest.mark.skipif(
-    find_unity_executable() is None,
-    reason="Unity Editor not found"
-)
+requires_unity = pytest.mark.skipif(find_unity_executable() is None, reason="Unity Editor not found")
 
-requires_unity_project = pytest.mark.skipif(
-    find_test_unity_project() is None,
-    reason="Unity test project not found"
-)
+requires_unity_project = pytest.mark.skipif(find_test_unity_project() is None, reason="Unity test project not found")
 
 requires_univrm = pytest.mark.skipif(
     find_test_unity_project() is None or not check_univrm_installed(find_test_unity_project()),
-    reason="UniVRM not installed in test project"
+    reason="UniVRM not installed in test project",
 )
-

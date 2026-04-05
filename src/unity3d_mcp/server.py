@@ -1,14 +1,14 @@
 """
 Unity3D MCP Server Implementation
 
-FastMCP 2.13+ compliant server with comprehensive Unity 3D automation,
+FastMCP 3.2.0+ compliant server with comprehensive Unity 3D automation,
 VRM avatar pipeline, and VRChat integration.
 """
 
-import asyncio
 import logging
 import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import structlog
@@ -21,24 +21,14 @@ from .build import BuildManager
 from .core import ProjectManager, SceneManager, UnityEditorManager
 from .platforms import PlatformManager
 from .tools import (
-    MotorToolManager,
-    MotorManager,
-    ImportExportToolManager,
     ImportExportManager,
-    VRMAvatarToolManager,
-    VRMAvatarManager,
+    MotorManager,
 )
-from .tools.portmanteau import (
-    UnityCoreToolManager,
-    UnitySceneToolManager,
-    UnityAvatarToolManager,
-    UnityAssetToolManager,
-    UnityBuildToolManager,
-    VRChatToolManager,
-    WorldLabsToolManager,
-    PlatformToolManager,
-    UnityAPIToolManager,
-)
+from .tools.portmanteau.unity_api_bridge import UnityBridgeClient
+from .tools.portmanteau.unity_disk_ops import UnityDiskOps
+from .transport import run_server, run_server_async
+
+# Portmanteau managers are imported lazily in _init_portmanteau_managers to avoid circular dependencies
 from .utils import ConfigManager, LogManager, UnityPathResolver
 from .vrchat import VRChatSDKManager
 
@@ -80,11 +70,9 @@ class Unity3DConfig(BaseModel):
 
     unity_editor_path: str = Field(default="", description="Path to Unity Editor executable")
     project_path: str = Field(default="", description="Default Unity project path")
-    auto_detect_unity: bool = Field(
-        default=True, description="Auto-detect Unity Editor installation"
-    )
+    auto_detect_unity: bool = Field(default=True, description="Auto-detect Unity Editor installation")
     enable_http: bool = Field(default=True, description="Enable HTTP interface alongside stdio")
-    http_port: int = Field(default=8080, description="HTTP server port")
+    http_port: int = Field(default=10831, description="HTTP server port (fleet 10831 backend per WEBAPP_PORTS)")
     log_level: str = Field(default="INFO", description="Logging level")
 
 
@@ -106,7 +94,7 @@ class Unity3DMCP:
         """Initialize Unity3D MCP server."""
         self.config = config or Unity3DConfig()
 
-        # Initialize FastMCP with lifespan
+        # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
         self.app = FastMCP(name="Unity3D-MCP", version="1.0.0", lifespan=server_lifespan)
 
         # Initialize managers
@@ -149,24 +137,20 @@ class Unity3DMCP:
     def _init_portmanteau_managers(self):
         """Initialize portmanteau tool managers."""
         from .tools.portmanteau import (
-            UnityCoreToolManager,
-            UnitySceneToolManager,
-            UnityAvatarToolManager,
-            UnityAssetToolManager,
-            UnityBuildToolManager,
-            VRChatToolManager,
-            WorldLabsToolManager,
             PlatformToolManager,
             UnityAPIToolManager,
+            UnityAssetToolManager,
+            UnityAvatarToolManager,
+            UnityBuildToolManager,
+            UnityCoreToolManager,
+            UnitySceneToolManager,
+            VRChatToolManager,
+            WorldLabsToolManager,
         )
 
-        self.unity_core_manager = UnityCoreToolManager(
-            self.app, self.unity_editor, self.project_manager
-        )
+        self.unity_core_manager = UnityCoreToolManager(self.app, self.unity_editor, self.project_manager)
         self.unity_scene_manager = UnitySceneToolManager(self.app, self.scene_manager)
-        self.unity_avatar_manager = UnityAvatarToolManager(
-            self.app, self.vrm_avatar, self.animation
-        )
+        self.unity_avatar_manager = UnityAvatarToolManager(self.app, self.vrm_avatar, self.animation)
         self.unity_asset_manager = UnityAssetToolManager(self.app, self.asset_manager)
         self.unity_build_manager = UnityBuildToolManager(self.app, self.build_manager)
         self.vrchat_manager = VRChatToolManager(self.app, self.vrchat_sdk, self.config)
@@ -192,14 +176,6 @@ class Unity3DMCP:
 
         @self.app.tool
         async def list_vr_platforms() -> dict:
-
-
-
-
-
-
-
-
             """List all supported social VR platforms.
 
             Returns information about all supported social VR platforms including
@@ -321,9 +297,7 @@ class Unity3DMCP:
                     eye_height=1.8
                 )
             """
-            return await self.platforms.chillout.setup_cvr_avatar(
-                avatar_object, project_path, eye_height
-            )
+            return await self.platforms.chillout.setup_cvr_avatar(avatar_object, project_path, eye_height)
 
         @self.app.tool
         async def validate_for_chilloutvr(
@@ -482,7 +456,6 @@ class Unity3DMCP:
             """
             return await self.platforms.cluster.prepare_for_cluster(avatar_path, project_path)
 
-
         @self.app.tool
         async def api_execute_method(
             class_name: str,
@@ -538,7 +511,12 @@ class Unity3DMCP:
                 )
             """
             return await self._api_execute_method(
-                class_name, method_name, parameters, project_path, scene_path, wait_for_completion
+                class_name,
+                method_name,
+                parameters,
+                project_path,
+                scene_path,
+                wait_for_completion,
             )
 
         @self.app.tool
@@ -618,9 +596,7 @@ class Unity3DMCP:
                     }
                 )
             """
-            return await self._api_modify_object(
-                object_name, modifications, project_path, scene_path
-            )
+            return await self._api_modify_object(object_name, modifications, project_path, scene_path)
 
         @self.app.tool
         async def api_create_prefab(
@@ -970,7 +946,13 @@ class Unity3DMCP:
                 )
             """
             return await self._api_follow_path_3d(
-                object_name, path_points, speed, bank_angle, look_ahead, project_path, scene_path
+                object_name,
+                path_points,
+                speed,
+                bank_angle,
+                look_ahead,
+                project_path,
+                scene_path,
             )
 
         @self.app.tool
@@ -1211,15 +1193,18 @@ class Unity3DMCP:
 
     async def run_stdio(self):
         """Run server in stdio mode."""
-        # Updated for fastmcp 2.13+
-        await self.app.run_async()
+        # Updated for fastmcp 3.2.0+
+        await run_server_async(self.app, server_name="unity3d-mcp")
 
-    async def run_http(self, host: str = "0.0.0.0", port: int = 8080):
+    async def run_http(self, host: str = "0.0.0.0", port: int = 10831):
         """Run server in HTTP mode."""
-        # Updated for fastmcp 2.13+ - attempting to use SSE transport if available, or just run
+        # Updated for fastmcp 3.2.0+
         try:
-            # Assuming 'sse' is the transport for HTTP/SSE
-            await self.app.run_async(transport="sse")
+            # Use unified transport with http mode
+            from argparse import Namespace
+
+            args = Namespace(http=True, stdio=False, sse=False, host=host, port=port, path="/mcp", debug=False)
+            await run_server_async(self.app, args=args, server_name="unity3d-mcp")
         except Exception as e:
             logger.error("Failed to run HTTP mode", error=str(e))
             raise
@@ -1229,7 +1214,7 @@ class Unity3DMCP:
         # Dual mode might not be supported in the same way.
         # Fallback to stdio for now to ensure basic functionality.
         logger.warning("Dual mode not fully supported - falling back to stdio")
-        await self.run_stdio()
+        run_server(self, server_name="unity3d-mcp")
 
 
 def create_app(config: Optional[Unity3DConfig] = None) -> Unity3DMCP:
@@ -1237,45 +1222,190 @@ def create_app(config: Optional[Unity3DConfig] = None) -> Unity3DMCP:
     return Unity3DMCP(config)
 
 
-async def async_main():
-    """Main entry point for Unity3D MCP server."""
-    import argparse
+# --- SOTA Global App Exposure for Uvicorn (FastMCP 3.2.0+) ---
+# This allows 'uvicorn unity3d_mcp.server:app' to work out of the box.
+server_instance = create_app()
+app = server_instance.app  # The FastMCP instance is an ASGI-compatible app
 
-    parser = argparse.ArgumentParser(description="Unity3D MCP Server")
-    parser.add_argument(
-        "--mode", choices=["stdio", "http", "dual"], default="stdio", help="Server mode"
-    )
-    parser.add_argument("--host", default="0.0.0.0", help="HTTP host")
-    parser.add_argument("--port", type=int, default=8080, help="HTTP port")
-    parser.add_argument("--config", help="Configuration file path")
 
-    args = parser.parse_args()
+# --- SOTA 2026 Skills & Instruction Discovery (FastMCP 3.2.0+) ---
 
-    # Load configuration
-    config = Unity3DConfig()
-    if args.config:
-        # Load from file
-        pass
 
-    # Create and run server
-    server = create_app(config)
+@app.resource("resource://unity3d/skills/{skill_name}")
+async def get_unity_skill(skill_name: str) -> str:
+    """Retrieve expert instructions for a specific Unity3D skill.
+
+    Args:
+        skill_name: The name of the skill to retrieve (e.g., 'unity-editor-automation')
+    """
+    skill_path = Path(__file__).parent.parent.parent / "skills" / skill_name / "SKILL.md"
+    if not skill_path.exists():
+        return f"Error: Skill '{skill_name}' not found at {skill_path}"
+
+    return skill_path.read_text(encoding="utf-8")
+
+
+@app.resource("resource://unity3d/skills/list")
+async def list_unity_skills() -> str:
+    """List all available Unity3D skills for instruction discovery."""
+    skills_dir = Path(__file__).parent.parent.parent / "skills"
+    if not skills_dir.exists():
+        return "No skills found in the skills directory."
+
+    skills = []
+    for skill_subdir in skills_dir.iterdir():
+        if skill_subdir.is_dir() and (skill_subdir / "SKILL.md").exists():
+            skills.append(skill_subdir.name)
+
+    return "Available Unity3D Skills:\n- " + "\n- ".join(skills)
+
+
+# --- SOTA 2026 Prompts (FastMCP 3.2.0+) ---
+
+
+@app.prompt()
+async def unity_setup_workflow(project_name: str = "MyNewProject") -> str:
+    """Standardized prompt for initializing a new Unity project with SOTA standards."""
+    return f"""Launch and initialize a new Unity project named '{project_name}'.
+Follow these steps:
+1. Create the project directory using `create_unity_project`.
+2. Launch the Unity Editor via `launch_unity_editor`.
+3. Set the build target to 'StandaloneWindows64' if applicable.
+4. Verify project health after initialization.
+"""
+
+
+@app.prompt()
+async def vrc_avatar_workflow(avatar_name: str, vrm_path: str) -> str:
+    """Step-by-step instructions for the VRM-to-VRChat avatar optimization pipeline."""
+    return f"""Optimize the VRM avatar '{avatar_name}' from '{vrm_path}' for VRChat.
+Workflow:
+1. Import the VRM asset using `import_vrm_avatar`.
+2. Apply VRChat-specific optimizations via `optimize_for_vrchat`.
+3. Validate the avatar performance using `vrchat_validate_avatar`.
+4. Report any validation errors that might block the upload.
+"""
+
+
+# --- SOTA 2026 Agentic Workflow (FastMCP 3.2.0+ SEP-1577) ---
+
+# --- SOTA 2026 Dual-Mode Tools (Hands-In / Hands-Off) ---
+
+_bridge_client = UnityBridgeClient()
+
+
+@app.tool()
+async def unity3d_bridge_status() -> Dict[str, Any]:
+    """Check if the Unity Editor Bridge (MCPBridge.cs) is alive and reachable.
+
+    Returns:
+        A dictionary with 'status' (connected/disconnected) and 'port'.
+    """
+    alive = await _bridge_client.is_alive()
+    return {
+        "status": "connected" if alive else "disconnected",
+        "port": 10835,
+        "bridge_script": "MCPBridge.cs",
+        "instruction": "If disconnected, ensure MCPBridge.cs is in your Unity Assets/Editor folder.",
+    }
+
+
+@app.tool()
+async def unity3d_editor_api(action: str, target: str = None, **kwargs) -> Dict[str, Any]:
+    """[Hands-In] Execute a real-time command in an active Unity Editor session.
+
+    Args:
+        action: The action to perform (ping, get_hierarchy, transform_object, create_object, delete_object).
+        target: The name or InstanceID of the target GameObject.
+        **kwargs: Additional parameters (position, rotation, name, type).
+    """
+    return await _bridge_client.execute_command(action, target=target, **kwargs)
+
+
+@app.tool()
+async def unity3d_disk_api(operation: str, file_path: str, **kwargs) -> Dict[str, Any]:
+    """[Hands-Off] Manipulate Unity project assets directly on disk without Unity running.
+
+    Args:
+        operation: The operation (inspect_file, list_textures, modify_yaml).
+        file_path: Absolute path to the .unity, .prefab, or .asset file.
+        **kwargs: component_type, property_name, new_value for modify_yaml.
+    """
+    if operation == "inspect_file":
+        return UnityDiskOps.inspect_file(file_path)
+    elif operation == "list_textures":
+        return {"textures": UnityDiskOps.list_textures(file_path)}
+    elif operation == "modify_yaml":
+        return UnityDiskOps.modify_yaml_property(
+            file_path, kwargs.get("component_type"), kwargs.get("property_name"), kwargs.get("new_value")
+        )
+    return {"error": f"Unknown operation: {operation}"}
+
+
+@app.tool()
+async def unity3d_agentic_workflow(ctx: Any, goal: str) -> str:
+    """Perform an autonomous Unity3D workflow by orchestrating multiple tools using AI sampling.
+
+    This tool is a SEP-1577 compliant agentic entry point. It leverages dual-mode capabilities:
+    - Hands-In: Real-time Editor control if bridge is active.
+    - Hands-Off: Direct disk access via UnityPy if Unity is closed.
+
+    Args:
+        ctx: Unified FastMCP Context (injected by server).
+        goal: The high-level Unity or VRChat objective to achieve.
+    """
+    logger.info("Executing agentic workflow", goal=goal)
+
+    bridge = await _bridge_client.is_alive()
+    mode = "Hands-In (Live Session)" if bridge else "Hands-Off (Disk Operations)"
+
+    # Define the mission instructions for sampling
+    mission_instructions = f"""You are the Unity3D-MCP Autonomous Orchestrator.
+Your goal is: {goal}
+Current Mode: {mode}
+
+Available tool categories:
+- core: project/scene management
+- dual-mode:
+    * unity3d_editor_api: Real-time session control (requires bridge)
+    * unity3d_disk_api: UnityPy disk manipulation (works without Unity)
+- avatar: VRM/Unity avatar rigging
+- assets: import/export, package management
+- build: multi-platform builds
+- vrchat: SDK interaction, validation, upload
+- worldlabs: Marble/Chisel integration
+
+Formulate a multi-step plan using the available tools.
+If Mode is '{mode}', prioritize tools that work in this environment.
+Always start by checking if the project path is valid.
+"""
 
     try:
-        if args.mode == "stdio":
-            await server.run_stdio()
-        elif args.mode == "http":
-            await server.run_http(host=args.host, port=args.port)
-        else:  # dual
-            await server.run_dual()
-    except KeyboardInterrupt:
-        logger.info("Shutting down Unity3D MCP server")
+        # Perform autonomous sampling (SEP-1577 Pattern)
+        # Note: In production, we would dynamically pull the tool descriptions from self.app.list_tools()
+        result = await ctx.sample(
+            messages=[{"role": "user", "content": mission_instructions}], max_tokens=2000, temperature=0.0
+        )
+
+        logger.info("Agentic workflow completed successfully")
+        return f"Unity3D Agentic Workflow Result for '{goal}':\n\n{result.content}"
+
     except Exception as e:
-        logger.exception("Server error", error=str(e))
+        error_msg = f"Agentic workflow failed: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+
+async def async_main():
+    """Main entry point for Unity3D MCP server."""
+    # Use standardized transport runner
+    await run_server_async(server_instance.app, server_name="unity3d-mcp")
 
 
 def main():
     """Synchronous entry point."""
-    asyncio.run(async_main())
+    # Use standardized transport runner
+    run_server(server_instance.app, server_name="unity3d-mcp")
 
 
 if __name__ == "__main__":

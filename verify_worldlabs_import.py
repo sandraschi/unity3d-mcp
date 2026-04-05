@@ -1,6 +1,6 @@
 import asyncio
-import os
 from pathlib import Path
+
 from unity3d_mcp.server import create_app
 
 
@@ -54,9 +54,7 @@ async def verify_worldlabs_pipeline():
         for f in splat_files[:5]:
             print(f"  - {f.relative_to(worldlabs_assets)}")
     else:
-        print(
-            "⚠️ No .ply or .splat files found in Assets/WorldLabs. Pipeline ready but no assets to render."
-        )
+        print("⚠️ No .ply or .splat files found in Assets/WorldLabs. Pipeline ready but no assets to render.")
 
     # 3. Simulate Import (Optional - just checking tool availability)
     print("\n[Step 3] Verification Complete")

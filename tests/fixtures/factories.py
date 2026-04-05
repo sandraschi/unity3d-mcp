@@ -20,10 +20,7 @@ def has_vrm_test_file() -> bool:
 
 
 # Skip marker for tests requiring VRM file
-requires_vrm_file = pytest.mark.skipif(
-    not has_vrm_test_file(),
-    reason=f"VRM test file not found: {VRM_TEST_FILE}"
-)
+requires_vrm_file = pytest.mark.skipif(not has_vrm_test_file(), reason=f"VRM test file not found: {VRM_TEST_FILE}")
 
 
 def create_unity_manifest(
@@ -35,13 +32,15 @@ def create_unity_manifest(
         "com.unity.modules.ai": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
     }
-    
+
     if include_vrchat:
-        deps.update({
-            "com.vrchat.avatars": "3.5.0",
-            "com.vrchat.base": "3.5.0",
-        })
-    
+        deps.update(
+            {
+                "com.vrchat.avatars": "3.5.0",
+                "com.vrchat.base": "3.5.0",
+            }
+        )
+
     return {"dependencies": deps}
 
 
@@ -62,13 +61,15 @@ def create_unity_project_structure(base_path: Path, include_vrchat: bool = False
         "Packages",
         "ProjectSettings",
     ]
-    
+
     if include_vrchat:
-        folders.extend([
-            "Assets/VRChat",
-            "Assets/VRChat/Avatars",
-            "Assets/VRChat/Animations",
-        ])
+        folders.extend(
+            [
+                "Assets/VRChat",
+                "Assets/VRChat/Avatars",
+                "Assets/VRChat/Animations",
+            ]
+        )
 
     for folder in folders:
         (project_path / folder).mkdir(parents=True, exist_ok=True)
@@ -90,7 +91,7 @@ def create_avatar_prefab(project_path: Path, name: str = "TestAvatar") -> Path:
     """Create a mock avatar prefab file."""
     prefab_path = project_path / "Assets" / "Prefabs" / f"{name}.prefab"
     prefab_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     prefab_content = f"""
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
@@ -112,7 +113,7 @@ def create_animation_controller(project_path: Path, name: str = "TestController"
     """Create a mock animation controller file."""
     controller_path = project_path / "Assets" / "Animations" / f"{name}.controller"
     controller_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     controller_content = f"""
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
@@ -138,10 +139,10 @@ def create_vrchat_expression_params(
         {"name": "VRCFaceBlendH", "type": "Float", "default": 0},
         {"name": "VRCFaceBlendV", "type": "Float", "default": 0},
     ]
-    
+
     params_path = project_path / "Assets" / "VRChat" / "ExpressionParameters.asset"
     params_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     content = """
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
@@ -154,7 +155,7 @@ MonoBehaviour:
         content += f"  - name: {param['name']}\n"
         content += f"    valueType: {param['type']}\n"
         content += f"    defaultValue: {param['default']}\n"
-    
+
     params_path.write_text(content)
     return params_path
 
@@ -171,15 +172,15 @@ def create_vrchat_auth_file(base_path: Path, token: str = "test_token") -> Path:
     """Create a mock VRChat auth credentials file."""
     auth_path = base_path / "VRChat" / "auth.json"
     auth_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     auth_data = {
         "authToken": token,
         "username": "test_user",
     }
-    
+
     with open(auth_path, "w") as f:
         json.dump(auth_data, f)
-    
+
     return auth_path
 
 
@@ -212,4 +213,3 @@ MOCK_AVATAR_VALIDATION = {
     "skinned_meshes": 2,
     "physbones": 12,
 }
-

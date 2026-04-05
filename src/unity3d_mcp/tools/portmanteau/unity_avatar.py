@@ -5,7 +5,7 @@ Consolidates VRM avatar and animation operations into a unified portmanteau inte
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
@@ -60,9 +60,7 @@ class UnityAvatarToolManager:
             if operation == "import_vrm":
                 if not vrm_path or not project_path:
                     return {"success": False, "error": "vrm_path and project_path required for import_vrm"}
-                return await self.vrm_avatar.import_vrm(
-                    vrm_path, project_path, optimize_for_vrchat, create_prefab
-                )
+                return await self.vrm_avatar.import_vrm(vrm_path, project_path, optimize_for_vrchat, create_prefab)
 
             elif operation == "setup_animator":
                 if not avatar_path:
@@ -73,5 +71,5 @@ class UnityAvatarToolManager:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": ["import_vrm", "setup_animator"]
+                    "available_operations": ["import_vrm", "setup_animator"],
                 }

@@ -10,7 +10,7 @@ manipulation to avatar-mcp for compositing and animation.
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -34,17 +34,13 @@ class VRMAvatarManager:
             project_path = Path(project_path)
 
             if not vrm_path.exists():
-                return {
-                    "success": False,
-                    "error": f"VRM file not found: {vrm_path}",
-                    "vrm_path": str(vrm_path)
-                }
+                return {"success": False, "error": f"VRM file not found: {vrm_path}", "vrm_path": str(vrm_path)}
 
             if not project_path.exists():
                 return {
                     "success": False,
                     "error": f"Unity project not found: {project_path}",
-                    "project_path": str(project_path)
+                    "project_path": str(project_path),
                 }
 
             # Default Unity VRM import settings
@@ -57,7 +53,7 @@ class VRMAvatarManager:
                 "configure_lighting": True,
                 "generate_unity_prefab": True,
                 "target_platform": "standalone",  # pc, android, ios, etc.
-                **(unity_settings or {})
+                **(unity_settings or {}),
             }
 
             # Analyze VRM for Unity compatibility
@@ -70,7 +66,7 @@ class VRMAvatarManager:
                 "project_path": str(project_path),
                 "settings": settings,
                 "compatibility": compatibility,
-                "status": "preparing"
+                "status": "preparing",
             }
 
             return {
@@ -81,17 +77,12 @@ class VRMAvatarManager:
                 "unity_settings": settings,
                 "compatibility_check": compatibility,
                 "message": f"Unity VRM import initiated: {vrm_path.name} -> {project_path.name}",
-                "note": "Advanced avatar manipulation available via integrated avatar-mcp"
+                "note": "Advanced avatar manipulation available via integrated avatar-mcp",
             }
 
         except Exception as e:
             logger.error(f"Failed to import VRM to Unity {vrm_path}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "vrm_path": str(vrm_path),
-                "project_path": project_path
-            }
+            return {"success": False, "error": str(e), "vrm_path": str(vrm_path), "project_path": project_path}
 
     async def setup_unity_avatar_rigging(
         self,
@@ -102,13 +93,9 @@ class VRMAvatarManager:
         """Setup Unity-specific avatar rigging and IK."""
         try:
             if import_id not in self.active_imports:
-                return {
-                    "success": False,
-                    "error": f"Import not found: {import_id}",
-                    "import_id": import_id
-                }
+                return {"success": False, "error": f"Import not found: {import_id}", "import_id": import_id}
 
-            avatar_import = self.active_imports[import_id]
+            self.active_imports[import_id]
 
             # Unity-specific rigging setup
             rigging_setup = {
@@ -118,7 +105,7 @@ class VRMAvatarManager:
                 "root_motion": True,
                 "configure_layers": True,
                 "setup_masks": True,
-                **rigging_config
+                **rigging_config,
             }
 
             # Apply Unity rigging
@@ -130,16 +117,12 @@ class VRMAvatarManager:
                 "rigging_config": rigging_setup,
                 "rigging_result": rigging_result,
                 "message": f"Unity avatar rigging setup completed for {import_id}",
-                "note": "Advanced avatar manipulation available via integrated avatar-mcp"
+                "note": "Advanced avatar manipulation available via integrated avatar-mcp",
             }
 
         except Exception as e:
             logger.error(f"Failed to setup Unity avatar rigging for {import_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "import_id": import_id
-            }
+            return {"success": False, "error": str(e), "import_id": import_id}
 
     async def configure_unity_materials(
         self,
@@ -150,13 +133,9 @@ class VRMAvatarManager:
         """Configure Unity-specific materials and shaders for avatar."""
         try:
             if import_id not in self.active_imports:
-                return {
-                    "success": False,
-                    "error": f"Import not found: {import_id}",
-                    "import_id": import_id
-                }
+                return {"success": False, "error": f"Import not found: {import_id}", "import_id": import_id}
 
-            avatar_import = self.active_imports[import_id]
+            self.active_imports[import_id]
 
             # Unity material configuration
             material_setup = {
@@ -166,7 +145,7 @@ class VRMAvatarManager:
                 "setup_normal_maps": True,
                 "configure_metallic": True,
                 "setup_emission": False,
-                **material_config
+                **material_config,
             }
 
             # Apply Unity materials
@@ -177,16 +156,12 @@ class VRMAvatarManager:
                 "import_id": import_id,
                 "material_config": material_setup,
                 "material_result": material_result,
-                "message": f"Unity material configuration completed for {import_id}"
+                "message": f"Unity material configuration completed for {import_id}",
             }
 
         except Exception as e:
             logger.error(f"Failed to configure Unity materials for {import_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "import_id": import_id
-            }
+            return {"success": False, "error": str(e), "import_id": import_id}
 
     async def build_unity_avatar_package(
         self,
@@ -198,13 +173,9 @@ class VRMAvatarManager:
         """Build Unity avatar package with all assets and dependencies."""
         try:
             if import_id not in self.active_imports:
-                return {
-                    "success": False,
-                    "error": f"Import not found: {import_id}",
-                    "import_id": import_id
-                }
+                return {"success": False, "error": f"Import not found: {import_id}", "import_id": import_id}
 
-            avatar_import = self.active_imports[import_id]
+            self.active_imports[import_id]
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -217,7 +188,7 @@ class VRMAvatarManager:
                 "include_scripts": True,
                 "compress_assets": True,
                 "generate_manifest": True,
-                **build_config
+                **build_config,
             }
 
             # Build the package
@@ -229,17 +200,12 @@ class VRMAvatarManager:
                 "output_path": str(output_path),
                 "build_config": build_settings,
                 "build_result": build_result,
-                "message": f"Unity avatar package built: {output_path.name}"
+                "message": f"Unity avatar package built: {output_path.name}",
             }
 
         except Exception as e:
             logger.error(f"Failed to build Unity avatar package for {import_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "import_id": import_id,
-                "output_path": str(output_path)
-            }
+            return {"success": False, "error": str(e), "import_id": import_id, "output_path": str(output_path)}
 
     async def integrate_with_avatarmcp(
         self,
@@ -250,13 +216,9 @@ class VRMAvatarManager:
         """Integrate Unity avatar with avatar-mcp for compositing."""
         try:
             if import_id not in self.active_imports:
-                return {
-                    "success": False,
-                    "error": f"Import not found: {import_id}",
-                    "import_id": import_id
-                }
+                return {"success": False, "error": f"Import not found: {import_id}", "import_id": import_id}
 
-            avatar_import = self.active_imports[import_id]
+            self.active_imports[import_id]
 
             # Integration configuration
             integration_config = {
@@ -265,7 +227,7 @@ class VRMAvatarManager:
                 "configure_bone_mapping": True,
                 "enable_blendshape_sync": True,
                 "setup_locomotion": True,
-                **avatar_config
+                **avatar_config,
             }
 
             # Setup avatar-mcp integration
@@ -277,25 +239,17 @@ class VRMAvatarManager:
                 "integration_config": integration_config,
                 "integration_result": integration_result,
                 "message": f"Avatar-mcp integration completed for {import_id}",
-                "note": "Avatar now available for compositing via avatar-mcp"
+                "note": "Avatar now available for compositing via avatar-mcp",
             }
 
         except Exception as e:
             logger.error(f"Failed to integrate with avatar-mcp for {import_id}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "import_id": import_id
-            }
+            return {"success": False, "error": str(e), "import_id": import_id}
 
     async def get_unity_import_status(self, import_id: str) -> Dict[str, Any]:
         """Get status of Unity VRM import operation."""
         if import_id not in self.active_imports:
-            return {
-                "success": False,
-                "error": f"Import operation not found: {import_id}",
-                "import_id": import_id
-            }
+            return {"success": False, "error": f"Import operation not found: {import_id}", "import_id": import_id}
 
         operation = self.active_imports[import_id]
         return {
@@ -306,7 +260,7 @@ class VRMAvatarManager:
             "project_path": operation["project_path"],
             "compatibility": operation["compatibility"],
             "progress": operation.get("progress", 0.0),
-            "message": operation.get("message", "Import in progress")
+            "message": operation.get("message", "Import in progress"),
         }
 
     # Helper methods for Unity VRM operations
@@ -318,7 +272,7 @@ class VRMAvatarManager:
             "texture_format_compatible": True,
             "bone_limit_ok": True,
             "material_shaders_available": True,
-            "warnings": []
+            "warnings": [],
         }
 
     async def _apply_unity_rigging(self, import_id: str, rigging_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -328,7 +282,7 @@ class VRMAvatarManager:
             "inverse_kinematics": True,
             "animation_controller": True,
             "root_motion": True,
-            "layer_configured": True
+            "layer_configured": True,
         }
 
     async def _apply_unity_materials(self, import_id: str, material_setup: Dict[str, Any]) -> Dict[str, Any]:
@@ -337,17 +291,19 @@ class VRMAvatarManager:
             "materials_converted": 3,  # Placeholder
             "textures_optimized": 5,  # Placeholder
             "shaders_assigned": True,
-            "normal_maps_setup": True
+            "normal_maps_setup": True,
         }
 
-    async def _build_unity_package(self, import_id: str, build_settings: Dict[str, Any], output_path: Path) -> Dict[str, Any]:
+    async def _build_unity_package(
+        self, import_id: str, build_settings: Dict[str, Any], output_path: Path
+    ) -> Dict[str, Any]:
         """Build Unity package."""
         return {
             "package_created": True,
             "assets_included": 15,  # Placeholder
             "total_size": "25MB",  # Placeholder
             "dependencies_resolved": True,
-            "manifest_generated": True
+            "manifest_generated": True,
         }
 
     async def _setup_avatarmcp_integration(self, import_id: str, integration_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -358,7 +314,7 @@ class VRMAvatarManager:
             "bone_mapping_configured": True,
             "blendshape_sync_enabled": True,
             "locomotion_setup": True,
-            "avatar_mcp_ready": True
+            "avatar_mcp_ready": True,
         }
 
 
@@ -537,7 +493,9 @@ class VRMAvatarToolManager:
                     output_path="D:/Packages/MyAvatar.unitypackage"
                 )
             """
-            return await self.vrm_avatar_manager.build_unity_avatar_package(import_id, build_config, output_path, project_path)
+            return await self.vrm_avatar_manager.build_unity_avatar_package(
+                import_id, build_config, output_path, project_path
+            )
 
         @self.app.tool
         async def integrate_with_avatarmcp(

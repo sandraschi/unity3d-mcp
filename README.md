@@ -1,6 +1,7 @@
 # Unity3D MCP Server
 
-**FastMCP 2.13+ Compliant** - Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
+**FastMCP 3.2.0+ Compliant** - Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
+
 
 ## Features
 
@@ -48,7 +49,7 @@
 
 ### Unity Editor API Tools (Advanced)
 
-**⚠️ Future Enhancement** - Scaffolded for Unity Editor API integration
+** Future Enhancement** - Scaffolded for Unity Editor API integration
 
 These tools provide direct Unity Editor API access for advanced operations that CLI cannot handle:
 
@@ -97,13 +98,69 @@ These tools provide direct Unity Editor API access for advanced operations that 
 
 *Note: These tools are currently scaffolded and return "not implemented" status. They require Unity Editor plugin development for full functionality.*
 
+### Agentic Sampling (SEP-1577)
+
+FastMCP 3.2.0+ introduces **Agentic Sampling**, allowing the server to borrow the client's LLM to orchestrate complex workflows autonomously.
+
+- **`unity3d_agentic_workflow`**: Execute a mission-based objective (e.g., "Setup a new VRChat project and import my avatar").
+
+### Contextual Discovery (Skills & Prompts)
+
+This server provides expert instructions and pre-defined workflows via the SOTA Skill system.
+
+#### Skills
+Available via `resource://unity3d/skills/`:
+- `unity-editor-automation`: Expert guide for editor control.
+- `vrc-avatar-pipeline`: Guide for VRM to VRChat optimization.
+
+#### Prompts
+Registered SOTA prompts:
+- `unity_setup_workflow`: Guide for project initialization.
+- `vrc_avatar_workflow`: Instructions for the VRM optimization lifecycle.
+
+###  Dual-Mode Operations
+
+This server uniquely supports two distinct operational modes for maximum flexibility across development and CI/CD environments.
+
+#### 1. Hands-In (Active Session)
+Real-time control of a running Unity Editor. Requires the **MCPBridge.cs** plugin.
+- **Tools**: `unity3d_editor_api`, `unity3d_bridge_status`
+- **Use Case**: Scene layout, live debugging, lighting setup, and real-time hierarchy manipulation.
+- **Port**: 10835 (HTTP)
+- **Guide**: [Real-Time Editor Automation](file:///D:/Dev/repos/unity3d-mcp/docs/GUIDE_EDITOR_AUTO.md)
+
+#### 2. Hands-Off (Disk Operations)
+Direct manipulation of Unity assets on disk. Powered by **UnityPy**.
+- **Tools**: `unity3d_disk_api`
+- **Use Case**: CI/CD pipelines, batch asset auditing, texture extraction, and quick prefab fixes without launching Unity.
+- **Support**: Serialized files (.unity, .prefab, .asset) + Unity YAML source files.
+- **Guide**: [Direct Disk Manipulation](file:///D:/Dev/repos/unity3d-mcp/docs/ARCHITECTURE_DUAL_MODE.md#mode-b-hands-off-disk-operations)
+
+---
+
+##  Technical Documentation
+
+A comprehensive technical suite is available in the **[Documentation Portal](file:///D:/Dev/repos/unity3d-mcp/docs/README.md)**.
+
+###  Core Concepts
+- **[Architecture Deep Dive](file:///D:/Dev/repos/unity3d-mcp/docs/ARCHITECTURE_DUAL_MODE.md)**: Hands-In vs Hands-Off analysis.
+- **[Complete API Reference](file:///D:/Dev/repos/unity3d-mcp/docs/API_REFERENCE.md)**: Details for all 50+ tools.
+
+###  Specialized Pipeliens
+- **[VRM-to-VRChat Guide](file:///D:/Dev/repos/unity3d-mcp/docs/GUIDE_VRCHAT_PIPELINE.md)**: High-fidelity avatar optimization.
+- **[Scene Automation Guide](file:///D:/Dev/repos/unity3d-mcp/docs/GUIDE_EDITOR_AUTO.md)**: Real-time Editor control.
+
 ### Technical Standards
 
-- **FastMCP 2.13+**: Latest MCP protocol implementation with security fixes
-- **Structured Logging**: JSON-formatted logs via `structlog` for production monitoring
-- **Server Lifespan**: Proper startup/shutdown lifecycle management
-- **Comprehensive Documentation**: 200+ line tool docstrings with Args/Returns/Examples
-- **Security**: CVE-2025-62801 and CVE-2025-62800 fixes applied
+- **FastMCP 3.2.0+**: Latest MCP protocol implementation with ASGI/Uvicorn and SEP-1577 sampling.
+- **Agentic Workflows**: Integrated autonomous orchestration using dual-mode intelligence.
+- **Modular Skills**: Discoverable expert instructions for bridge installation and disk ops.
+- **Structured Logging**: JSON-formatted logs via `structlog`.
+- **Security**: CVE-2025-62801 and CVE-2025-62800 fixes applied.
+
+
+
+
 
 ### World Labs Integration
 
@@ -121,24 +178,60 @@ These tools provide direct Unity Editor API access for advanced operations that 
 
 ### Advanced Features
 
-- **Dual Interface**: Both stdio and HTTP interfaces
-- **FastMCP 2.10**: Modern MCP server architecture
-- **Comprehensive Logging**: Structured logging with performance metrics
-- **Platform Management**: Multi-platform build and optimization
-- **Path Resolution**: Intelligent Unity installation detection
+- **Dual Interface**: Both stdio and HTTP (ASGI/Uvicorn) interfaces.
+- **FastMCP 3.2.0**: Modern MCP server architecture with sampling support.
+- **Comprehensive Logging**: Structured logging with performance metrics.
+- **Platform Management**: Multi-platform build and optimization.
+- **Path Resolution**: Intelligent Unity installation detection.
 
-## Installation
 
-### Via Claude Desktop (DXT Package)
+##  Installation
 
-1. Download the latest `.dxt` package from releases
-2. Install via Claude Desktop MCP settings
-3. Configure Unity Editor path in settings
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
 
-### Manual Installation
+###  Quick Start
+Run immediately via `uvx`:
+```bash
+uvx unity3d-mcp
+```
+
+###  Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "unity3d-mcp": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/unity3d-mcp", "run", "unity3d-mcp"]
+  }
+}
+```
+### From PyPI (Recommended)
 
 ```bash
 pip install unity3d-mcp
+```
+
+##  Packaging & Distribution
+
+This repository is SOTA 2026 compliant and uses the officially validated `@anthropic-ai/mcpb` workflow for distribution.
+
+### Pack Extension
+To generate a `.mcpb` distribution bundle with complete source code and automated build exclusions:
+```bash
+# SOTA 2026 standard pack command
+mcpb pack . dist/unity3d-mcp.mcpb
+```
+
+### From GitHub Releases
+
+```bash
+# Direct wheel download
+pip install https://github.com/sandraschi/unity3d-mcp/releases/download/v1.2.0/unity3d_mcp-1.2.0-py3-none-any.whl
+
+# Or from git
+pip install git+https://github.com/sandraschi/unity3d-mcp.git
 ```
 
 ## Configuration
@@ -224,13 +317,13 @@ unity3d-mcp --mode dual
 
 ```
 unity3d_mcp/
-├── core/           # Unity Editor automation, project management, UniVRM
-├── avatar/         # VRM avatar management
-├── assets/         # Asset import and optimization
-├── build/          # Build pipeline management
-├── vrchat/         # VRChat SDK integration + authentication
-├── worldlabs/      # World Labs Marble/Chisel integration
-└── utils/          # Shared utilities
+ core/           # Unity Editor automation, project management, UniVRM
+ avatar/         # VRM avatar management
+ assets/         # Asset import and optimization
+ build/          # Build pipeline management
+ vrchat/         # VRChat SDK integration + authentication
+ worldlabs/      # World Labs Marble/Chisel integration
+ utils/          # Shared utilities
 ```
 
 ## Testing
@@ -282,3 +375,18 @@ MIT License - see [LICENSE](LICENSE) for details.
 - Documentation: [GitHub Wiki](https://github.com/sandraschi/unity3d-mcp/wiki)
 - Issues: [GitHub Issues](https://github.com/sandraschi/unity3d-mcp/issues)
 - Discussions: [GitHub Discussions](https://github.com/sandraschi/unity3d-mcp/discussions)
+
+
+##  Webapp Dashboard
+
+This MCP server includes a premium SOTA web interface for monitoring and control.
+
+### Port Allocation (Standardized)
+- **Frontend**: `10830` (Vite / React)
+- **Backend (API)**: `10831` (FastAPI / FastMCP)
+
+To start the webapp:
+1. Navigate to the `web_sota` directory.
+2. Run `start.bat` (Windows) or `./start.ps1` (PowerShell).
+3. The dashboard will automatically open at `http://localhost:10830`.
+
