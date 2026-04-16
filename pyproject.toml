@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "uv-dynamic-versioning>=0.7.0"]
+build-backend = "hatchling.build"
 
 [project]
-name = "unity3d-mcp"
+name = "schip-mcp-unity3d"
 version = "1.0.0"
 description = "Unity 3D MCP Server - Comprehensive Unity automation with VRM avatar pipeline and VRChat integration"
-authors = [
-    {name = "Sandra", email = "sandra@example.com"}
-]
-license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Sandra Schipal", email = "sandra@schipal.at" }
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -40,6 +40,7 @@ dependencies = [
     "structlog>=23.0.0",
     "httpx>=0.27.0",
     "UnityPy>=1.20.0",
+    "prefab-ui>=0.14.0",
 ]
 
 
@@ -50,8 +51,7 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
     "ruff>=0.15.2",
-    "mypy>=1.0.0",
-    "mcpb>=0.1.0"
+    "mypy>=1.0.0"
 ]
 apps = [
     "prefab-ui>=0.1.0"
@@ -70,13 +70,18 @@ docs = [
 "Documentation" = "https://github.com/sandraschi/unity3d-mcp/blob/main/README.md"
 
 [project.scripts]
-unity3d-mcp = "unity3d_mcp.server:main"
+schip-mcp-unity3d = "unity3d_mcp.server:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/unity3d_mcp"]
+
+[tool.uv-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
 
 [tool.black]
 line-length = 120
