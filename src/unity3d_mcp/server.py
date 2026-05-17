@@ -5,6 +5,7 @@ FastMCP 3.2.0+ compliant server with comprehensive Unity 3D automation,
 VRM avatar pipeline, and VRChat integration.
 """
 
+import os
 import logging
 import sys
 from contextlib import asynccontextmanager
@@ -13,6 +14,8 @@ from typing import Any, Dict, List, Optional
 
 import structlog
 from fastmcp import FastMCP
+from fastmcp.server import create_proxy
+from fastmcp.server.providers.skills import SkillsDirectoryProvider
 from pydantic import BaseModel, Field
 
 from .assets import AssetManager, MaterialManager
@@ -96,6 +99,24 @@ class Unity3DMCP:
 
         # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
         self.app = FastMCP(name="Unity3D-MCP", version="1.0.0", lifespan=server_lifespan)
+
+        _bridge_proxies: list[str] = []
+        bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
+        if bridge_urls:
+            for url in bridge_urls.split(","):
+                url = url.strip()
+                if url:
+                    try:
+                        self.app.add_provider(create_proxy(url))
+                        _bridge_proxies.append(url)
+                    except Exception:
+                        pass
+
+        # Register skills
+        skills_dir = Path(__file__).resolve().parent.parent.parent / "skills"
+        if skills_dir.is_dir():
+            self.app.add_provider(SkillsDirectoryProvider(roots=[skills_dir]))
+            logger.info("Skills provider registered from %s", skills_dir)
 
         # Initialize managers
         self._init_managers()
