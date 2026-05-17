@@ -1,20 +1,49 @@
 Param([switch]$Headless)
 
-# --- SOTA Headless Standard ---
 if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {
     Start-Process pwsh -ArgumentList '-NoProfile', '-File', $PSCommandPath, '-Headless' -WindowStyle Hidden
     exit
 }
 $WindowStyle = if ($Headless) { 'Hidden' } else { 'Normal' }
-# ------------------------------
 
-$env:FASTMCP_LOG_LEVEL = 'WARNING'
-# schip-mcp-unity3d Start - Standards-Compliant SOTA
-Write-Host 'Starting schip-mcp-unity3d...' -ForegroundColor Cyan
+$WebPort = 10830
+$BackendPort = 10831
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 
-Set-Location $PSScriptRoot
-Write-Host 'Starting Standardized Fullstack Hybrid...' -ForegroundColor Green
-# Launch backend Hidden by default to prevent console spam
-Start-Process pwsh -ArgumentList '-NoProfile', '-Command', 'uv run -m schip_mcp_unity3d' -WindowStyle Hidden
-Set-Location web_sota
-npm run dev
+function Clear-Port {
+    param([int]$Port)
+    $conn = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | Select-Object -First 1
+    if (-not $conn) { return $false }
+    $pid = $conn.OwningProcess
+    $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+    $name = if ($proc) { $proc.ProcessName } else { "PID $pid" }
+    Write-Host "Port $Port held by $name (PID: $pid). Freeing..." -ForegroundColor Yellow
+    try { Stop-Process -Id $pid -Force -ErrorAction Stop; Start-Sleep 1; return $true } catch {}
+    try { taskkill /F /PID $pid 2>&1 | Out-Null; Start-Sleep 1; return $true } catch {}
+    try { Get-CimInstance Win32_Process -Filter "ProcessId = $pid" -ErrorAction Stop | Invoke-CimMethod -MethodName Terminate -ErrorAction Stop | Out-Null; Start-Sleep 1; return $true } catch {}
+    Write-Host "  Could not free port $Port. Run as Admin: taskkill /F /PID $pid" -ForegroundColor Red
+    return $false
+}
+
+Write-Host "`n=== Unity3D MCP ===" -ForegroundColor Cyan
+Write-Host "Ports: backend :$BackendPort | frontend :$WebPort" -ForegroundColor Gray
+Clear-Port $WebPort | Out-Null
+
+Set-Location $ProjectRoot
+if (Test-Path "web_sota") { Push-Location web_sota; if (-not (Test-Path "node_modules")) { npm install }; Pop-Location }
+
+Write-Host "Backend: starting on :$BackendPort ..." -ForegroundColor Cyan
+Start-Process pwsh -ArgumentList '-NoProfile', '-NoExit', '-Command', 'uv run -m unity3d_mcp.server' -WindowStyle $WindowStyle
+
+Start-Sleep 3
+
+$WebUrl = "http://127.0.0.1:$WebPort/"
+$viteUp = $false
+try { $r = Invoke-WebRequest -Uri $WebUrl -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop; if ($r.StatusCode -eq 200) { $viteUp = $true } } catch {}
+if ($viteUp) { Write-Host "Frontend: already running on :$WebPort" -ForegroundColor Green; exit 0 }
+
+Write-Host "Frontend: starting Vite on :$WebPort ..." -ForegroundColor Green
+$poll = "for (`$i = 0; `$i -lt 60; `$i++) { try { `$null = Invoke-WebRequest -Uri '$WebUrl' -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop; Start-Process '$WebUrl'; exit } catch { Start-Sleep 1 } }"
+Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $poll
+Push-Location (Join-Path $ProjectRoot "web_sota")
+npm run dev -- --port $WebPort --host
