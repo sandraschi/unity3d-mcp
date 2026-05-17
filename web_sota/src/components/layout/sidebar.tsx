@@ -11,7 +11,8 @@ import {
     Box,
     Wrench,
     Activity,
-    HelpCircle
+    HelpCircle,
+    GitPullRequest
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,6 +24,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     const location = useLocation();
 
     const navItems = [
+        { href: '/mesh', label: 'Fleet Mesh', icon: GitPullRequest },
         { href: '/tools', label: 'Tools Hub', icon: Wrench },
         { href: '/status', label: 'Status', icon: Activity },
         { href: '/apps', label: 'App Hub', icon: Box },

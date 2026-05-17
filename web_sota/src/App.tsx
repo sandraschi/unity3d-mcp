@@ -7,6 +7,7 @@ import AvatarPipeline from '@/pages/avatar-pipeline';
 import PluginManager from '@/pages/plugin-manager';
 import { Chat } from '@/pages/chat';
 import { Settings } from '@/pages/settings';
+import FleetMesh from '@/pages/mesh';
 import { Tools } from '@/pages/tools';
 import { Status } from '@/pages/status';
 import { Apps } from '@/pages/apps';
@@ -24,6 +25,7 @@ function App() {
           <Route path="/plugins" element={<PluginManager />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/tools" element={<Tools />} />
+          <Route path="/mesh" element={<FleetMesh />} />
           <Route path="/status" element={<Status />} />
           <Route path="/apps" element={<Apps />} />
           <Route path="/help" element={<Help />} />
