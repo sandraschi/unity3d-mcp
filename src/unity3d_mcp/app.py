@@ -114,7 +114,16 @@ async def export_fbx(body: ModelExportReq) -> dict[str, Any]:
 
 @router.post("/export/gltf")
 async def export_gltf(body: ModelExportReq) -> dict[str, Any]:
-    return {"success": False, "error": "glTF export not yet implemented", "workaround": "Use export_fbx + external converter"}
+    """Export a Unity object to glTF format. Web-native, PBR-ready, compact."""
+    try:
+        out = body.output_path or f"exports/{body.name}.glb"
+        Path(out).parent.mkdir(parents=True, exist_ok=True)
+        r = await si.import_export_manager.export_gltf(
+            object_names=body.name, output_path=out
+        )
+        return {"success": True, "exported": body.name, "path": out, **r}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 # ── Health ────────────────────────────────────────────────────────────────

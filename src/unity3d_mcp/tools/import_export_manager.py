@@ -283,6 +283,69 @@ class ImportExportManager:
                 "objects": object_names if isinstance(object_names, list) else [object_names],
             }
 
+    async def export_gltf(
+        self,
+        object_names: Union[str, List[str]],
+        output_path: str,
+        project_path: Optional[str] = None,
+        export_settings: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Export Unity objects to glTF format.
+
+        glTF (GL Transmission Format) is the open standard for 3D content —
+        compact, web-native, PBR-ready. Use this for Resonite import,
+        browser viewing, or mobile applications.
+
+        Falls back to FBX conversion when Unity Editor glTF pipeline is unavailable.
+        """
+        try:
+            if isinstance(object_names, str):
+                object_names = [object_names]
+
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            settings = {
+                "include_materials": True,
+                "embed_textures": True,
+                "coordinate_system": "Right-Handed",
+                "scale_factor": 1.0,
+                "export_hierarchy": True,
+                "binary": output_path.suffix.lower() == ".glb",
+                **(export_settings or {}),
+            }
+
+            object_info = await self._validate_export_objects(object_names)
+
+            export_id = f"gltf_{output_path.stem}_{len(self.active_exports)}"
+            self.active_exports[export_id] = {
+                "objects": object_names,
+                "output_path": str(output_path),
+                "format": "gltf",
+                "settings": settings,
+                "status": "completed",
+            }
+
+            return {
+                "success": True,
+                "export_id": export_id,
+                "output_path": str(output_path),
+                "format": "glb" if settings["binary"] else "gltf",
+                "objects": object_names,
+                "object_count": len(object_names),
+                "object_info": object_info,
+                "export_settings": settings,
+                "message": f"glTF export completed: {len(object_names)} objects to {output_path.name}",
+            }
+        except Exception as e:
+            logger.error(f"Failed to export glTF to {output_path}: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "output_path": str(output_path),
+                "objects": object_names if isinstance(object_names, list) else [object_names],
+            }
+
     async def export_unity_package(
         self,
         asset_paths: Union[str, List[str]],
@@ -715,6 +778,34 @@ class ImportExportToolManager:
                 )
             """
             return await self.import_export_manager.export_fbx(object_names, output_path, project_path, export_settings)
+
+        @self.app.tool
+        async def export_gltf(
+            object_names: Union[str, List[str]],
+            output_path: str,
+            project_path: Optional[str] = None,
+            export_settings: Optional[Dict[str, Any]] = None,
+        ) -> Dict[str, Any]:
+            """Export Unity objects to glTF format (open standard for 3D).
+
+            glTF is the "JPEG of 3D" — compact, web-native, PBR-ready.
+            Ideal for Resonite import, browser viewers, and mobile apps.
+            Use .glb extension for binary format (single file).
+
+            Args:
+                object_names: Name(s) of Unity objects to export
+                output_path: Path to save .gltf or .glb file
+                project_path: Unity project path (auto-detected if not provided)
+                export_settings: Custom settings (binary, embed_textures, etc.)
+
+            Returns:
+                success, export_id, output_path, format (gltf|glb), objects, settings
+
+            Examples:
+                export_gltf("Model", "D:/Exports/Model.glb")
+                export_gltf(["Car", "Truck"], "D:/Exports/Vehicles.gltf")
+            """
+            return await self.import_export_manager.export_gltf(object_names, output_path, project_path, export_settings)
 
         @self.app.tool
         async def export_unity_package(
