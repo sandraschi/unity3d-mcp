@@ -1,68 +1,120 @@
 """FastAPI REST API + FastMCP mount for unity3d-mcp.
 
-Provides REST endpoints for fleet mesh integration (gazebo-mcp bridge,
-health checks) alongside the full MCP tool surface at /mcp.
+Fleet mesh: import/export models from gazebo, freecad, resonite, blender,
+worldlabs. MCP tools at /mcp. Health at /api/v1/health.
 
-Start with: uvicorn unity3d_mcp.app:app --host 127.0.0.1 --port 10831
+Start: uvicorn unity3d_mcp.app:app --host 127.0.0.1 --port 10831
 """
 
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from unity3d_mcp.config import Unity3DConfig
+from unity3d_mcp.server import server_instance
 
 log = logging.getLogger(__name__)
 
-# Import the server instance (FastMCP ASGI app)
-from unity3d_mcp.server import server_instance
-
 mcp_http = server_instance.app.http_app(path="/mcp")
 router = APIRouter(prefix="/api/v1")
+si = server_instance
 
 
-# ── Fleet mesh bridge: gazebo-mcp → unity3d-mcp ──────────────────────────
+# ── Request models ────────────────────────────────────────────────────────
 
 
-class GazeboImportRequest(BaseModel):
-    models: list[str] = Field(..., min_length=1, description="Gazebo model names to import into Unity.")
+class ModelImportReq(BaseModel):
+    models: list[str] = Field(..., min_length=1, description="Model names.")
+    file_path: str | None = Field(None, description="Path template e.g. imports/{model}.fbx")
+    format: str | None = None
 
 
-@router.post("/gazebo/import")
-async def gazebo_import(body: GazeboImportRequest) -> dict[str, Any]:
-    """Receive Gazebo simulation models for Unity 3D visualization.
+class ModelExportReq(BaseModel):
+    name: str = Field(..., description="Object name to export.")
+    output_path: str | None = Field(None, description="Output path. Default: exports/{name}.fbx")
 
-    Called by gazebo-mcp's sync_to_unity() tool.
-    Imports the listed models into the Unity scene for rendering.
-    """
-    from unity3d_mcp.server import server_instance as si
 
+# ── Import helper ─────────────────────────────────────────────────────────
+
+
+def _import(body: ModelImportReq, source: str) -> dict[str, Any]:
     results = {}
     for model in body.models:
+        fpath = (body.file_path or f"{source}_models/{model}.fbx").format(model=model)
+        if not Path(fpath).is_file():
+            for ext in [".fbx", ".obj", ".gltf", ".glb", ".stl", ".step", ".vrm"]:
+                test = Path(fpath).with_suffix(ext)
+                if test.is_file():
+                    fpath = str(test)
+                    break
         try:
-            # Use the existing 3D model import tool
-            si.import_export_manager.import_3d_model(
-                model_name=model,
-                file_path=f"gazebo_models/{model}.fbx",
+            r = si.import_export_manager.import_3d_model(
+                model_path=fpath,
                 import_settings={"importMaterials": True, "importTextures": True},
             )
-            results[model] = "imported"
+            results[model] = "imported" if r.get("success") else f"not found: {fpath}"
         except Exception as e:
-            results[model] = f"failed: {e}"
-            log.warning("Gazebo import failed for %s: %s", model, e)
-
+            results[model] = str(e)
     return {"success": True, "models": results, "count": len(body.models)}
 
 
-@router.get("/gazebo/import")
-async def gazebo_import_get(q: str | None = None) -> dict[str, Any]:
-    """GET version — list recently imported Gazebo models."""
-    # Unity doesn't persist an import log yet, so return empty
-    return {"success": True, "models": [], "count": 0}
+# ── Import endpoints (fleet mesh bridges) ─────────────────────────────────
+
+
+@router.post("/gazebo/import")
+async def gazebo_import(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "gazebo")
+
+
+@router.post("/freecad/import")
+async def freecad_import(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "freecad")
+
+
+@router.post("/resonite/import")
+async def resonite_import(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "resonite")
+
+
+@router.post("/blender/import")
+async def blender_import(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "blender")
+
+
+@router.post("/worldlabs/import")
+async def worldlabs_import(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "worldlabs")
+
+
+@router.post("/import/model")
+async def import_model(body: ModelImportReq) -> dict[str, Any]:
+    return _import(body, "generic")
+
+
+# ── Export endpoints ──────────────────────────────────────────────────────
+
+
+@router.post("/export/fbx")
+async def export_fbx(body: ModelExportReq) -> dict[str, Any]:
+    try:
+        out = body.output_path or f"exports/{body.name}.fbx"
+        Path(out).parent.mkdir(parents=True, exist_ok=True)
+        r = await si.import_export_manager.export_fbx(
+            object_names=body.name, output_path=out
+        )
+        return {"success": True, "exported": body.name, "path": out, **r}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/export/gltf")
+async def export_gltf(body: ModelExportReq) -> dict[str, Any]:
+    return {"success": False, "error": "glTF export not yet implemented", "workaround": "Use export_fbx + external converter"}
 
 
 # ── Health ────────────────────────────────────────────────────────────────
@@ -73,21 +125,14 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "service": "unity3d-mcp", "version": "1.0.0"}
 
 
-# ── Build the FastAPI app ─────────────────────────────────────────────────
+# ── Build app ─────────────────────────────────────────────────────────────
 
 
 def build_app() -> FastAPI:
-    from fastapi.middleware.cors import CORSMiddleware
-
     app = FastAPI(title="unity3d-mcp", version="1.0.0", lifespan=mcp_http.lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
     app.include_router(router)
     app.mount("/mcp", mcp_http)
-
-    @app.get("/health")
-    async def root_health() -> dict[str, str]:
-        return {"status": "ok", "service": "unity3d-mcp"}
-
     return app
 
 
