@@ -15,16 +15,26 @@
 - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 - [Roadmap (Phases 1–5)](docs/ROADMAP.md)
 
-### Agent Lab (v1.2.0)
+### Agent Lab (v1.3.0)
 
 | Tool | Purpose |
 |------|---------|
 | `unity_bridge` | Live Editor bridge — hierarchy, create/delete/transform (`MCPBridge.cs` :10835) |
-| `unity_render` | Agent vision — `capture_game_view` PNG (+ optional base64) |
-| `unity_api` | Scene objects, modify, **create_prefab**, **run_simulation** |
-| `unity_jobs` | Async **build**, **batch_import**, **simulation** jobs |
+| `unity_render` | Agent vision — capture, multi-angle, scene summary |
+| `unity_vision_refine` | Review bundle + apply bridge commands after vision model feedback |
+| `unity_import` | **Blender/fleet handoff** — GLB/VRM/FBX batch import into Assets |
+| `unity_api` | Scene objects, modify, create_prefab, run_simulation |
+| `unity_jobs` | Async build, batch_import, simulation |
+| `worldlabs` | Marble import + **`assemble_review`** agent loop |
 
 Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
+
+### Fleet pipeline (Blender → Unity)
+
+```text
+blender-mcp export GLB/VRM → unity_import import_blender → unity_vision_refine review_bundle → VRChat/build
+worldlabs Marble → worldlabs assemble_review → agent fixes → unity_jobs build
+```
 
 
 ```powershell

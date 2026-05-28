@@ -1,84 +1,112 @@
+import { useState } from "react";
+
+type TabId = "agent-lab" | "import" | "vision" | "jobs" | "worldlabs" | "fleet";
+
+const tabs: { id: TabId; label: string }[] = [
+  { id: "agent-lab", label: "Agent Lab (v1.3)" },
+  { id: "import", label: "unity_import" },
+  { id: "vision", label: "Vision refine" },
+  { id: "jobs", label: "unity_jobs" },
+  { id: "worldlabs", label: "World Labs" },
+  { id: "fleet", label: "Fleet mesh" },
+];
+
+const content: Record<TabId, { title: string; lines: string[] }> = {
+  "agent-lab": {
+    title: "Agent Lab overview",
+    lines: [
+      "Copy MCPBridge.cs to Assets/Editor/ — bridge listens on http://localhost:10835",
+      "HTTP MCP: uv run python -m unity3d_mcp --http --port 10831",
+      "Typical loop: blender-mcp export GLB → unity_import → unity_vision_refine review_bundle → apply_bridge_commands",
+      "Tools: unity_bridge, unity_render, unity_api, unity_jobs, unity_import, unity_vision_refine, worldlabs",
+    ],
+  },
+  import: {
+    title: "unity_import — Blender handoff",
+    lines: [
+      "unity_import(operation='list_formats')",
+      "unity_import(operation='import_blender', file_path='D:/exports/scene.glb', project_path='D:/Unity/MyProject')",
+      "unity_import(operation='import_fleet_batch', input_dir='D:/exports', pattern='*.glb', project_path='...')",
+      "Assets land in Assets/BlenderImports/ — refresh Unity or use live bridge session",
+    ],
+  },
+  vision: {
+    title: "unity_vision_refine + unity_render",
+    lines: [
+      "unity_render(operation='capture_game_view', output_path='D:/Temp/review.png', include_base64=True)",
+      "unity_render(operation='capture_multi_angle', output_dir='D:/Temp/angles', angles=4)",
+      "unity_vision_refine(operation='review_bundle', output_dir='D:/Temp/review', goal='Improve lighting')",
+      "unity_vision_refine(operation='apply_bridge_commands', commands_json='[{\"action\":\"transform_object\",\"target\":\"Cube\",\"position\":[0,2,0]}]')",
+    ],
+  },
+  jobs: {
+    title: "unity_jobs — async queue",
+    lines: [
+      "unity_jobs(operation='submit', job_type='build', project_path='...', build_target='StandaloneWindows64', output_path='D:/Builds')",
+      "unity_jobs(operation='submit', job_type='batch_import', input_dir='D:/exports', project_path='...')",
+      "unity_jobs(operation='submit', job_type='simulation', duration=2.0)",
+      "unity_jobs(operation='status', job_id='...') | list | cancel",
+    ],
+  },
+  worldlabs: {
+    title: "worldlabs — Marble + agent review",
+    lines: [
+      "worldlabs(operation='import_marble', source_path='...', project_path='...')",
+      "worldlabs(operation='assemble_review', source_path='...', project_path='...', output_dir='D:/Temp/wl_review', goal='VRChat world')",
+      "assemble_review imports Marble assets then runs unity_vision_refine review_bundle",
+    ],
+  },
+  fleet: {
+    title: "Fleet mesh import/export",
+    lines: [
+      "REST POST /api/v1/blender/import — fleet HTTP bridge",
+      "Sources: Blender (GLB/FBX), FreeCAD, Gazebo, Resonite (VRM/GLB), World Labs",
+      "Export: POST /api/v1/export/fbx | /api/v1/export/gltf",
+      "Pipeline: blender-mcp (author) → unity3d-mcp (scene) → VRChat / Resonite / builds",
+    ],
+  },
+};
+
 export function Help() {
-    return (
-        <div className="space-y-6 p-6">
-            <h1 className="text-2xl font-bold">Help & Documentation</h1>
-            <p className="text-muted-foreground">Understanding the Unity3D MCP ecosystem — import/export, fleet mesh, and tools.</p>
+  const [tab, setTab] = useState<TabId>("agent-lab");
+  const section = content[tab];
 
-            <section className="space-y-4">
-                <h2 className="text-lg font-semibold">Import / Export Overview</h2>
-                <p className="text-sm text-muted-foreground">
-                    Unity3D-MCP bridges models between the fleet and Unity. The <strong>Fleet Mesh</strong> page
-                    lets you import models from Gazebo, FreeCAD, Resonite, Blender, and World Labs, then
-                    export them back to FBX or glTF format.
-                </p>
+  return (
+    <div className="space-y-6 p-6">
+      <h1 className="text-2xl font-bold">Help & Reference</h1>
+      <p className="text-sm text-muted-foreground">
+        Unity3D MCP Agent Lab — bridge, fleet import, vision loops, async jobs. See docs/ROADMAP.md in repo.
+      </p>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-lg border border-border/40 p-4">
-                        <h3 className="font-medium text-sm mb-2">Import (into Unity)</h3>
-                        <table className="text-xs w-full">
-                            <thead><tr className="text-muted-foreground"><th className="text-left pr-2">Source</th><th className="text-left pr-2">Formats</th><th className="text-left">Use case</th></tr></thead>
-                            <tbody>
-                                <tr><td className="pr-2 py-1">Gazebo</td><td className="pr-2 py-1">FBX, OBJ</td><td className="py-1">Robot simulation → visualization</td></tr>
-                                <tr><td className="pr-2 py-1">FreeCAD</td><td className="pr-2 py-1">STEP, STL, OBJ</td><td className="py-1">CAD parts → Unity scene</td></tr>
-                                <tr><td className="pr-2 py-1">Resonite</td><td className="pr-2 py-1">VRM, GLB</td><td className="py-1">VR worlds → Unity</td></tr>
-                                <tr><td className="pr-2 py-1">Blender</td><td className="pr-2 py-1">FBX, GLTF, OBJ</td><td className="py-1">3D modelling → Unity</td></tr>
-                                <tr><td className="pr-2 py-1">World Labs</td><td className="pr-2 py-1">OBJ, FBX, GLB</td><td className="py-1">AI worlds → Unity</td></tr>
-                                <tr><td className="pr-2 py-1">Generic</td><td className="pr-2 py-1">Any format</td><td className="py-1">Auto-detect from extension</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="rounded-lg border border-border/40 p-4">
-                        <h3 className="font-medium text-sm mb-2">Export (from Unity)</h3>
-                        <table className="text-xs w-full">
-                            <thead><tr className="text-muted-foreground"><th className="text-left pr-2">Format</th><th className="text-left pr-2">Use case</th></tr></thead>
-                            <tbody>
-                                <tr><td className="pr-2 py-1">FBX</td><td className="py-1">Full scene exchange (Blender, Gazebo, any 3D app)</td></tr>
-                                <tr><td className="pr-2 py-1">glTF</td><td className="py-1">Web, mobile, Resonite — compact, PBR-ready, open standard</td></tr>
-                                <tr><td className="pr-2 py-1">GLB</td><td className="py-1">Binary glTF — single file, same as glTF</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+      <div className="flex flex-wrap gap-2 border-b border-border/40 pb-2">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium ${
+              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-            <section className="space-y-3">
-                <h2 className="text-lg font-semibold">Format cheat sheet</h2>
-                <div className="grid gap-3 md:grid-cols-3">
-                    {[
-                        { name: "FBX", aka: "Filmbox (Autodesk)", use: "Full scene exchange", anim: "Yes", web: "No" },
-                        { name: "glTF", aka: "GL Transmission (open)", use: "Web, mobile, Resonite", anim: "Yes", web: "Yes" },
-                        { name: "OBJ", aka: "Wavefront (legacy)", use: "Universal mesh baseline", anim: "No", web: "No" },
-                        { name: "STEP", aka: "ISO 10303 (engineering)", use: "CAD exchange with FreeCAD", anim: "No", web: "No" },
-                        { name: "STL", aka: "Stereolithography", use: "3D printing", anim: "No", web: "No" },
-                        { name: "VRM", aka: "VR avatar standard", use: "Resonite humanoid avatars", anim: "Yes", web: "No" },
-                    ].map((fmt) => (
-                        <div key={fmt.name} className="rounded-lg border border-border/40 p-3">
-                            <div className="font-medium text-sm">{fmt.name}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{fmt.aka}</div>
-                            <div className="text-xs mt-2">{fmt.use}</div>
-                            <div className="text-xs text-muted-foreground mt-1">Animation: {fmt.anim} &middot; Web: {fmt.web}</div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="space-y-3">
-                <h2 className="text-lg font-semibold">REST API endpoints</h2>
-                <div className="text-sm text-muted-foreground space-y-1">
-                    <p><code>POST /api/v1/gazebo/import</code> — Import Gazebo simulation models</p>
-                    <p><code>POST /api/v1/freecad/import</code> — Import FreeCAD CAD models</p>
-                    <p><code>POST /api/v1/resonite/import</code> — Import Resonite VRM/GLB</p>
-                    <p><code>POST /api/v1/blender/import</code> — Import Blender scenes</p>
-                    <p><code>POST /api/v1/worldlabs/import</code> — Import World Labs AI worlds</p>
-                    <p><code>POST /api/v1/import/model</code> — Generic import (auto-detect format)</p>
-                    <p><code>POST /api/v1/export/fbx</code> — Export Unity object to FBX</p>
-                    <p><code>POST /api/v1/export/gltf</code> — Export Unity object to glTF/GLB</p>
-                    <p><code>GET /api/v1/health</code> — Health check</p>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    Request body for import: <code>{"{"}"models": ["name1"], "file_path": "..."{"}"}</code>
-                </p>
-            </section>
-        </div>
-    );
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">{section.title}</h2>
+        <ul className="space-y-2 text-sm text-muted-foreground">
+          {section.lines.map((line) => (
+            <li key={line}>
+              {line.startsWith("unity_") || line.startsWith("worldlabs") || line.startsWith("POST") ? (
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded block overflow-x-auto">{line}</code>
+              ) : (
+                line
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
 }

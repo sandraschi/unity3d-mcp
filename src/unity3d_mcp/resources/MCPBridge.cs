@@ -116,6 +116,12 @@ namespace MCP {
                 case "capture_game_view":
                     return CaptureGameView(cmd);
 
+                case "capture_multi_angle":
+                    return CaptureMultiAngle(cmd);
+
+                case "get_scene_summary":
+                    return GetSceneSummary();
+
                 case "create_prefab":
                     return CreatePrefab(cmd);
 
@@ -312,6 +318,67 @@ namespace MCP {
             return "{\"status\": \"stopped\", \"state\": \"idle\"}";
         }
 
+        private static string CaptureMultiAngle(CommandRequest cmd) {
+            string dir = !string.IsNullOrEmpty(cmd.output_dir)
+                ? cmd.output_dir
+                : Path.Combine(Application.dataPath, "../Temp/mcp_angles");
+            int angles = cmd.angles > 0 ? cmd.angles : 4;
+            int width = cmd.width > 0 ? cmd.width : 1280;
+            int height = cmd.height > 0 ? cmd.height : 720;
+
+            try {
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                Camera cam = Camera.main ?? GameObject.FindObjectOfType<Camera>();
+                if (cam == null) return "{\"error\": \"No camera found in active scene\"}";
+
+                Vector3 originalPos = cam.transform.position;
+                Quaternion originalRot = cam.transform.rotation;
+                var paths = new List<string>();
+
+                for (int i = 0; i < angles; i++) {
+                    float yaw = (360f / angles) * i;
+                    cam.transform.rotation = Quaternion.Euler(20f, yaw, 0f);
+                    string path = Path.Combine(dir, "angle_" + i + ".png");
+                    RenderTexture rt = new RenderTexture(width, height, 24);
+                    RenderTexture prev = cam.targetTexture;
+                    cam.targetTexture = rt;
+                    cam.Render();
+                    RenderTexture.active = rt;
+                    Texture2D tex = new Texture2D(width, height, Texture2D.RGB24, false);
+                    tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                    tex.Apply();
+                    cam.targetTexture = prev;
+                    RenderTexture.active = null;
+                    File.WriteAllBytes(path, tex.EncodeToPNG());
+                    UnityEngine.Object.DestroyImmediate(tex);
+                    UnityEngine.Object.DestroyImmediate(rt);
+                    paths.Add(path.Replace("\\", "\\\\"));
+                }
+
+                cam.transform.position = originalPos;
+                cam.transform.rotation = originalRot;
+
+                return "{\"status\": \"success\", \"output_dir\": \"" + dir.Replace("\\", "\\\\") + "\", \"angles\": " + angles + ", \"files\": [\"" + string.Join("\",\"", paths) + "\"]}";
+            } catch (Exception e) {
+                return "{\"error\": \"" + e.Message.Replace("\"", "'") + "\"}";
+            }
+        }
+
+        private static string GetSceneSummary() {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var objects = GameObject.FindObjectsOfType<GameObject>();
+            var list = new List<string>();
+            int meshCount = 0;
+            foreach (var obj in objects) {
+                if (obj.hideFlags != HideFlags.None) continue;
+                if (obj.GetComponent<MeshRenderer>() != null || obj.GetComponent<MeshFilter>() != null)
+                    meshCount++;
+                list.Add("{\"name\":\"" + obj.name + "\", \"id\":\"" + obj.GetInstanceID() + "\"}");
+            }
+            return "{\"scene_name\": \"" + scene.name + "\", \"object_count\": " + objects.Length + ", \"mesh_count\": " + meshCount + ", \"objects\": [" + string.Join(",", list) + "]}";
+        }
+
         private static GameObject FindGameObject(string identifier) {
             if (int.TryParse(identifier, out int id)) {
                 foreach (var go in GameObject.FindObjectsOfType<GameObject>()) {
@@ -339,8 +406,10 @@ namespace MCP {
             public float[] position;
             public float[] rotation;
             public string output_path;
+            public string output_dir;
             public int width;
             public int height;
+            public int angles;
             public string prefab_path;
             public float duration;
             public int record_data;

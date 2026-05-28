@@ -42,11 +42,13 @@ uv run python -m unity3d_mcp --http --port 10831
 
 ## Phase 3 — Fleet handoff and vision refine (1.3.0)
 
+**Status: complete (v1.3.0)**
+
 | Item | Tool / module |
 |------|----------------|
-| Blender GLB/VRM import orchestration | extend `ImportExportManager` + `unity_import` tool |
-| Multi-angle capture review bundle | `unity_vision_refine` |
-| World Labs + scene assembly agent loop | extend `worldlabs` + vision tools |
+| Blender GLB/VRM import orchestration | `unity_import` + `utils/fleet_import.py` |
+| Multi-angle capture review bundle | `unity_vision_refine` + `unity_render` multi-angle |
+| World Labs + scene assembly agent loop | `worldlabs` → `assemble_review` |
 
 ## Phase 4 — Validation and polish (1.4.0)
 

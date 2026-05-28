@@ -5,6 +5,20 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-05-28
+
+### Added
+- **`unity_import`** portmanteau: Blender/fleet GLB/VRM/FBX handoff (`import_blender`, `import_fleet_batch`, `list_formats`).
+- **`unity_vision_refine`**: capture, review_bundle, apply_bridge_commands for agent vision loops.
+- **`utils/fleet_import.py`**, **`utils/vision_refine.py`**: fleet import and review bundle helpers.
+- **`worldlabs` → `assemble_review`**: import Marble assets then build vision review bundle.
+- **`unity_render`**: `capture_multi_angle`, `get_scene_summary`.
+- **`MCPBridge.cs`**: `capture_multi_angle`, `get_scene_summary`.
+
+### Changed
+- Webapp **Help** tabbed Agent Lab reference (v1.3).
+- Version bump **1.2.0 → 1.3.0** (Phase 3 fleet handoff + vision refine).
+
 ## [1.2.0] - 2026-05-28
 
 ### Added

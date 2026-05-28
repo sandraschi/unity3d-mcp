@@ -16,6 +16,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from unity3d_mcp import __version__
 from unity3d_mcp.server import server_instance
 
 log = logging.getLogger(__name__)
@@ -131,14 +132,14 @@ async def export_gltf(body: ModelExportReq) -> dict[str, Any]:
 
 @router.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "unity3d-mcp", "version": "1.0.0"}
+    return {"status": "ok", "service": "unity3d-mcp", "version": __version__}
 
 
 # ── Build app ─────────────────────────────────────────────────────────────
 
 
 def build_app() -> FastAPI:
-    app = FastAPI(title="unity3d-mcp", version="1.0.0", lifespan=mcp_http.lifespan)
+    app = FastAPI(title="unity3d-mcp", version=__version__, lifespan=mcp_http.lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
     app.include_router(router)
     app.mount("/mcp", mcp_http)

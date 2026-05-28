@@ -14,14 +14,14 @@ function Clear-Port {
     param([int]$Port)
     $conn = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | Select-Object -First 1
     if (-not $conn) { return $false }
-    $pid = $conn.OwningProcess
-    $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
-    $name = if ($proc) { $proc.ProcessName } else { "PID $pid" }
-    Write-Host "Port $Port held by $name (PID: $pid). Freeing..." -ForegroundColor Yellow
-    try { Stop-Process -Id $pid -Force -ErrorAction Stop; Start-Sleep 1; return $true } catch {}
-    try { taskkill /F /PID $pid 2>&1 | Out-Null; Start-Sleep 1; return $true } catch {}
-    try { Get-CimInstance Win32_Process -Filter "ProcessId = $pid" -ErrorAction Stop | Invoke-CimMethod -MethodName Terminate -ErrorAction Stop | Out-Null; Start-Sleep 1; return $true } catch {}
-    Write-Host "  Could not free port $Port. Run as Admin: taskkill /F /PID $pid" -ForegroundColor Red
+    $targetPid = $conn.OwningProcess
+    $proc = Get-Process -Id $targetPid -ErrorAction SilentlyContinue
+    $name = if ($proc) { $proc.ProcessName } else { "PID $targetPid" }
+    Write-Host "Port $Port held by $name (PID: $targetPid). Freeing..." -ForegroundColor Yellow
+    try { Stop-Process -Id $targetPid -Force -ErrorAction Stop; Start-Sleep 1; return $true } catch {}
+    try { taskkill /F /PID $targetPid 2>&1 | Out-Null; Start-Sleep 1; return $true } catch {}
+    try { Get-CimInstance Win32_Process -Filter "ProcessId = $targetPid" -ErrorAction Stop | Invoke-CimMethod -MethodName Terminate -ErrorAction Stop | Out-Null; Start-Sleep 1; return $true } catch {}
+    Write-Host "  Could not free port $Port. Run as Admin: taskkill /F /PID $targetPid" -ForegroundColor Red
     return $false
 }
 

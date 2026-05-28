@@ -63,6 +63,24 @@ class UnityBridgeClient:
             height=height,
         )
 
+    async def capture_multi_angle(
+        self,
+        output_dir: str,
+        angles: int = 4,
+        width: int = 1280,
+        height: int = 720,
+    ) -> Dict[str, Any]:
+        return await self.execute_command(
+            "capture_multi_angle",
+            output_dir=output_dir,
+            angles=angles,
+            width=width,
+            height=height,
+        )
+
+    async def get_scene_summary(self) -> Dict[str, Any]:
+        return await self.execute_command("get_scene_summary")
+
     async def create_prefab(
         self,
         target: str,

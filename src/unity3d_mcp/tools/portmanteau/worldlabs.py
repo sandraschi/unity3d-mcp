@@ -34,6 +34,10 @@ class WorldLabsToolManager:
             include_colliders: bool = True,
             optimize_for_vrchat: bool = False,
             target_polygon_count: int = 50000,
+            output_dir: Optional[str] = None,
+            goal: str = "",
+            include_multi_angle: bool = True,
+            angles: int = 4,
         ) -> Dict[str, Any]:
             """World Labs operations portmanteau tool.
 
@@ -46,16 +50,48 @@ class WorldLabsToolManager:
                     - "check_gaussian": Check if Gaussian Splatting renderer is installed
                     - "install_gaussian": Install Gaussian Splatting renderer
                     - "optimize_for_vrchat": Get VRChat optimization recommendations
+                    - "assemble_review": Import Marble assets then build vision review bundle
                 source_path: Path to Marble export directory or zip (required for import_marble)
                 project_path: Unity project path (required for most operations)
                 asset_name: Name for imported assets (empty for auto-generate)
                 include_colliders: Generate collision meshes from Marble collider export
                 optimize_for_vrchat: Apply VRChat world optimization
                 target_polygon_count: Target polygon count for VRChat optimization
+                output_dir: Review bundle output directory (assemble_review)
+                goal: Agent goal text for assemble_review refinement prompt
+                include_multi_angle: Include multi-angle captures in assemble_review
+                angles: Number of review angles for assemble_review
 
             Returns:
                 Operation-specific result dictionary
             """
+
+            if operation == "assemble_review":
+                if not output_dir:
+                    return {"success": False, "error": "output_dir required for assemble_review"}
+                from ...utils.vision_refine import build_review_bundle
+
+                import_result = None
+                if source_path and project_path:
+                    import_result = await self.worldlabs.import_marble_world(
+                        source_path,
+                        project_path,
+                        asset_name,
+                        include_colliders,
+                        optimize_for_vrchat,
+                    )
+                review = await build_review_bundle(
+                    output_dir=output_dir,
+                    goal=goal or f"Assemble and review World Labs asset {asset_name or source_path or ''}".strip(),
+                    include_multi_angle=include_multi_angle,
+                    angles=angles,
+                )
+                return {
+                    "success": review.get("success", False),
+                    "operation": "assemble_review",
+                    "import": import_result,
+                    "review": review,
+                }
 
             if operation == "import_marble":
                 if not source_path or not project_path:
@@ -88,5 +124,6 @@ class WorldLabsToolManager:
                         "check_gaussian",
                         "install_gaussian",
                         "optimize_for_vrchat",
+                        "assemble_review",
                     ],
                 }

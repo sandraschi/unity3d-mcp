@@ -27,17 +27,21 @@ class UnityRenderToolManager:
         async def unity_render(
             operation: str,
             output_path: Optional[str] = None,
+            output_dir: Optional[str] = None,
             width: int = 1920,
             height: int = 1080,
+            angles: int = 4,
             include_base64: bool = False,
         ) -> Dict[str, Any]:
             """Capture Unity scene views for agent vision loops.
 
             Args:
-                operation: capture_game_view | bridge_status
-                output_path: PNG output path (required for capture_game_view)
+                operation: capture_game_view | capture_multi_angle | get_scene_summary | bridge_status
+                output_path: PNG output path (capture_game_view)
+                output_dir: Directory for multi-angle stills
                 width: Capture width in pixels
                 height: Capture height in pixels
+                angles: Number of angles for capture_multi_angle
                 include_base64: Include base64 PNG in response for LLM vision
             """
             if operation == "bridge_status":
@@ -48,11 +52,48 @@ class UnityRenderToolManager:
                     "port": self.bridge.port,
                 }
 
+            if operation == "get_scene_summary":
+                result = await execute_bridge_action("get_scene_summary", bridge=self.bridge)
+                if result.get("success"):
+                    return {"success": True, "scene_summary": result.get("result")}
+                return result
+
+            if operation == "capture_multi_angle":
+                if not output_dir:
+                    return {"success": False, "error": "output_dir required for capture_multi_angle"}
+                out = Path(output_dir)
+                try:
+                    out.mkdir(parents=True, exist_ok=True)
+                except OSError as exc:
+                    return {"success": False, "error": f"Cannot create output directory: {exc}"}
+                result = await execute_bridge_action(
+                    "capture_multi_angle",
+                    bridge=self.bridge,
+                    output_dir=str(out),
+                    angles=angles,
+                    width=width,
+                    height=height,
+                )
+                if not result.get("success"):
+                    return result
+                return {
+                    "success": True,
+                    "mode": "bridge",
+                    "output_dir": str(out),
+                    "angles": angles,
+                    "bridge_result": result.get("result"),
+                }
+
             if operation != "capture_game_view":
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": ["capture_game_view", "bridge_status"],
+                    "available_operations": [
+                        "capture_game_view",
+                        "capture_multi_angle",
+                        "get_scene_summary",
+                        "bridge_status",
+                    ],
                 }
 
             if not output_path:

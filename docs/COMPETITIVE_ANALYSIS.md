@@ -34,9 +34,9 @@ See [ROADMAP.md](ROADMAP.md).
 | Game/scene view capture for agents | `unity_render` → `capture_game_view` | 1 (in progress) |
 | Bridge-first runtime helper | `utils/unity_runtime.py` | 1 (in progress) |
 | Prometheus /metrics telemetry | `utils/telemetry.py` | 1 (in progress) |
-| Async long-running jobs (builds, batch) | `unity_jobs` | 2 |
-| Vision refine loop (multi-capture review) | `unity_vision_refine` | 3 |
-| Blender → Unity import orchestration | `unity_import` fleet handoff from GLB/VRM | 3 |
+| Async long-running jobs (builds, batch) | `unity_jobs` | 2 (done) |
+| Vision refine loop (multi-capture review) | `unity_vision_refine` | 3 (done) |
+| Blender → Unity import orchestration | `unity_import` | 3 (done) |
 | General mesh/scene validation beyond VRChat | `unity_validation` | 4 |
 | Docker / GHCR + monitoring stack | Dockerfile, compose profile | 5 |
 
