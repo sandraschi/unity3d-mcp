@@ -10,16 +10,31 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from unity3d_mcp import __version__
 from unity3d_mcp.server import server_instance
+from unity3d_mcp.utils.logging_setup import setup_logging
+from unity3d_mcp.utils.telemetry import (
+    init_metrics,
+    install_tool_call_wrapper,
+    metrics_content_type,
+    render_metrics,
+    start_metrics_server,
+)
+
+setup_logging()
+init_metrics()
+install_tool_call_wrapper(server_instance.app)
+if os.getenv("UNITY3D_MCP_START_METRICS_SERVER", "true").strip().lower() not in {"0", "false", "no", "off"}:
+    start_metrics_server()
 
 log = logging.getLogger(__name__)
 
@@ -135,6 +150,11 @@ async def export_gltf(body: ModelExportReq) -> dict[str, Any]:
 @router.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "unity3d-mcp", "version": __version__}
+
+
+@router.get("/metrics")
+async def prometheus_metrics() -> Response:
+    return Response(content=render_metrics(), media_type=metrics_content_type())
 
 
 class ToolCallReq(BaseModel):

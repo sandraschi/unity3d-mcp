@@ -1,0 +1,113 @@
+# unity3d-mcp Docker + optional monitoring stack.
+#
+# MCP only:
+#   docker compose up unity3d-mcp
+#
+# MCP + Prometheus/Grafana/Loki:
+#   docker compose --profile monitoring up -d
+#
+# Image: ghcr.io/sandraschi/unity3d-mcp:latest
+#
+# Note: Unity Editor (Hands-In live GUI) runs on the HOST, not in this container.
+# Mount host project paths and expose bridge port 10835 separately when needed.
+
+services:
+  unity3d-mcp:
+    build:
+      context: .
+      target: production
+    image: ghcr.io/sandraschi/unity3d-mcp:latest
+    container_name: unity3d-mcp
+    ports:
+      - "10831:10831"
+      - "9092:9092"
+    environment:
+      MCP_TRANSPORT: http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "10831"
+      UNITY3D_MCP_METRICS_ENABLED: "true"
+      PROMETHEUS_PORT: "9092"
+      UNITY3D_MCP_LOG_FORMAT: json
+      UNITY3D_MCP_LOG_LEVEL: INFO
+      UNITY3D_MCP_BRIDGE_HOST: host.docker.internal
+      UNITY3D_MCP_BRIDGE_PORT: "10835"
+    volumes:
+      - unity3d-mcp-logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      promtail.job: unity3d-mcp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:10831/api/v1/health', timeout=5)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  prometheus:
+    profiles: ["monitoring"]
+    image: prom/prometheus:v3.11.3
+    container_name: unity3d-mcp-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    restart: unless-stopped
+
+  loki:
+    profiles: ["monitoring"]
+    image: grafana/loki:3.7.1
+    container_name: unity3d-mcp-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  promtail:
+    profiles: ["monitoring"]
+    image: grafana/promtail:3.7.1
+    container_name: unity3d-mcp-promtail
+    volumes:
+      - ./monitoring/promtail/promtail.yml:/etc/promtail/config.yml:ro
+      - unity3d-mcp-logs:/app/logs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  grafana:
+    profiles: ["monitoring"]
+    image: grafana/grafana:13.0.1
+    container_name: unity3d-mcp-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+volumes:
+  unity3d-mcp-logs:
+  prometheus-data:
+  loki-data:
+  grafana-data:
+
+networks:
+  default:
+    name: unity3d-mcp-net

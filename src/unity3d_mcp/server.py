@@ -86,9 +86,16 @@ async def server_lifespan(mcp_instance: FastMCP):
     Handles Unity3D MCP server initialization and shutdown lifecycle.
     """
     from unity3d_mcp import __version__
-    from unity3d_mcp.utils.telemetry import init_metrics
+    from unity3d_mcp.utils.telemetry import init_metrics, install_tool_call_wrapper, start_metrics_server
 
+    if os.getenv("UNITY3D_MCP_LOG_FORMAT", "").strip().lower() == "json":
+        from unity3d_mcp.utils.structured_logging import configure_json_logging
+
+        configure_json_logging(logging.getLogger())
     init_metrics()
+    install_tool_call_wrapper(mcp_instance)
+    if os.getenv("UNITY3D_MCP_START_METRICS_SERVER", "true").strip().lower() not in {"0", "false", "no", "off"}:
+        start_metrics_server()
     logger.info("Unity3D MCP server starting up", version=__version__)
     yield
     logger.info("Unity3D MCP server shutting down")
@@ -102,7 +109,7 @@ class Unity3DMCP:
         self.config = config or Unity3DConfig()
 
         # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
-        self.app = FastMCP(name="Unity3D-MCP", version="1.4.0", lifespan=server_lifespan)
+        self.app = FastMCP(name="Unity3D-MCP", version="1.5.0", lifespan=server_lifespan)
 
         _bridge_proxies: list[str] = []
         bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")

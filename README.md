@@ -15,11 +15,11 @@
 - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 - [Roadmap (Phases 1–5)](docs/ROADMAP.md)
 
-### Agent Lab (v1.4.0)
+### Agent Lab (v1.5.0)
 
 | Tool | Purpose |
 |------|---------|
-| `unity_bridge` | Live Editor bridge — hierarchy, create/delete/transform (`MCPBridge.cs` :10835) |
+| `unity_bridge` | Live Editor bridge — **`execution_mode`** (Hands-In vs Hands-Off), hierarchy, CRUD |
 | `unity_render` | Agent vision — capture, multi-angle, scene summary |
 | `unity_vision_refine` | Review bundle + apply bridge commands after vision model feedback |
 | `unity_import` | **Blender/fleet handoff** — GLB/VRM/FBX batch import into Assets |
@@ -32,6 +32,21 @@
 Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
 
 Webapp **Agent Tools** page: `/agent-tools` (mirror blender-mcp Agent Lab UI).
+
+### Dual mode (live GUI vs headless)
+
+| Mode | When | You see |
+|------|------|---------|
+| **Hands-In** | Unity Editor + `MCPBridge.cs` (:10835) | Scene edits, play-mode sim, captures live in Editor |
+| **Hands-Off** | No bridge / disk-only | UnityPy edits, imports, **build jobs** (`-batchmode`, no GUI) |
+
+`unity_bridge(operation='execution_mode')` reports current mode. See [docs/DUAL_MODE.md](docs/DUAL_MODE.md).
+
+### Observability (v1.5)
+
+- Prometheus: `http://127.0.0.1:9092/metrics` and `/api/v1/metrics` on :10831
+- JSON logs: `UNITY3D_MCP_LOG_FORMAT=json`
+- Docker: `docker compose --profile monitoring up -d` — [docs/MONITORING.md](docs/MONITORING.md), [docs/DOCKER.md](docs/DOCKER.md)
 
 ### Fleet pipeline (Blender → Unity)
 

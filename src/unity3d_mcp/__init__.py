@@ -5,7 +5,7 @@ FastMCP 2.10 compliant server for Unity 3D automation with dual stdio/HTTP inter
 Comprehensive Unity Editor automation, VRM avatar pipeline, and VRChat integration.
 """
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __author__ = "Sandra"
 __license__ = "MIT"
 

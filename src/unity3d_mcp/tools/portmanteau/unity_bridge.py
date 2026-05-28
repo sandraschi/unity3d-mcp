@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
-from ...utils.telemetry import set_bridge_connected
+from ...utils.execution_mode import describe_execution_mode
+from ...utils.telemetry import set_bridge_connected, set_execution_mode
 from ...utils.unity_runtime import bridge_available, execute_bridge_action, get_bridge_client
 from .unity_api_bridge import UnityBridgeClient
 
@@ -34,7 +35,7 @@ class UnityBridgeToolManager:
             """Live Unity Editor bridge (MCPBridge.cs on port 10835).
 
             Args:
-                operation: status | ping | get_hierarchy | create_object | delete_object | transform_object
+                operation: status | execution_mode | ping | get_hierarchy | create_object | delete_object | transform_object
                 target: GameObject name or instance ID
                 name: Name for create_object
                 object_type: GameObject | Light | Camera
@@ -44,13 +45,18 @@ class UnityBridgeToolManager:
             if operation == "status":
                 alive = await bridge_available(self.bridge)
                 set_bridge_connected(alive)
+                set_execution_mode(alive)
                 return {
                     "success": True,
                     "status": "connected" if alive else "disconnected",
+                    "mode": "hands_in" if alive else "hands_off",
                     "port": self.bridge.port,
                     "bridge_script": "MCPBridge.cs",
                     "instruction": "Copy src/unity3d_mcp/resources/MCPBridge.cs to Assets/Editor/",
                 }
+
+            if operation == "execution_mode":
+                return await describe_execution_mode()
 
             action_map = {
                 "ping": "ping",
@@ -63,7 +69,7 @@ class UnityBridgeToolManager:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": list(action_map.keys()) + ["status"],
+                    "available_operations": list(action_map.keys()) + ["status", "execution_mode"],
                 }
 
             kwargs: dict[str, Any] = {}

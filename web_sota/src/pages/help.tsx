@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-type TabId = "agent-lab" | "import" | "vision" | "validation" | "jobs" | "worldlabs" | "fleet";
+type TabId = "agent-lab" | "import" | "vision" | "validation" | "jobs" | "worldlabs" | "fleet" | "monitoring";
 
 const tabs: { id: TabId; label: string }[] = [
-  { id: "agent-lab", label: "Agent Lab (v1.4)" },
+  { id: "agent-lab", label: "Agent Lab (v1.5)" },
   { id: "import", label: "unity_import" },
   { id: "vision", label: "Vision refine" },
   { id: "validation", label: "unity_validation" },
@@ -21,6 +21,7 @@ const content: Record<TabId, { title: string; lines: string[] }> = {
       "Typical loop: blender-mcp export GLB → unity_import → unity_vision_refine review_bundle → apply_bridge_commands",
       "Tools: unity_bridge, unity_render, unity_api, unity_jobs, unity_import, unity_vision_refine, unity_validation, worldlabs",
       "Webapp Agent Tools: /agent-tools (validation + platform audit tabs)",
+      "Dual mode: unity_bridge(operation='execution_mode') — Hands-In live GUI vs Hands-Off headless/disk",
     ],
   },
   validation: {
@@ -76,6 +77,17 @@ const content: Record<TabId, { title: string; lines: string[] }> = {
       "Sources: Blender (GLB/FBX), FreeCAD, Gazebo, Resonite (VRM/GLB), World Labs",
       "Export: POST /api/v1/export/fbx | /api/v1/export/gltf",
       "Pipeline: blender-mcp (author) → unity3d-mcp (scene) → VRChat / Resonite / builds",
+    ],
+  },
+  monitoring: {
+    title: "Telemetry and Docker (Phase 5)",
+    lines: [
+      "Prometheus: http://127.0.0.1:9092/metrics and http://127.0.0.1:10831/api/v1/metrics",
+      "JSON logs: UNITY3D_MCP_LOG_FORMAT=json",
+      "docker compose up unity3d-mcp",
+      "docker compose --profile monitoring up -d (Grafana :3000, Prometheus :9090)",
+      "Smoke test: uv run python scripts/smoke_test.py",
+      "Live GUI requires Unity Editor on HOST; Docker runs MCP server only — see docs/DUAL_MODE.md",
     ],
   },
 };

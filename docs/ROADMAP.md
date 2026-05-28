@@ -62,9 +62,12 @@ uv run python -m unity3d_mcp --http --port 10831
 
 ## Phase 5 — Telemetry, Docker, monitoring (1.5.0)
 
+**Status: complete (v1.5.0)**
+
 | Item | Tool / module |
 |------|----------------|
-| JSON logs for Loki | `UNITY3D_MCP_LOG_FORMAT=json` |
-| Docker + GHCR image | `Dockerfile`, CI publish |
+| JSON logs for Loki | `UNITY3D_MCP_LOG_FORMAT=json`, `utils/structured_logging.py` |
+| Docker + GHCR image | `Dockerfile`, `.github/workflows/docker-publish.yml` |
 | Grafana/Prometheus profile | `docker-compose.yml --profile monitoring` |
 | Smoke test script | `scripts/smoke_test.py` |
+| Dual-mode docs | `docs/DUAL_MODE.md`, `unity_bridge` → `execution_mode` |
