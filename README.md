@@ -50,10 +50,18 @@ Webapp **Agent Tools** page: `/agent-tools` (mirror blender-mcp Agent Lab UI).
 
 ### Fleet pipeline (Blender → Unity)
 
+```powershell
+.\scripts\run-fleet-pipeline.ps1 -ProjectPath "D:\Unity\MyProject" -ModelPath "D:\exports\avatar.glb" -SkipBuild
+```
+
+See [docs/FLEET_PIPELINE.md](docs/FLEET_PIPELINE.md).
+
 ```text
 blender-mcp export GLB/VRM → unity_import import_blender → unity_vision_refine review_bundle → VRChat/build
 worldlabs Marble → worldlabs assemble_review → agent fixes → unity_jobs build
 ```
+
+**One-shot automation:** [docs/FLEET_PIPELINE.md](docs/FLEET_PIPELINE.md) — `scripts/run-fleet-pipeline.ps1`
 
 
 ```powershell
