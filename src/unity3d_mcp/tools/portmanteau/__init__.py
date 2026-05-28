@@ -9,8 +9,10 @@ from .platform import PlatformToolManager
 from .unity_api import UnityAPIToolManager
 from .unity_asset import UnityAssetToolManager
 from .unity_avatar import UnityAvatarToolManager
+from .unity_bridge import UnityBridgeToolManager
 from .unity_build import UnityBuildToolManager
 from .unity_core import UnityCoreToolManager
+from .unity_render import UnityRenderToolManager
 from .unity_scene import UnitySceneToolManager
 from .vrchat import VRChatToolManager
 from .worldlabs import WorldLabsToolManager
@@ -25,4 +27,6 @@ __all__ = [
     "WorldLabsToolManager",
     "PlatformToolManager",
     "UnityAPIToolManager",
+    "UnityBridgeToolManager",
+    "UnityRenderToolManager",
 ]

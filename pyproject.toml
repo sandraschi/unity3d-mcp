@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "schip-mcp-unity3d"
-version = "1.0.0"
+version = "1.1.0"
 description = "Unity 3D MCP Server - Comprehensive Unity automation with VRM avatar pipeline and VRChat integration"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -53,6 +53,9 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.15.2",
     "mypy>=1.0.0"
+]
+monitoring = [
+    "prometheus-client>=0.21.0",
 ]
 apps = [
     "prefab-ui>=0.1.0"

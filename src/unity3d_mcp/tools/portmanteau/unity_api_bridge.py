@@ -12,8 +12,10 @@ class UnityBridgeClient:
     """
 
     def __init__(self, host: str = "localhost", port: int = 10835):
+        self.host = host
+        self.port = port
         self.url = f"http://{host}:{port}"
-        self.timeout = 5.0
+        self.timeout = 30.0
 
     async def is_alive(self) -> bool:
         """Check if the Unity Editor Bridge is reachable."""
@@ -44,6 +46,20 @@ class UnityBridgeClient:
             return {"error": str(e)}
 
     # High-level helper methods
+    async def capture_game_view(
+        self,
+        output_path: str,
+        width: int = 1920,
+        height: int = 1080,
+    ) -> Dict[str, Any]:
+        """Capture active scene camera to PNG via Editor bridge."""
+        return await self.execute_command(
+            "capture_game_view",
+            output_path=output_path,
+            width=width,
+            height=height,
+        )
+
     async def get_hierarchy(self) -> Dict[str, Any]:
         return await self.execute_command("get_hierarchy")
 

@@ -10,15 +10,19 @@ from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
+from .unity_api_bridge import UnityBridgeClient
+from ...utils.unity_runtime import bridge_available, execute_bridge_action, get_bridge_client
+
 logger = logging.getLogger(__name__)
 
 
 class UnityAPIToolManager:
     """Portmanteau tool manager for advanced Unity Editor API operations."""
 
-    def __init__(self, app: FastMCP):
+    def __init__(self, app: FastMCP, bridge: UnityBridgeClient | None = None):
         """Initialize the Unity API tool manager."""
         self.app = app
+        self.bridge = bridge or get_bridge_client()
 
     def register_tools(self):
         """Register all Unity API portmanteau tools."""
@@ -176,14 +180,25 @@ class UnityAPIToolManager:
         scene_path: Optional[str],
         wait_for_completion: bool,
     ) -> Dict[str, Any]:
-        """Execute Unity Editor method via API."""
+        """Execute Unity Editor method via bridge when available, else CLI fallback hint."""
+        if await bridge_available(self.bridge):
+            return {
+                "success": False,
+                "mode": "bridge",
+                "error": (
+                    "Generic execute_method via bridge not yet implemented. "
+                    "Use unity_core operation=execute_method for CLI batch execution."
+                ),
+                "class_name": class_name,
+                "method_name": method_name,
+            }
         return {
             "success": False,
-            "error": "Unity Editor API not yet implemented - requires Unity plugin development",
+            "error": "Unity Editor bridge not connected and CLI execute_method requires project_path",
             "class_name": class_name,
             "method_name": method_name,
             "parameters": parameters,
-            "note": "API tools scaffolded for future Unity Editor integration",
+            "note": "Connect MCPBridge.cs or use unity_core execute_method",
         }
 
     async def _api_get_scene_objects(
@@ -192,12 +207,24 @@ class UnityAPIToolManager:
         scene_path: Optional[str],
         object_filter: Optional[str],
     ) -> Dict[str, Any]:
-        """Get scene objects via Unity Editor API."""
+        """Get scene objects via Unity Editor bridge."""
+        result = await execute_bridge_action("get_hierarchy", bridge=self.bridge)
+        if not result.get("success"):
+            return result
+
+        hierarchy = result.get("result") or {}
+        objects = hierarchy.get("objects", [])
+        if object_filter:
+            objects = [obj for obj in objects if object_filter.lower() in str(obj.get("name", "")).lower()]
+
         return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
+            "success": True,
+            "mode": "bridge",
+            "object_count": len(objects),
+            "objects": objects,
+            "project_path": project_path,
+            "scene_path": scene_path,
             "object_filter": object_filter,
-            "note": "API tools scaffolded for future Unity Editor integration",
         }
 
     async def _api_modify_object(
@@ -207,14 +234,24 @@ class UnityAPIToolManager:
         project_path: Optional[str],
         scene_path: Optional[str],
     ) -> Dict[str, Any]:
-        """Modify scene object via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "modifications": modifications,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Modify scene object via Unity Editor bridge."""
+        if not object_name:
+            return {"success": False, "error": "object_name required for modify_object"}
+
+        mods = modifications or {}
+        kwargs: Dict[str, Any] = {"target": object_name}
+        if "position" in mods:
+            kwargs["position"] = mods["position"]
+        if "rotation" in mods:
+            kwargs["rotation"] = mods["rotation"]
+
+        result = await execute_bridge_action("transform_object", bridge=self.bridge, **kwargs)
+        if result.get("success"):
+            result["object_name"] = object_name
+            result["modifications"] = mods
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_create_prefab(
         self,

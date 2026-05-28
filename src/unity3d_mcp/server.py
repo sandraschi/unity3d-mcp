@@ -85,7 +85,11 @@ async def server_lifespan(mcp_instance: FastMCP):
 
     Handles Unity3D MCP server initialization and shutdown lifecycle.
     """
-    logger.info("Unity3D MCP server starting up", version="1.0.0")
+    from unity3d_mcp import __version__
+    from unity3d_mcp.utils.telemetry import init_metrics
+
+    init_metrics()
+    logger.info("Unity3D MCP server starting up", version=__version__)
     yield
     logger.info("Unity3D MCP server shutting down")
 
@@ -98,7 +102,7 @@ class Unity3DMCP:
         self.config = config or Unity3DConfig()
 
         # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
-        self.app = FastMCP(name="Unity3D-MCP", version="1.0.0", lifespan=server_lifespan)
+        self.app = FastMCP(name="Unity3D-MCP", version="1.1.0", lifespan=server_lifespan)
 
         _bridge_proxies: list[str] = []
         bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
@@ -115,8 +119,11 @@ class Unity3DMCP:
         # Register skills
         skills_dir = Path(__file__).resolve().parent.parent.parent / "skills"
         if skills_dir.is_dir():
-            self.app.add_provider(SkillsDirectoryProvider(roots=[skills_dir]))
-            logger.info("Skills provider registered from %s", skills_dir)
+            try:
+                self.app.add_provider(SkillsDirectoryProvider(roots=[skills_dir]))
+                logger.info("Skills provider registered from %s", skills_dir)
+            except Exception as exc:
+                logger.warning("Skills provider skipped", error=str(exc))
 
         # Initialize managers
         self._init_managers()
@@ -162,13 +169,16 @@ class Unity3DMCP:
             UnityAPIToolManager,
             UnityAssetToolManager,
             UnityAvatarToolManager,
+            UnityBridgeToolManager,
             UnityBuildToolManager,
             UnityCoreToolManager,
+            UnityRenderToolManager,
             UnitySceneToolManager,
             VRChatToolManager,
             WorldLabsToolManager,
         )
 
+        self.bridge_client = UnityBridgeClient()
         self.unity_core_manager = UnityCoreToolManager(self.app, self.unity_editor, self.project_manager)
         self.unity_scene_manager = UnitySceneToolManager(self.app, self.scene_manager)
         self.unity_avatar_manager = UnityAvatarToolManager(self.app, self.vrm_avatar, self.animation)
@@ -177,7 +187,9 @@ class Unity3DMCP:
         self.vrchat_manager = VRChatToolManager(self.app, self.vrchat_sdk, self.config)
         self.worldlabs_manager = WorldLabsToolManager(self.app, self.worldlabs)
         self.platform_manager = PlatformToolManager(self.app, self.platforms)
-        self.unity_api_manager = UnityAPIToolManager(self.app)
+        self.unity_bridge_manager = UnityBridgeToolManager(self.app, self.bridge_client)
+        self.unity_render_manager = UnityRenderToolManager(self.app, self.bridge_client)
+        self.unity_api_manager = UnityAPIToolManager(self.app, self.bridge_client)
 
     def _register_tools(self):
         """Register all MCP tools using portmanteau pattern."""
@@ -191,6 +203,8 @@ class Unity3DMCP:
         self.vrchat_manager.register_tools()
         self.worldlabs_manager.register_tools()
         self.platform_manager.register_tools()
+        self.unity_bridge_manager.register_tools()
+        self.unity_render_manager.register_tools()
         self.unity_api_manager.register_tools()
 
         logger.info("Portmanteau tools registered successfully")
@@ -1332,34 +1346,71 @@ async def unity3d_bridge_status() -> Dict[str, Any]:
 
 
 @app.tool()
-async def unity3d_editor_api(action: str, target: str = None, **kwargs) -> Dict[str, Any]:
+async def unity3d_editor_api(
+    action: str,
+    target: Optional[str] = None,
+    name: Optional[str] = None,
+    object_type: Optional[str] = None,
+    position: Optional[List[float]] = None,
+    rotation: Optional[List[float]] = None,
+    output_path: Optional[str] = None,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+) -> Dict[str, Any]:
     """[Hands-In] Execute a real-time command in an active Unity Editor session.
 
     Args:
-        action: The action to perform (ping, get_hierarchy, transform_object, create_object, delete_object).
-        target: The name or InstanceID of the target GameObject.
-        **kwargs: Additional parameters (position, rotation, name, type).
+        action: ping, get_hierarchy, transform_object, create_object, delete_object, capture_game_view
+        target: GameObject name or instance ID
+        name: Name for create_object
+        object_type: GameObject, Light, or Camera
+        position: [x, y, z] for transform_object
+        rotation: [x, y, z] euler for transform_object
+        output_path: PNG path for capture_game_view
+        width: Capture width for capture_game_view
+        height: Capture height for capture_game_view
     """
-    return await _bridge_client.execute_command(action, target=target, **kwargs)
+    payload: Dict[str, Any] = {}
+    if name is not None:
+        payload["name"] = name
+    if object_type is not None:
+        payload["type"] = object_type
+    if position is not None:
+        payload["position"] = position
+    if rotation is not None:
+        payload["rotation"] = rotation
+    if output_path is not None:
+        payload["output_path"] = output_path
+    if width is not None:
+        payload["width"] = width
+    if height is not None:
+        payload["height"] = height
+    return await _bridge_client.execute_command(action, target=target, **payload)
 
 
 @app.tool()
-async def unity3d_disk_api(operation: str, file_path: str, **kwargs) -> Dict[str, Any]:
+async def unity3d_disk_api(
+    operation: str,
+    file_path: str,
+    component_type: Optional[str] = None,
+    property_name: Optional[str] = None,
+    new_value: Optional[str] = None,
+) -> Dict[str, Any]:
     """[Hands-Off] Manipulate Unity project assets directly on disk without Unity running.
 
     Args:
-        operation: The operation (inspect_file, list_textures, modify_yaml).
-        file_path: Absolute path to the .unity, .prefab, or .asset file.
-        **kwargs: component_type, property_name, new_value for modify_yaml.
+        operation: inspect_file, list_textures, modify_yaml
+        file_path: Absolute path to the .unity, .prefab, or .asset file
+        component_type: YAML component type for modify_yaml
+        property_name: Property name for modify_yaml
+        new_value: New property value for modify_yaml
     """
     if operation == "inspect_file":
         return UnityDiskOps.inspect_file(file_path)
     elif operation == "list_textures":
         return {"textures": UnityDiskOps.list_textures(file_path)}
     elif operation == "modify_yaml":
-        return UnityDiskOps.modify_yaml_property(
-            file_path, kwargs.get("component_type"), kwargs.get("property_name"), kwargs.get("new_value")
-        )
+        return UnityDiskOps.modify_yaml_property(file_path, component_type, property_name, new_value)
     return {"error": f"Unknown operation: {operation}"}
 
 

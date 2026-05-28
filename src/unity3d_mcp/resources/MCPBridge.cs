@@ -109,6 +109,9 @@ namespace MCP {
                 case "delete_object":
                     return DeleteObject(cmd);
 
+                case "capture_game_view":
+                    return CaptureGameView(cmd);
+
                 default:
                     return "{\"error\": \"Unknown action: " + cmd.action + "\"}";
             }
@@ -152,6 +155,49 @@ namespace MCP {
             return "{\"status\": \"deleted\"}";
         }
 
+        private static string CaptureGameView(CommandRequest cmd) {
+            string path = !string.IsNullOrEmpty(cmd.output_path)
+                ? cmd.output_path
+                : Path.Combine(Application.dataPath, "../Temp/mcp_capture.png");
+
+            int width = cmd.width > 0 ? cmd.width : 1920;
+            int height = cmd.height > 0 ? cmd.height : 1080;
+
+            try {
+                string dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) {
+                    Directory.CreateDirectory(dir);
+                }
+
+                Camera cam = Camera.main;
+                if (cam == null) {
+                    cam = GameObject.FindObjectOfType<Camera>();
+                }
+                if (cam == null) {
+                    return "{\"error\": \"No camera found in active scene\"}";
+                }
+
+                RenderTexture rt = new RenderTexture(width, height, 24);
+                RenderTexture prev = cam.targetTexture;
+                cam.targetTexture = rt;
+                cam.Render();
+                RenderTexture.active = rt;
+                Texture2D tex = new Texture2D(width, height, Texture2D.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                tex.Apply();
+                cam.targetTexture = prev;
+                RenderTexture.active = null;
+                File.WriteAllBytes(path, tex.EncodeToPNG());
+                UnityEngine.Object.DestroyImmediate(tex);
+                UnityEngine.Object.DestroyImmediate(rt);
+
+                string escaped = path.Replace("\\", "\\\\");
+                return "{\"status\": \"success\", \"path\": \"" + escaped + "\", \"width\": " + width + ", \"height\": " + height + "}";
+            } catch (Exception e) {
+                return "{\"error\": \"" + e.Message.Replace("\"", "'") + "\"}";
+            }
+        }
+
         private static GameObject FindGameObject(string identifier) {
             if (int.TryParse(identifier, out int id)) {
                 foreach (var go in GameObject.FindObjectsOfType<GameObject>()) {
@@ -178,6 +224,9 @@ namespace MCP {
             public string type;
             public float[] position;
             public float[] rotation;
+            public string output_path;
+            public int width;
+            public int height;
         }
 
         [MenuItem("MCP/Start Bridge")]

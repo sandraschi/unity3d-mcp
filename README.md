@@ -12,7 +12,19 @@
 
 **FastMCP 3.2.0+ Compliant** - Comprehensive Unity 3D automation with VRM avatar pipeline and VRChat integration.
 
-## Quick Start
+- [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
+- [Roadmap (Phases 1–5)](docs/ROADMAP.md)
+
+### Agent Lab (v1.1.0)
+
+| Tool | Purpose |
+|------|---------|
+| `unity_bridge` | Live Editor bridge — hierarchy, create/delete/transform (`MCPBridge.cs` :10835) |
+| `unity_render` | Agent vision — `capture_game_view` PNG (+ optional base64) |
+| `unity_api` | `get_scene_objects`, `modify_object` wired to bridge |
+
+Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
+
 
 ```powershell
 git clone https://github.com/sandraschi/unity3d-mcp

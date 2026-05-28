@@ -5,6 +5,20 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-05-28
+
+### Added
+- **Competitive analysis and roadmap**: `docs/COMPETITIVE_ANALYSIS.md`, `docs/ROADMAP.md` (phases 1–5).
+- **`unity_bridge`** portmanteau: live Editor bridge status, hierarchy, create/delete/transform via `MCPBridge.cs`.
+- **`unity_render`** portmanteau: `capture_game_view` for agent vision loops (PNG + optional base64).
+- **`utils/unity_runtime.py`**: bridge-first execution helper (`execute_bridge_action`).
+- **`utils/telemetry.py`**: Prometheus metrics skeleton (`monitoring` optional extra).
+- **`MCPBridge.cs`**: `capture_game_view` action (scene camera render to PNG).
+
+### Changed
+- **`unity_api`**: `get_scene_objects` and `modify_object` wired to live bridge (no longer scaffold-only for these ops).
+- Version bump **1.0.0 → 1.1.0** (Phase 1 agent vision + bridge wiring).
+
 ## [Unreleased] - 2026-04-02
 
 ### Changed
