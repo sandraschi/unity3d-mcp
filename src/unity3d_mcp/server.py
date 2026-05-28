@@ -102,7 +102,7 @@ class Unity3DMCP:
         self.config = config or Unity3DConfig()
 
         # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
-        self.app = FastMCP(name="Unity3D-MCP", version="1.1.0", lifespan=server_lifespan)
+        self.app = FastMCP(name="Unity3D-MCP", version="1.2.0", lifespan=server_lifespan)
 
         _bridge_proxies: list[str] = []
         bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
@@ -172,11 +172,14 @@ class Unity3DMCP:
             UnityBridgeToolManager,
             UnityBuildToolManager,
             UnityCoreToolManager,
+            UnityJobsToolManager,
             UnityRenderToolManager,
             UnitySceneToolManager,
             VRChatToolManager,
             WorldLabsToolManager,
         )
+        from .utils.job_queue import configure_job_runners
+        from .utils.simulation_runner import run_bridge_simulation
 
         self.bridge_client = UnityBridgeClient()
         self.unity_core_manager = UnityCoreToolManager(self.app, self.unity_editor, self.project_manager)
@@ -190,6 +193,13 @@ class Unity3DMCP:
         self.unity_bridge_manager = UnityBridgeToolManager(self.app, self.bridge_client)
         self.unity_render_manager = UnityRenderToolManager(self.app, self.bridge_client)
         self.unity_api_manager = UnityAPIToolManager(self.app, self.bridge_client)
+        self.unity_jobs_manager = UnityJobsToolManager(self.app)
+
+        configure_job_runners(
+            build_runner=self.build_manager.build_project,
+            import_runner=self.import_export_manager.import_3d_model,
+            simulation_runner=run_bridge_simulation,
+        )
 
     def _register_tools(self):
         """Register all MCP tools using portmanteau pattern."""
@@ -206,6 +216,7 @@ class Unity3DMCP:
         self.unity_bridge_manager.register_tools()
         self.unity_render_manager.register_tools()
         self.unity_api_manager.register_tools()
+        self.unity_jobs_manager.register_tools()
 
         logger.info("Portmanteau tools registered successfully")
 

@@ -15,13 +15,14 @@
 - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 - [Roadmap (Phases 1–5)](docs/ROADMAP.md)
 
-### Agent Lab (v1.1.0)
+### Agent Lab (v1.2.0)
 
 | Tool | Purpose |
 |------|---------|
 | `unity_bridge` | Live Editor bridge — hierarchy, create/delete/transform (`MCPBridge.cs` :10835) |
 | `unity_render` | Agent vision — `capture_game_view` PNG (+ optional base64) |
-| `unity_api` | `get_scene_objects`, `modify_object` wired to bridge |
+| `unity_api` | Scene objects, modify, **create_prefab**, **run_simulation** |
+| `unity_jobs` | Async **build**, **batch_import**, **simulation** jobs |
 
 Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
 

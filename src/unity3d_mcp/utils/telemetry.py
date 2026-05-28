@@ -13,6 +13,7 @@ _metrics_initialized = False
 _tool_calls_total = None
 _tool_duration_seconds = None
 _bridge_connected = None
+_jobs_active = None
 _app_info = None
 
 
@@ -24,7 +25,7 @@ def metrics_enabled() -> bool:
 def init_metrics() -> None:
     """Initialize Prometheus metrics (idempotent)."""
     global _metrics_initialized, _tool_calls_total, _tool_duration_seconds
-    global _bridge_connected, _app_info
+    global _bridge_connected, _jobs_active, _app_info
 
     if _metrics_initialized or not metrics_enabled():
         return
@@ -63,6 +64,10 @@ def init_metrics() -> None:
             "unity3d_mcp_bridge_connected",
             "Whether Unity MCPBridge.cs is reachable (1=yes)",
         )
+        _jobs_active = Gauge(
+            "unity3d_mcp_jobs_active",
+            "Active async Unity jobs",
+        )
         _app_info = Info("unity3d_mcp", "Unity3D MCP application info")
 
         from unity3d_mcp import __version__
@@ -92,6 +97,14 @@ def set_bridge_connected(connected: bool) -> None:
         init_metrics()
     if _bridge_connected is not None:
         _bridge_connected.set(1 if connected else 0)
+
+
+def set_jobs_active(count: int) -> None:
+    """Update active jobs gauge."""
+    if not _metrics_initialized:
+        init_metrics()
+    if _jobs_active is not None:
+        _jobs_active.set(count)
 
 
 class ToolMetricsContext:

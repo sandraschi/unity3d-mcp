@@ -12,6 +12,7 @@ from .unity_avatar import UnityAvatarToolManager
 from .unity_bridge import UnityBridgeToolManager
 from .unity_build import UnityBuildToolManager
 from .unity_core import UnityCoreToolManager
+from .unity_jobs import UnityJobsToolManager
 from .unity_render import UnityRenderToolManager
 from .unity_scene import UnitySceneToolManager
 from .vrchat import VRChatToolManager
@@ -29,4 +30,5 @@ __all__ = [
     "UnityAPIToolManager",
     "UnityBridgeToolManager",
     "UnityRenderToolManager",
+    "UnityJobsToolManager",
 ]

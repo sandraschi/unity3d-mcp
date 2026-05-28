@@ -26,9 +26,12 @@ class UnityBridgeClient:
         except Exception:
             return False
 
-    async def execute_command(self, action: str, target: str = None, **kwargs) -> Dict[str, Any]:
+    async def execute_command(self, action: str, target: str | None = None, **kwargs) -> Dict[str, Any]:
         """Send a JSON command to the Unity Editor Bridge."""
-        payload = {"action": action, "target": target, **kwargs}
+        payload: Dict[str, Any] = {"action": action}
+        if target is not None:
+            payload["target"] = target
+        payload.update(kwargs)
         logger.debug("unity3d.bridge.command_sent", action=action, target=target)
 
         try:
@@ -59,6 +62,32 @@ class UnityBridgeClient:
             width=width,
             height=height,
         )
+
+    async def create_prefab(
+        self,
+        target: str,
+        prefab_path: str | None = None,
+        name: str | None = None,
+    ) -> Dict[str, Any]:
+        return await self.execute_command(
+            "create_prefab",
+            target=target,
+            prefab_path=prefab_path,
+            name=name,
+        )
+
+    async def run_simulation(self, duration: float = 1.0, record_data: bool = False) -> Dict[str, Any]:
+        return await self.execute_command(
+            "run_simulation",
+            duration=duration,
+            record_data=1 if record_data else 0,
+        )
+
+    async def simulation_status(self) -> Dict[str, Any]:
+        return await self.execute_command("simulation_status")
+
+    async def stop_simulation(self) -> Dict[str, Any]:
+        return await self.execute_command("stop_simulation")
 
     async def get_hierarchy(self) -> Dict[str, Any]:
         return await self.execute_command("get_hierarchy")

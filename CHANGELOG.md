@@ -5,6 +5,18 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-05-28
+
+### Added
+- **`unity_jobs`** portmanteau: async `build`, `batch_import`, and `simulation` jobs (submit/status/list/cancel).
+- **`utils/job_queue.py`**: in-process job queue with Prometheus active-job gauge.
+- **`utils/simulation_runner.py`**: bridge play-mode simulation with status polling.
+- **`MCPBridge.cs`**: `create_prefab`, `run_simulation`, `simulation_status`, `stop_simulation`.
+
+### Changed
+- **`unity_api`**: `create_prefab` and `run_simulation` wired to live bridge (no longer scaffold-only).
+- Version bump **1.1.0 → 1.2.0** (Phase 2 jobs and build depth).
+
 ## [1.1.0] - 2026-05-28
 
 ### Added

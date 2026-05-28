@@ -32,11 +32,13 @@ uv run python -m unity3d_mcp --http --port 10831
 
 ## Phase 2 — Jobs and build depth (1.2.0)
 
+**Status: complete (v1.2.0)**
+
 | Item | Tool / module |
 |------|----------------|
 | Async job queue | `unity_jobs` (submit build, batch import, status) |
 | Prefab create via bridge | `unity_api` → `create_prefab` |
-| Play mode simulation stub → real | `unity_api` → `run_simulation` |
+| Play mode simulation | `unity_api` → `run_simulation` + bridge poll runner |
 
 ## Phase 3 — Fleet handoff and vision refine (1.3.0)
 

@@ -260,14 +260,30 @@ class UnityAPIToolManager:
         project_path: Optional[str],
         scene_path: Optional[str],
     ) -> Dict[str, Any]:
-        """Create prefab via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "prefab_name": prefab_name,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Create prefab via Unity Editor bridge."""
+        if not object_name:
+            return {"success": False, "error": "object_name required for create_prefab"}
+
+        prefab_path = prefab_name
+        if prefab_path and not prefab_path.startswith("Assets/"):
+            if prefab_path.endswith(".prefab"):
+                prefab_path = f"Assets/Prefabs/{prefab_path}"
+            else:
+                prefab_path = f"Assets/Prefabs/{prefab_path}.prefab"
+
+        result = await execute_bridge_action(
+            "create_prefab",
+            bridge=self.bridge,
+            target=object_name,
+            prefab_path=prefab_path,
+            name=prefab_name,
+        )
+        if result.get("success"):
+            result["object_name"] = object_name
+            result["prefab_name"] = prefab_name
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_run_simulation(
         self,
@@ -276,14 +292,20 @@ class UnityAPIToolManager:
         scene_path: Optional[str],
         record_data: bool,
     ) -> Dict[str, Any]:
-        """Run physics simulation via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "duration": duration,
-            "record_data": record_data,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Run physics simulation via Unity Editor bridge (play mode)."""
+        from unity3d_mcp.utils.simulation_runner import run_bridge_simulation
+
+        result = await run_bridge_simulation(
+            duration=duration,
+            record_data=record_data,
+            timeout=max(duration * 3, 30.0),
+            bridge=self.bridge,
+        )
+        if project_path:
+            result["project_path"] = project_path
+        if scene_path:
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_batch_operations(
         self,

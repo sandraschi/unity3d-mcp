@@ -19,6 +19,10 @@ namespace MCP {
         private static Thread _listenerThread;
         private static readonly ConcurrentQueue<Action> _executionQueue = new ConcurrentQueue<Action>();
         private const int PORT = 10835;
+        private static bool _simRunning = false;
+        private static double _simEndTime = 0;
+        private static float _simDuration = 1f;
+        private static int _simRecord = 0;
 
         static MCPBridge() {
             StartServer();
@@ -112,6 +116,18 @@ namespace MCP {
                 case "capture_game_view":
                     return CaptureGameView(cmd);
 
+                case "create_prefab":
+                    return CreatePrefab(cmd);
+
+                case "run_simulation":
+                    return RunSimulation(cmd);
+
+                case "simulation_status":
+                    return SimulationStatus();
+
+                case "stop_simulation":
+                    return StopSimulation();
+
                 default:
                     return "{\"error\": \"Unknown action: " + cmd.action + "\"}";
             }
@@ -198,6 +214,104 @@ namespace MCP {
             }
         }
 
+        private static string CreatePrefab(CommandRequest cmd) {
+            GameObject target = FindGameObject(cmd.target);
+            if (target == null) return "{\"error\": \"Target not found: " + cmd.target + "\"}";
+
+            string prefabPath = cmd.prefab_path;
+            if (string.IsNullOrEmpty(prefabPath)) {
+                string safeName = (cmd.name ?? target.name).Replace(" ", "_");
+                prefabPath = "Assets/Prefabs/" + safeName + ".prefab";
+            }
+            if (!prefabPath.StartsWith("Assets/")) {
+                prefabPath = "Assets/" + prefabPath.TrimStart('/');
+            }
+
+            try {
+                string dir = Path.GetDirectoryName(prefabPath);
+                if (!string.IsNullOrEmpty(dir) && !AssetDatabase.IsValidFolder(dir)) {
+                    string[] parts = dir.Replace("\\", "/").Split('/');
+                    string current = parts[0];
+                    for (int i = 1; i < parts.Length; i++) {
+                        string next = current + "/" + parts[i];
+                        if (!AssetDatabase.IsValidFolder(next)) {
+                            AssetDatabase.CreateFolder(current, parts[i]);
+                        }
+                        current = next;
+                    }
+                }
+
+                GameObject prefab = PrefabUtility.SaveAsPrefabAsset(target, prefabPath);
+                if (prefab == null) {
+                    return "{\"error\": \"PrefabUtility.SaveAsPrefabAsset failed\"}";
+                }
+
+                string escaped = prefabPath.Replace("\\", "\\\\");
+                return "{\"status\": \"success\", \"prefab_path\": \"" + escaped + "\", \"object_name\": \"" + target.name + "\"}";
+            } catch (Exception e) {
+                return "{\"error\": \"" + e.Message.Replace("\"", "'") + "\"}";
+            }
+        }
+
+        private static string RunSimulation(CommandRequest cmd) {
+            float duration = cmd.duration > 0 ? cmd.duration : 1f;
+            _simRecord = cmd.record_data;
+            _simDuration = duration;
+
+            if (EditorApplication.isPlaying) {
+                _simRunning = true;
+                _simEndTime = EditorApplication.timeSinceStartup + duration;
+                return "{\"status\": \"simulation_extended\", \"state\": \"running\", \"duration\": " + duration + "}";
+            }
+
+            _simRunning = true;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            EditorApplication.update += SimulationUpdate;
+            EditorApplication.EnterPlaymode();
+            return "{\"status\": \"simulation_started\", \"state\": \"running\", \"duration\": " + duration + ", \"record_data\": " + _simRecord + "}";
+        }
+
+        private static void OnPlayModeStateChanged(PlayModeStateChange state) {
+            if (state == PlayModeStateChange.EnteredPlayMode && _simRunning) {
+                _simEndTime = EditorApplication.timeSinceStartup + _simDuration;
+            }
+            if (state == PlayModeStateChange.EnteredEditMode) {
+                _simRunning = false;
+                EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+                EditorApplication.update -= SimulationUpdate;
+            }
+        }
+
+        private static void SimulationUpdate() {
+            if (!_simRunning || !EditorApplication.isPlaying) return;
+            if (EditorApplication.timeSinceStartup >= _simEndTime) {
+                EditorApplication.ExitPlaymode();
+                _simRunning = false;
+                EditorApplication.update -= SimulationUpdate;
+            }
+        }
+
+        private static string SimulationStatus() {
+            if (_simRunning && EditorApplication.isPlaying) {
+                double remaining = Math.Max(0, _simEndTime - EditorApplication.timeSinceStartup);
+                return "{\"state\": \"running\", \"remaining_seconds\": " + remaining.ToString("F2") + ", \"record_data\": " + _simRecord + "}";
+            }
+            if (EditorApplication.isPlaying) {
+                return "{\"state\": \"playing\", \"sim_managed\": false}";
+            }
+            return "{\"state\": \"idle\", \"sim_managed\": false}";
+        }
+
+        private static string StopSimulation() {
+            if (EditorApplication.isPlaying) {
+                EditorApplication.ExitPlaymode();
+            }
+            _simRunning = false;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            EditorApplication.update -= SimulationUpdate;
+            return "{\"status\": \"stopped\", \"state\": \"idle\"}";
+        }
+
         private static GameObject FindGameObject(string identifier) {
             if (int.TryParse(identifier, out int id)) {
                 foreach (var go in GameObject.FindObjectsOfType<GameObject>()) {
@@ -227,6 +341,9 @@ namespace MCP {
             public string output_path;
             public int width;
             public int height;
+            public string prefab_path;
+            public float duration;
+            public int record_data;
         }
 
         [MenuItem("MCP/Start Bridge")]
