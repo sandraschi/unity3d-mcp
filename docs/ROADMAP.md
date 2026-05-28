@@ -52,10 +52,12 @@ uv run python -m unity3d_mcp --http --port 10831
 
 ## Phase 4 — Validation and polish (1.4.0)
 
+**Status: complete (v1.4.0)**
+
 | Item | Tool / module |
 |------|----------------|
-| General scene/mesh validation | `unity_validation` (polycount, materials, missing scripts) |
-| VRChat + CVR + Resonite unified audit | extend `multiplatform` + validation |
+| General scene/mesh validation | `unity_validation` + bridge `validate_scene` |
+| VRChat + CVR + Resonite unified audit | `multiplatform` → `audit_all`, `unity_validation` → `unified_audit` |
 | Webapp Agent Lab page | `/agent-tools` tabs (mirror blender-mcp) |
 
 ## Phase 5 — Telemetry, Docker, monitoring (1.5.0)

@@ -102,7 +102,7 @@ class Unity3DMCP:
         self.config = config or Unity3DConfig()
 
         # Initialize FastMCP with lifespan (FastMCP 3.2.0+)
-        self.app = FastMCP(name="Unity3D-MCP", version="1.3.0", lifespan=server_lifespan)
+        self.app = FastMCP(name="Unity3D-MCP", version="1.4.0", lifespan=server_lifespan)
 
         _bridge_proxies: list[str] = []
         bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
@@ -177,6 +177,7 @@ class Unity3DMCP:
             UnityRenderToolManager,
             UnitySceneToolManager,
             UnityVisionRefineToolManager,
+            UnityValidationToolManager,
             VRChatToolManager,
             WorldLabsToolManager,
         )
@@ -191,13 +192,18 @@ class Unity3DMCP:
         self.unity_build_manager = UnityBuildToolManager(self.app, self.build_manager)
         self.vrchat_manager = VRChatToolManager(self.app, self.vrchat_sdk, self.config)
         self.worldlabs_manager = WorldLabsToolManager(self.app, self.worldlabs)
-        self.platform_manager = PlatformToolManager(self.app, self.platforms)
+        self.platform_manager = PlatformToolManager(
+            self.app, self.platforms, self.vrchat_sdk, self.bridge_client
+        )
         self.unity_bridge_manager = UnityBridgeToolManager(self.app, self.bridge_client)
         self.unity_render_manager = UnityRenderToolManager(self.app, self.bridge_client)
         self.unity_api_manager = UnityAPIToolManager(self.app, self.bridge_client)
         self.unity_jobs_manager = UnityJobsToolManager(self.app)
         self.unity_import_manager = UnityImportToolManager(self.app, self.import_export_manager)
         self.unity_vision_refine_manager = UnityVisionRefineToolManager(self.app, self.bridge_client)
+        self.unity_validation_manager = UnityValidationToolManager(
+            self.app, self.bridge_client, self.vrchat_sdk, self.platforms
+        )
 
         configure_job_runners(
             build_runner=self.build_manager.build_project,
@@ -223,6 +229,7 @@ class Unity3DMCP:
         self.unity_jobs_manager.register_tools()
         self.unity_import_manager.register_tools()
         self.unity_vision_refine_manager.register_tools()
+        self.unity_validation_manager.register_tools()
 
         logger.info("Portmanteau tools registered successfully")
 

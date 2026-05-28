@@ -37,7 +37,7 @@ See [ROADMAP.md](ROADMAP.md).
 | Async long-running jobs (builds, batch) | `unity_jobs` | 2 (done) |
 | Vision refine loop (multi-capture review) | `unity_vision_refine` | 3 (done) |
 | Blender → Unity import orchestration | `unity_import` | 3 (done) |
-| General mesh/scene validation beyond VRChat | `unity_validation` | 4 |
+| General mesh/scene validation beyond VRChat | `unity_validation` | 4 (done) |
 | Docker / GHCR + monitoring stack | Dockerfile, compose profile | 5 |
 
 ## What we deliberately skip

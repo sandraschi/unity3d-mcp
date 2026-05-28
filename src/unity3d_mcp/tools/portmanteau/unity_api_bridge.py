@@ -81,6 +81,9 @@ class UnityBridgeClient:
     async def get_scene_summary(self) -> Dict[str, Any]:
         return await self.execute_command("get_scene_summary")
 
+    async def validate_scene(self) -> Dict[str, Any]:
+        return await self.execute_command("validate_scene")
+
     async def create_prefab(
         self,
         target: str,

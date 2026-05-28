@@ -122,6 +122,9 @@ namespace MCP {
                 case "get_scene_summary":
                     return GetSceneSummary();
 
+                case "validate_scene":
+                    return ValidateScene();
+
                 case "create_prefab":
                     return CreatePrefab(cmd);
 
@@ -377,6 +380,68 @@ namespace MCP {
                 list.Add("{\"name\":\"" + obj.name + "\", \"id\":\"" + obj.GetInstanceID() + "\"}");
             }
             return "{\"scene_name\": \"" + scene.name + "\", \"object_count\": " + objects.Length + ", \"mesh_count\": " + meshCount + ", \"objects\": [" + string.Join(",", list) + "]}";
+        }
+
+        private static string ValidateScene() {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var objects = GameObject.FindObjectsOfType<GameObject>();
+            int triangleCount = 0;
+            int meshCount = 0;
+            var materialSet = new HashSet<int>();
+            int missingScripts = 0;
+            var missingList = new List<string>();
+
+            foreach (var obj in objects) {
+                if (obj.hideFlags != HideFlags.None) continue;
+
+                var components = obj.GetComponents<Component>();
+                foreach (var comp in components) {
+                    if (comp == null) {
+                        missingScripts++;
+                        missingList.Add(obj.name);
+                        break;
+                    }
+                }
+
+                var mf = obj.GetComponent<MeshFilter>();
+                if (mf != null && mf.sharedMesh != null) {
+                    meshCount++;
+                    triangleCount += mf.sharedMesh.triangles.Length / 3;
+                }
+
+                var smr = obj.GetComponent<SkinnedMeshRenderer>();
+                if (smr != null && smr.sharedMesh != null) {
+                    meshCount++;
+                    triangleCount += smr.sharedMesh.triangles.Length / 3;
+                    if (smr.sharedMaterials != null) {
+                        foreach (var mat in smr.sharedMaterials) {
+                            if (mat != null) materialSet.Add(mat.GetInstanceID());
+                        }
+                    }
+                }
+
+                var mr = obj.GetComponent<MeshRenderer>();
+                if (mr != null && mr.sharedMaterials != null) {
+                    foreach (var mat in mr.sharedMaterials) {
+                        if (mat != null) materialSet.Add(mat.GetInstanceID());
+                    }
+                }
+            }
+
+            var missingJson = new List<string>();
+            foreach (var name in missingList) {
+                missingJson.Add("\"" + name.Replace("\"", "'") + "\"");
+            }
+
+            return "{" +
+                "\"scene_name\": \"" + scene.name + "\"," +
+                "\"object_count\": " + objects.Length + "," +
+                "\"mesh_count\": " + meshCount + "," +
+                "\"triangle_count\": " + triangleCount + "," +
+                "\"material_count\": " + materialSet.Count + "," +
+                "\"missing_script_count\": " + missingScripts + "," +
+                "\"objects_with_missing_scripts\": [" + string.Join(",", missingJson) + "]" +
+            "}";
         }
 
         private static GameObject FindGameObject(string identifier) {

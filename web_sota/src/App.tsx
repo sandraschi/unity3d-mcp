@@ -11,6 +11,7 @@ import FleetMesh from '@/pages/mesh';
 import { Tools } from '@/pages/tools';
 import { Status } from '@/pages/status';
 import { Apps } from '@/pages/apps';
+import { AgentTools } from '@/pages/agent-tools';
 import { Help } from '@/pages/help';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/mesh" element={<FleetMesh />} />
           <Route path="/status" element={<Status />} />
           <Route path="/apps" element={<Apps />} />
+          <Route path="/agent-tools" element={<AgentTools />} />
           <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />

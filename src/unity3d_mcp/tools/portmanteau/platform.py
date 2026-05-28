@@ -18,10 +18,12 @@ logger = logging.getLogger(__name__)
 class PlatformToolManager:
     """Portmanteau tool manager for multi-platform social VR operations."""
 
-    def __init__(self, app: FastMCP, platforms: PlatformManager):
+    def __init__(self, app: FastMCP, platforms: PlatformManager, vrchat_sdk=None, bridge=None):
         """Initialize the Platform tool manager."""
         self.app = app
         self.platforms = platforms
+        self.vrchat_sdk = vrchat_sdk
+        self.bridge = bridge
 
     def register_tools(self):
         """Register all multi-platform portmanteau tools."""
@@ -53,6 +55,7 @@ class PlatformToolManager:
                     - "check_resonite_compat": Check Resonite compatibility
                     - "check_cluster_kit": Check if Cluster Creator Kit is installed
                     - "prepare_cluster": Prepare avatar for Cluster upload
+                    - "audit_all": Unified VRChat + CVR + Resonite + Cluster preflight audit
                 platform: Platform name ("vrchat", "chilloutvr", "cluster", "resonite")
                 project_path: Unity project path (required for most operations)
                 avatar_object: Avatar GameObject name (for CVR operations)
@@ -109,6 +112,37 @@ class PlatformToolManager:
                     return {"success": False, "error": "asset_folder and project_path required for prepare_cluster"}
                 return await self.platforms.cluster.prepare_for_cluster(asset_folder, project_path)
 
+            elif operation == "audit_all":
+                from ...utils.platform_audit import run_unified_audit
+                from ...utils.scene_validator import validate_scene_via_bridge
+
+                if self.vrchat_sdk is None:
+                    return {"success": False, "error": "VRChat SDK manager not configured for audit_all"}
+
+                scene_metrics = None
+                if self.bridge is not None:
+                    bridge_report = await validate_scene_via_bridge(self.bridge, target_platform=platform or "vrchat")
+                    if bridge_report.get("success") and bridge_report.get("metrics"):
+                        scene_metrics = {
+                            "triangle_count": bridge_report["metrics"].get("polygons", 0),
+                            "material_count": bridge_report["metrics"].get("materials", 0),
+                            "missing_script_count": bridge_report["metrics"].get("missing_scripts", 0),
+                            "mesh_count": bridge_report["metrics"].get("mesh_count", 0),
+                            "object_count": bridge_report["metrics"].get("object_count", 0),
+                            "objects_with_missing_scripts": bridge_report.get(
+                                "objects_with_missing_scripts", []
+                            ),
+                        }
+
+                return await run_unified_audit(
+                    platforms=self.platforms,
+                    vrchat_sdk=self.vrchat_sdk,
+                    project_path=project_path,
+                    avatar_prefab=avatar_object or avatar_name,
+                    model_path=model_path,
+                    scene_metrics=scene_metrics,
+                )
+
             else:
                 return {
                     "success": False,
@@ -123,5 +157,6 @@ class PlatformToolManager:
                         "check_resonite_compat",
                         "check_cluster_kit",
                         "prepare_cluster",
+                        "audit_all",
                     ],
                 }

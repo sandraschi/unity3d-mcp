@@ -16,6 +16,7 @@ from .unity_import import UnityImportToolManager
 from .unity_jobs import UnityJobsToolManager
 from .unity_render import UnityRenderToolManager
 from .unity_vision_refine import UnityVisionRefineToolManager
+from .unity_validation import UnityValidationToolManager
 from .unity_scene import UnitySceneToolManager
 from .vrchat import VRChatToolManager
 from .worldlabs import WorldLabsToolManager
@@ -35,4 +36,5 @@ __all__ = [
     "UnityJobsToolManager",
     "UnityImportToolManager",
     "UnityVisionRefineToolManager",
+    "UnityValidationToolManager",
 ]

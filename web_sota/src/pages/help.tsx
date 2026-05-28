@@ -1,11 +1,12 @@
 import { useState } from "react";
 
-type TabId = "agent-lab" | "import" | "vision" | "jobs" | "worldlabs" | "fleet";
+type TabId = "agent-lab" | "import" | "vision" | "validation" | "jobs" | "worldlabs" | "fleet";
 
 const tabs: { id: TabId; label: string }[] = [
-  { id: "agent-lab", label: "Agent Lab (v1.3)" },
+  { id: "agent-lab", label: "Agent Lab (v1.4)" },
   { id: "import", label: "unity_import" },
   { id: "vision", label: "Vision refine" },
+  { id: "validation", label: "unity_validation" },
   { id: "jobs", label: "unity_jobs" },
   { id: "worldlabs", label: "World Labs" },
   { id: "fleet", label: "Fleet mesh" },
@@ -18,7 +19,19 @@ const content: Record<TabId, { title: string; lines: string[] }> = {
       "Copy MCPBridge.cs to Assets/Editor/ — bridge listens on http://localhost:10835",
       "HTTP MCP: uv run python -m unity3d_mcp --http --port 10831",
       "Typical loop: blender-mcp export GLB → unity_import → unity_vision_refine review_bundle → apply_bridge_commands",
-      "Tools: unity_bridge, unity_render, unity_api, unity_jobs, unity_import, unity_vision_refine, worldlabs",
+      "Tools: unity_bridge, unity_render, unity_api, unity_jobs, unity_import, unity_vision_refine, unity_validation, worldlabs",
+      "Webapp Agent Tools: /agent-tools (validation + platform audit tabs)",
+    ],
+  },
+  validation: {
+    title: "unity_validation — scene and platform preflight",
+    lines: [
+      "unity_validation(operation='list_limits')",
+      "unity_validation(operation='validate_scene', target_platform='vrchat')",
+      "unity_validation(operation='check_missing_scripts', target_platform='vrchat')",
+      "unity_validation(operation='validate_avatar', project_path='...', avatar_prefab='Assets/Avatars/MyAvatar.prefab')",
+      "unity_validation(operation='unified_audit', project_path='...', avatar_prefab='...', model_path='...')",
+      "multiplatform(operation='audit_all', project_path='...', avatar_object='...', model_path='...')",
     ],
   },
   import: {

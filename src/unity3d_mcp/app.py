@@ -8,12 +8,14 @@ Start: uvicorn unity3d_mcp.app:app --host 127.0.0.1 --port 10831
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from unity3d_mcp import __version__
@@ -133,6 +135,48 @@ async def export_gltf(body: ModelExportReq) -> dict[str, Any]:
 @router.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "unity3d-mcp", "version": __version__}
+
+
+class ToolCallReq(BaseModel):
+    tool: str
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/tool")
+async def mcp_tool_bridge(body: ToolCallReq) -> JSONResponse:
+    """Bridge endpoint for webapp Agent Tools to call MCP tools."""
+    if not body.tool:
+        return JSONResponse({"success": False, "error": "Missing tool name"}, status_code=400)
+    try:
+        result = await si.app.call_tool(body.tool, body.params)
+    except Exception as exc:
+        log.exception("Tool %s failed: %s", body.tool, exc)
+        return JSONResponse({"success": False, "error": str(exc), "data": None}, status_code=500)
+
+    mcp_result = result.to_mcp_result()
+    is_error = False
+    content_list: list[Any] = []
+    if isinstance(mcp_result, tuple) and len(mcp_result) >= 2:
+        content_list = mcp_result[0]
+        is_error = mcp_result[1]
+    else:
+        content_list = getattr(result, "content", [])
+
+    data: Any = None
+    if content_list:
+        text = getattr(content_list[0], "text", str(content_list[0]))
+        try:
+            data = json.loads(text)
+        except Exception:
+            data = {"output": text}
+
+    return JSONResponse(
+        {
+            "success": not is_error and data is not None,
+            "data": data,
+            "error": None if not is_error else "Tool returned error",
+        }
+    )
 
 
 # ── Build app ─────────────────────────────────────────────────────────────
