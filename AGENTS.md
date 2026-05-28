@@ -45,3 +45,5 @@ Unity3D-MCP is a member of the robotics/VR mesh:
 .\scripts\run-tests.ps1
 uv run pytest
 ```
+
+Install docs: follow mcp-central-docs/standards/AGENT_INSTALL_REFERENCE.md
