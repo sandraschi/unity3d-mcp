@@ -2383,76 +2383,6 @@ wheels = [
 ]
 
 [[package]]
-name = "schip-mcp-unity3d"
-version = "1.5.0"
-source = { editable = "." }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "asyncio-mqtt" },
-    { name = "fastapi" },
-    { name = "fastmcp" },
-    { name = "httpx" },
-    { name = "pathlib" },
-    { name = "prefab-ui" },
-    { name = "pydantic" },
-    { name = "python-osc" },
-    { name = "requests" },
-    { name = "structlog" },
-    { name = "typing-extensions" },
-    { name = "unitypy" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-apps = [
-    { name = "prefab-ui" },
-]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
-docs = [
-    { name = "mkdocs" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-]
-monitoring = [
-    { name = "prometheus-client" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiohttp", specifier = ">=3.9.0" },
-    { name = "asyncio-mqtt", specifier = ">=0.11.0" },
-    { name = "fastapi", specifier = ">=0.136.1" },
-    { name = "fastmcp", specifier = ">=3.2.0,<4" },
-    { name = "httpx", specifier = ">=0.27.0" },
-    { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5.0" },
-    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.0.0" },
-    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.22.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
-    { name = "pathlib" },
-    { name = "prefab-ui", specifier = ">=0.14.0" },
-    { name = "prefab-ui", marker = "extra == 'apps'", specifier = ">=0.1.0" },
-    { name = "prometheus-client", marker = "extra == 'monitoring'", specifier = ">=0.21.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "python-osc", specifier = ">=1.8.0" },
-    { name = "requests", specifier = ">=2.31.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.2" },
-    { name = "structlog", specifier = ">=23.0.0" },
-    { name = "typing-extensions", specifier = ">=4.0.0" },
-    { name = "unitypy", specifier = ">=1.20.0" },
-    { name = "uvicorn", specifier = ">=0.23.0" },
-]
-provides-extras = ["dev", "monitoring", "apps", "docs"]
-
-[[package]]
 name = "secretstorage"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2563,6 +2493,76 @@ sdist = { url = "https://files.pythonhosted.org/packages/02/7c/b5b7d8136f872e3f1
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ff/7f/4320d9ce3be404e6310b915c3629fe27bf1e2f438a1a7a3cb0396e32e9a9/uncalled_for-0.2.0-py3-none-any.whl", hash = "sha256:2c0bd338faff5f930918f79e7eb9ff48290df2cb05fcc0b40a7f334e55d4d85f", size = 11351, upload-time = "2026-02-27T17:40:56.804Z" },
 ]
+
+[[package]]
+name = "unity3d-mcp"
+version = "1.5.0"
+source = { editable = "." }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "asyncio-mqtt" },
+    { name = "fastapi" },
+    { name = "fastmcp" },
+    { name = "httpx" },
+    { name = "pathlib" },
+    { name = "prefab-ui" },
+    { name = "pydantic" },
+    { name = "python-osc" },
+    { name = "requests" },
+    { name = "structlog" },
+    { name = "typing-extensions" },
+    { name = "unitypy" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+apps = [
+    { name = "prefab-ui" },
+]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+docs = [
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
+]
+monitoring = [
+    { name = "prometheus-client" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiohttp", specifier = ">=3.9.0" },
+    { name = "asyncio-mqtt", specifier = ">=0.11.0" },
+    { name = "fastapi", specifier = ">=0.136.1" },
+    { name = "fastmcp", specifier = ">=3.2.0,<4" },
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5.0" },
+    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.0.0" },
+    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.22.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "pathlib" },
+    { name = "prefab-ui", specifier = ">=0.14.0" },
+    { name = "prefab-ui", marker = "extra == 'apps'", specifier = ">=0.1.0" },
+    { name = "prometheus-client", marker = "extra == 'monitoring'", specifier = ">=0.21.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
+    { name = "python-osc", specifier = ">=1.8.0" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.2" },
+    { name = "structlog", specifier = ">=23.0.0" },
+    { name = "typing-extensions", specifier = ">=4.0.0" },
+    { name = "unitypy", specifier = ">=1.20.0" },
+    { name = "uvicorn", specifier = ">=0.23.0" },
+]
+provides-extras = ["dev", "monitoring", "apps", "docs"]
 
 [[package]]
 name = "unitypy"
