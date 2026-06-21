@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "unity3d-mcp",
+    "version": "0.1.0",
+    "identifier": "ai.fleet.unity3d-mcp",
+    "build": {
+        "frontendDist": "../web_sota/dist",
+        "devUrl": "http://localhost:10830",
+        "beforeDevCommand": "npm --prefix ../web_sota run dev",
+        "beforeBuildCommand": "pwsh -NoProfile -File ./build.ps1"
+    },
+    "app": {
+        "windows": [
+            {
+                "label": "main",
+                "title": "Unity3D MCP",
+                "width": 1280,
+                "height": 860,
+                "minWidth": 700,
+                "minHeight": 500,
+                "resizable": true
+            }
+        ],
+        "security": {
+            "csp": null
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": ["nsis"],
+        "icon": ["icons/icon.png", "icons/icon.ico"],
+        "resources": [
+            "resources/unity3d-mcp-backend.exe"],
+        "windows": {
+            "webviewInstallMode": {
+                "type": "skip"
+            },
+            "nsis": {
+                "installMode": "currentUser",
+                "installerHooks": "./windows/hooks.nsh"
+            }
+        }
+    },
+    "plugins": {}
+}

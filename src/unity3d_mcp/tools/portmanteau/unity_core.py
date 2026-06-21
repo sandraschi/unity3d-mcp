@@ -5,7 +5,7 @@ Consolidates core Unity Editor operations into a unified portmanteau interface.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -29,18 +29,18 @@ class UnityCoreToolManager:
         @self.app.tool
         async def unity_core(
             operation: str,
-            project_path: Optional[str] = None,
-            project_name: Optional[str] = None,
+            project_path: str | None = None,
+            project_name: str | None = None,
             template: str = "3D",
             unity_version: str = "",
             batch_mode: bool = False,
             no_graphics: bool = False,
-            class_name: Optional[str] = None,
-            method_name: Optional[str] = None,
-            parameters: Optional[Dict[str, Any]] = None,
+            class_name: str | None = None,
+            method_name: str | None = None,
+            parameters: dict[str, Any] | None = None,
             vrm_version: str = "vrm0",
             refresh_unity: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Unity Core operations portmanteau tool.
 
             Consolidates core Unity Editor operations including project management,

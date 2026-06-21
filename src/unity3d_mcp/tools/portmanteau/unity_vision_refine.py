@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
+from ...utils.unity_runtime import get_bridge_client
 from ...utils.vision_refine import (
     apply_bridge_commands,
     build_review_bundle,
     capture_viewport,
 )
 from .unity_api_bridge import UnityBridgeClient
-from ...utils.unity_runtime import get_bridge_client
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class UnityVisionRefineToolManager:
             width: int = 1280,
             height: int = 720,
             include_base64: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Agent vision refinement: capture, review bundle, apply bridge fixes.
 
             Operations:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -24,13 +24,13 @@ class UnityImportToolManager:
         @self.app.tool
         async def unity_import(
             operation: str,
-            file_path: Optional[str] = None,
-            project_path: Optional[str] = None,
-            input_dir: Optional[str] = None,
+            file_path: str | None = None,
+            project_path: str | None = None,
+            input_dir: str | None = None,
             pattern: str = "*.glb",
             assets_subdir: str = "BlenderImports",
-            model_format: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            model_format: str | None = None,
+        ) -> dict[str, Any]:
             """Import assets from Blender/fleet export paths into a Unity project.
 
             Operations:

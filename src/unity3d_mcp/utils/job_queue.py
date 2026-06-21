@@ -6,15 +6,16 @@ import asyncio
 import logging
 import time
 import uuid
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Awaitable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -81,8 +82,8 @@ def _update_jobs_gauge() -> None:
 
         active = sum(1 for job in _jobs.values() if job.status in (JobStatus.PENDING, JobStatus.RUNNING))
         set_jobs_active(active)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("set_jobs_active not available", error=str(exc))
 
 
 async def _run_build_job(job: UnityJob) -> None:

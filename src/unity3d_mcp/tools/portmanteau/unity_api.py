@@ -6,12 +6,12 @@ Note: Most operations are currently scaffolded for future Unity Editor API integ
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
-from .unity_api_bridge import UnityBridgeClient
 from ...utils.unity_runtime import bridge_available, execute_bridge_action, get_bridge_client
+from .unity_api_bridge import UnityBridgeClient
 
 logger = logging.getLogger(__name__)
 
@@ -30,24 +30,24 @@ class UnityAPIToolManager:
         @self.app.tool
         async def unity_api(
             operation: str,
-            class_name: Optional[str] = None,
-            method_name: Optional[str] = None,
-            parameters: Optional[Dict[str, Any]] = None,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
+            class_name: str | None = None,
+            method_name: str | None = None,
+            parameters: dict[str, Any] | None = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
             wait_for_completion: bool = True,
-            object_name: Optional[str] = None,
-            modifications: Optional[Dict[str, Any]] = None,
-            prefab_name: Optional[str] = None,
+            object_name: str | None = None,
+            modifications: dict[str, Any] | None = None,
+            prefab_name: str | None = None,
             duration: float = 1.0,
             record_data: bool = False,
-            operations: Optional[List[Dict[str, Any]]] = None,
+            operations: list[dict[str, Any]] | None = None,
             path_type: str = "straight",
-            path_points: Optional[List[Dict[str, float]]] = None,
+            path_points: list[dict[str, float]] | None = None,
             loop: bool = False,
             ease_type: str = "linear",
             visualization_type: str = "line",
-            color: Optional[Dict[str, float]] = None,
+            color: dict[str, float] | None = None,
             thickness: float = 0.1,
             speed: float = 1.0,
             look_ahead: float = 0.5,
@@ -55,8 +55,8 @@ class UnityAPIToolManager:
             bank_angle: float = 0.0,
             decelerate: bool = True,
             deceleration_time: float = 0.5,
-            object_filter: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            object_filter: str | None = None,
+        ) -> dict[str, Any]:
             """Unity API operations portmanteau tool.
 
             Consolidates advanced Unity Editor API operations for complex automation.
@@ -173,13 +173,13 @@ class UnityAPIToolManager:
     # Unity Editor API Implementation Methods (currently scaffolded)
     async def _api_execute_method(
         self,
-        class_name: Optional[str],
-        method_name: Optional[str],
-        parameters: Optional[Dict[str, Any]],
-        project_path: Optional[str],
-        scene_path: Optional[str],
+        class_name: str | None,
+        method_name: str | None,
+        parameters: dict[str, Any] | None,
+        project_path: str | None,
+        scene_path: str | None,
         wait_for_completion: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute Unity Editor method via bridge when available, else CLI fallback hint."""
         if await bridge_available(self.bridge):
             return {
@@ -203,10 +203,10 @@ class UnityAPIToolManager:
 
     async def _api_get_scene_objects(
         self,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-        object_filter: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+        object_filter: str | None,
+    ) -> dict[str, Any]:
         """Get scene objects via Unity Editor bridge."""
         result = await execute_bridge_action("get_hierarchy", bridge=self.bridge)
         if not result.get("success"):
@@ -229,17 +229,17 @@ class UnityAPIToolManager:
 
     async def _api_modify_object(
         self,
-        object_name: Optional[str],
-        modifications: Optional[Dict[str, Any]],
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        object_name: str | None,
+        modifications: dict[str, Any] | None,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Modify scene object via Unity Editor bridge."""
         if not object_name:
             return {"success": False, "error": "object_name required for modify_object"}
 
         mods = modifications or {}
-        kwargs: Dict[str, Any] = {"target": object_name}
+        kwargs: dict[str, Any] = {"target": object_name}
         if "position" in mods:
             kwargs["position"] = mods["position"]
         if "rotation" in mods:
@@ -255,11 +255,11 @@ class UnityAPIToolManager:
 
     async def _api_create_prefab(
         self,
-        object_name: Optional[str],
-        prefab_name: Optional[str],
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        object_name: str | None,
+        prefab_name: str | None,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Create prefab via Unity Editor bridge."""
         if not object_name:
             return {"success": False, "error": "object_name required for create_prefab"}
@@ -288,10 +288,10 @@ class UnityAPIToolManager:
     async def _api_run_simulation(
         self,
         duration: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
+        project_path: str | None,
+        scene_path: str | None,
         record_data: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run physics simulation via Unity Editor bridge (play mode)."""
         from unity3d_mcp.utils.simulation_runner import run_bridge_simulation
 
@@ -309,10 +309,10 @@ class UnityAPIToolManager:
 
     async def _api_batch_operations(
         self,
-        operations: Optional[List[Dict[str, Any]]],
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        operations: list[dict[str, Any]] | None,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Execute batch operations via Unity Editor API."""
         return {
             "success": False,
@@ -323,15 +323,15 @@ class UnityAPIToolManager:
 
     async def _api_move_along_path(
         self,
-        object_name: Optional[str],
+        object_name: str | None,
         path_type: str,
-        path_points: Optional[List[Dict[str, float]]],
+        path_points: list[dict[str, float]] | None,
         duration: float,
         loop: bool,
         ease_type: str,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Move object along path via Unity Editor API."""
         return {
             "success": False,
@@ -345,14 +345,14 @@ class UnityAPIToolManager:
 
     async def _api_create_path_visualization(
         self,
-        path_points: Optional[List[Dict[str, float]]],
+        path_points: list[dict[str, float]] | None,
         path_type: str,
         visualization_type: str,
-        color: Optional[Dict[str, float]],
+        color: dict[str, float] | None,
         thickness: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Create path visualization via Unity Editor API."""
         return {
             "success": False,
@@ -365,14 +365,14 @@ class UnityAPIToolManager:
 
     async def _api_follow_path_2d(
         self,
-        object_name: Optional[str],
-        path_points: Optional[List[Dict[str, float]]],
+        object_name: str | None,
+        path_points: list[dict[str, float]] | None,
         speed: float,
         look_ahead: float,
         smooth_rotation: bool,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Follow 2D path via Unity Editor API."""
         return {
             "success": False,
@@ -385,14 +385,14 @@ class UnityAPIToolManager:
 
     async def _api_follow_path_3d(
         self,
-        object_name: Optional[str],
-        path_points: Optional[List[Dict[str, float]]],
+        object_name: str | None,
+        path_points: list[dict[str, float]] | None,
         speed: float,
         bank_angle: float,
         look_ahead: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Follow 3D path with banking via Unity Editor API."""
         return {
             "success": False,
@@ -405,12 +405,12 @@ class UnityAPIToolManager:
 
     async def _api_stop_path_movement(
         self,
-        object_name: Optional[str],
+        object_name: str | None,
         decelerate: bool,
         deceleration_time: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Stop path movement via Unity Editor API."""
         return {
             "success": False,

@@ -6,7 +6,7 @@ These functions create mock objects and test data programmatically.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pytest
 
@@ -24,9 +24,9 @@ requires_vrm_file = pytest.mark.skipif(not has_vrm_test_file(), reason=f"VRM tes
 
 
 def create_unity_manifest(
-    dependencies: Optional[Dict[str, str]] = None,
+    dependencies: dict[str, str] | None = None,
     include_vrchat: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a Unity package manifest."""
     deps = dependencies or {
         "com.unity.modules.ai": "1.0.0",
@@ -131,7 +131,7 @@ AnimatorController:
 
 def create_vrchat_expression_params(
     project_path: Path,
-    parameters: Optional[List[Dict[str, Any]]] = None,
+    parameters: list[dict[str, Any]] | None = None,
 ) -> Path:
     """Create VRChat expression parameters asset."""
     params = parameters or [

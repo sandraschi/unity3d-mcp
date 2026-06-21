@@ -5,7 +5,7 @@ Consolidates scene management operations into a unified portmanteau interface.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -28,12 +28,12 @@ class UnitySceneToolManager:
         @self.app.tool
         async def unity_scene(
             operation: str,
-            light_name: Optional[str] = None,
+            light_name: str | None = None,
             light_type: str = "Spot",
-            color: List[float] = None,
+            color: list[float] | None = None,
             intensity: float = 1.0,
-            position: Optional[Dict[str, float]] = None,
-        ) -> Dict[str, Any]:
+            position: dict[str, float] | None = None,
+        ) -> dict[str, Any]:
             """Unity Scene operations portmanteau tool.
 
             Consolidates scene management operations including lighting and scene objects.

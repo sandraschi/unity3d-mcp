@@ -5,7 +5,7 @@ Consolidates VRM avatar and animation operations into a unified portmanteau inte
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -29,14 +29,14 @@ class UnityAvatarToolManager:
         @self.app.tool
         async def unity_avatar(
             operation: str,
-            vrm_path: Optional[str] = None,
-            project_path: Optional[str] = None,
+            vrm_path: str | None = None,
+            project_path: str | None = None,
             optimize_for_vrchat: bool = True,
             create_prefab: bool = True,
-            avatar_path: Optional[str] = None,
+            avatar_path: str | None = None,
             animator_type: str = "humanoid",
             include_facial: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Unity Avatar operations portmanteau tool.
 
             Consolidates VRM avatar import and animation setup operations.

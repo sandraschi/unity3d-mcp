@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .scene_validator import evaluate_scene_metrics, validate_model_file, validate_prefab_on_disk
 
@@ -14,13 +14,13 @@ async def run_unified_audit(
     *,
     platforms: Any,
     vrchat_sdk: Any,
-    project_path: Optional[str] = None,
-    avatar_prefab: Optional[str] = None,
-    model_path: Optional[str] = None,
-    scene_metrics: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    project_path: str | None = None,
+    avatar_prefab: str | None = None,
+    model_path: str | None = None,
+    scene_metrics: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Run cross-platform validation summary for agent preflight."""
-    audits: Dict[str, Any] = {}
+    audits: dict[str, Any] = {}
     blocking: list[str] = []
     warnings: list[str] = []
 
@@ -83,7 +83,7 @@ async def run_unified_audit(
 
         audits["model_file"] = validate_model_file(model_path, target_platform="resonite")
 
-    platform_scores: Dict[str, Any] = {}
+    platform_scores: dict[str, Any] = {}
     if scene_metrics:
         for platform in ("vrchat", "chilloutvr", "resonite", "cluster"):
             platform_scores[platform] = evaluate_scene_metrics(scene_metrics, target_platform=platform)

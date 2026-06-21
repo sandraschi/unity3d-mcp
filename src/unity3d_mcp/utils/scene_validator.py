@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
-PLATFORM_LIMITS: Dict[str, Dict[str, int]] = {
+PLATFORM_LIMITS: dict[str, dict[str, int]] = {
     "vrchat": {"polygons": 70000, "materials": 32, "bones": 256, "texture_mb": 200},
     "chilloutvr": {"polygons": 70000, "materials": 16, "bones": 400, "texture_mb": 256},
     "resonite": {"polygons": 100000, "materials": 20, "bones": 512, "texture_mb": 512},
@@ -17,7 +17,7 @@ PLATFORM_LIMITS: Dict[str, Dict[str, int]] = {
 }
 
 
-def list_platform_limits() -> Dict[str, Any]:
+def list_platform_limits() -> dict[str, Any]:
     return {
         "success": True,
         "platforms": PLATFORM_LIMITS,
@@ -28,7 +28,7 @@ def list_platform_limits() -> Dict[str, Any]:
     }
 
 
-def _performance_rank(polygons: int, materials: int, limits: Dict[str, int]) -> str:
+def _performance_rank(polygons: int, materials: int, limits: dict[str, int]) -> str:
     poly_limit = limits.get("polygons", 70000)
     mat_limit = limits.get("materials", 32)
     if polygons <= poly_limit * 0.45 and materials <= max(4, mat_limit // 4):
@@ -41,17 +41,17 @@ def _performance_rank(polygons: int, materials: int, limits: Dict[str, int]) -> 
 
 
 def evaluate_scene_metrics(
-    metrics: Dict[str, Any],
+    metrics: dict[str, Any],
     target_platform: str = "vrchat",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     limits = PLATFORM_LIMITS.get(target_platform.lower(), PLATFORM_LIMITS["generic"])
     polygons = int(metrics.get("triangle_count", metrics.get("polygons", 0)) or 0)
     materials = int(metrics.get("material_count", metrics.get("materials", 0)) or 0)
     missing_scripts = int(metrics.get("missing_script_count", metrics.get("missing_scripts", 0)) or 0)
     mesh_count = int(metrics.get("mesh_count", 0) or 0)
 
-    errors: List[str] = []
-    warnings: List[str] = []
+    errors: list[str] = []
+    warnings: list[str] = []
 
     if polygons > limits["polygons"]:
         errors.append(f"Polygon count {polygons} exceeds {target_platform} limit {limits['polygons']}")
@@ -88,7 +88,7 @@ def evaluate_scene_metrics(
     }
 
 
-async def validate_scene_via_bridge(bridge: Any, target_platform: str = "vrchat") -> Dict[str, Any]:
+async def validate_scene_via_bridge(bridge: Any, target_platform: str = "vrchat") -> dict[str, Any]:
     try:
         raw = await bridge.validate_scene()
     except Exception as exc:
@@ -104,7 +104,7 @@ async def validate_scene_via_bridge(bridge: Any, target_platform: str = "vrchat"
     return report
 
 
-def validate_model_file(model_path: str, target_platform: str = "generic") -> Dict[str, Any]:
+def validate_model_file(model_path: str, target_platform: str = "generic") -> dict[str, Any]:
     path = Path(model_path)
     if not path.is_file():
         return {"success": False, "error": f"File not found: {model_path}"}
@@ -120,8 +120,8 @@ def validate_model_file(model_path: str, target_platform: str = "generic") -> Di
 
     size_mb = round(path.stat().st_size / (1024 * 1024), 2)
     limits = PLATFORM_LIMITS.get(target_platform.lower(), PLATFORM_LIMITS["generic"])
-    warnings: List[str] = []
-    errors: List[str] = []
+    warnings: list[str] = []
+    errors: list[str] = []
 
     if size_mb > limits.get("texture_mb", 512):
         warnings.append(f"File size {size_mb} MB may be heavy for {target_platform}")
@@ -142,7 +142,7 @@ def validate_model_file(model_path: str, target_platform: str = "generic") -> Di
     }
 
 
-def validate_prefab_on_disk(project_path: str, prefab_path: str) -> Dict[str, Any]:
+def validate_prefab_on_disk(project_path: str, prefab_path: str) -> dict[str, Any]:
     project = Path(project_path)
     prefab = Path(prefab_path)
     if not prefab.is_absolute():
@@ -157,7 +157,7 @@ def validate_prefab_on_disk(project_path: str, prefab_path: str) -> Dict[str, An
     if not prefab.is_file():
         return {"success": False, "error": f"Prefab not found: {prefab_path}"}
 
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "success": True,
         "prefab_path": str(prefab),
         "valid": True,

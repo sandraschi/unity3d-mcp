@@ -5,7 +5,7 @@
     "runtime": "python",
     "entry_point": "src/unity3d_mcp/server.py",
     "dependencies": [
-        "fastmcp>=2.14.4,<3.0.0"
+        "fastmcp>=3.4.2"
     ],
     "build": {
         "include": [

@@ -35,6 +35,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { href: '/chat', label: 'AI Command', icon: Bot },
         { href: '/help', label: 'Help', icon: HelpCircle },
         { href: '/settings', label: 'Settings', icon: Settings },
+    { href: '/logs', label: 'Logs', icon: Activity },
     ];
 
     return (

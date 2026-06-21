@@ -5,7 +5,7 @@ Consolidates World Labs (Marble/Chisel) integration operations into a unified po
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -28,17 +28,17 @@ class WorldLabsToolManager:
         @self.app.tool
         async def worldlabs(
             operation: str,
-            source_path: Optional[str] = None,
-            project_path: Optional[str] = None,
+            source_path: str | None = None,
+            project_path: str | None = None,
             asset_name: str = "",
             include_colliders: bool = True,
             optimize_for_vrchat: bool = False,
             target_polygon_count: int = 50000,
-            output_dir: Optional[str] = None,
+            output_dir: str | None = None,
             goal: str = "",
             include_multi_angle: bool = True,
             angles: int = 4,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """World Labs operations portmanteau tool.
 
             Consolidates World Labs Marble/Chisel operations for 3D world import

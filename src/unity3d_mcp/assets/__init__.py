@@ -6,7 +6,7 @@ Unity asset import, optimization, and management tools.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class AssetManager:
     def __init__(self, config):
         self.config = config
 
-    async def import_package(self, package_path: str, project_path: str, interactive: bool = False) -> Dict[str, Any]:
+    async def import_package(self, package_path: str, project_path: str, interactive: bool = False) -> dict[str, Any]:
         """Import Unity asset package."""
         try:
             if not Path(package_path).exists():
@@ -41,8 +41,8 @@ class AssetManager:
             return {"status": "error", "message": str(e)}
 
     async def optimize_textures(
-        self, texture_paths: List[str], platform: str = "PC", quality: str = "High"
-    ) -> Dict[str, Any]:
+        self, texture_paths: list[str], platform: str = "PC", quality: str = "High"
+    ) -> dict[str, Any]:
         """Optimize textures for target platform."""
         try:
             optimized_count = 0
@@ -82,7 +82,7 @@ class AssetManager:
             logger.error(f"Failed to optimize textures: {e}")
             return {"status": "error", "message": str(e)}
 
-    def _get_texture_optimization_settings(self, platform: str, quality: str) -> Dict[str, Any]:
+    def _get_texture_optimization_settings(self, platform: str, quality: str) -> dict[str, Any]:
         """Get texture optimization settings for platform."""
         settings_map = {
             "PC": {
@@ -111,7 +111,7 @@ class MaterialManager:
     def __init__(self, config):
         self.config = config
 
-    async def convert_materials_vrchat(self, material_paths: List[str]) -> Dict[str, Any]:
+    async def convert_materials_vrchat(self, material_paths: list[str]) -> dict[str, Any]:
         """Convert materials to VRChat compatible shaders."""
         try:
             converted_materials = []
@@ -151,9 +151,11 @@ class MaterialManager:
             return {"status": "error", "message": str(e)}
 
     async def create_material(
-        self, material_name: str, shader_name: str, properties: Dict[str, Any] = {}
-    ) -> Dict[str, Any]:
+        self, material_name: str, shader_name: str, properties: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Create new Unity material."""
+        if properties is None:
+            properties = {}
         try:
             material_path = f"Assets/Materials/{material_name}.mat"
 

@@ -10,7 +10,7 @@ manipulation to avatar-mcp for compositing and animation.
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +26,8 @@ class VRMAvatarManager:
         self,
         vrm_path: str,
         project_path: str,
-        unity_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        unity_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Import VRM avatar into Unity project with Unity-specific setup."""
         try:
             vrm_path = Path(vrm_path)
@@ -87,9 +87,9 @@ class VRMAvatarManager:
     async def setup_unity_avatar_rigging(
         self,
         import_id: str,
-        rigging_config: Dict[str, Any],
-        project_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        rigging_config: dict[str, Any],
+        project_path: str | None = None,
+    ) -> dict[str, Any]:
         """Setup Unity-specific avatar rigging and IK."""
         try:
             if import_id not in self.active_imports:
@@ -127,9 +127,9 @@ class VRMAvatarManager:
     async def configure_unity_materials(
         self,
         import_id: str,
-        material_config: Dict[str, Any],
-        project_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        material_config: dict[str, Any],
+        project_path: str | None = None,
+    ) -> dict[str, Any]:
         """Configure Unity-specific materials and shaders for avatar."""
         try:
             if import_id not in self.active_imports:
@@ -166,10 +166,10 @@ class VRMAvatarManager:
     async def build_unity_avatar_package(
         self,
         import_id: str,
-        build_config: Dict[str, Any],
+        build_config: dict[str, Any],
         output_path: str,
-        project_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+    ) -> dict[str, Any]:
         """Build Unity avatar package with all assets and dependencies."""
         try:
             if import_id not in self.active_imports:
@@ -210,9 +210,9 @@ class VRMAvatarManager:
     async def integrate_with_avatarmcp(
         self,
         import_id: str,
-        avatar_config: Dict[str, Any],
-        project_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        avatar_config: dict[str, Any],
+        project_path: str | None = None,
+    ) -> dict[str, Any]:
         """Integrate Unity avatar with avatar-mcp for compositing."""
         try:
             if import_id not in self.active_imports:
@@ -246,7 +246,7 @@ class VRMAvatarManager:
             logger.error(f"Failed to integrate with avatar-mcp for {import_id}: {e}")
             return {"success": False, "error": str(e), "import_id": import_id}
 
-    async def get_unity_import_status(self, import_id: str) -> Dict[str, Any]:
+    async def get_unity_import_status(self, import_id: str) -> dict[str, Any]:
         """Get status of Unity VRM import operation."""
         if import_id not in self.active_imports:
             return {"success": False, "error": f"Import operation not found: {import_id}", "import_id": import_id}
@@ -264,7 +264,7 @@ class VRMAvatarManager:
         }
 
     # Helper methods for Unity VRM operations
-    async def _check_unity_compatibility(self, vrm_path: Path) -> Dict[str, Any]:
+    async def _check_unity_compatibility(self, vrm_path: Path) -> dict[str, Any]:
         """Check VRM compatibility with Unity."""
         return {
             "unity_compatible": True,
@@ -275,7 +275,7 @@ class VRMAvatarManager:
             "warnings": [],
         }
 
-    async def _apply_unity_rigging(self, import_id: str, rigging_config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _apply_unity_rigging(self, import_id: str, rigging_config: dict[str, Any]) -> dict[str, Any]:
         """Apply Unity-specific rigging."""
         return {
             "humanoid_setup": True,
@@ -285,7 +285,7 @@ class VRMAvatarManager:
             "layer_configured": True,
         }
 
-    async def _apply_unity_materials(self, import_id: str, material_setup: Dict[str, Any]) -> Dict[str, Any]:
+    async def _apply_unity_materials(self, import_id: str, material_setup: dict[str, Any]) -> dict[str, Any]:
         """Apply Unity material configuration."""
         return {
             "materials_converted": 3,  # Placeholder
@@ -295,8 +295,8 @@ class VRMAvatarManager:
         }
 
     async def _build_unity_package(
-        self, import_id: str, build_settings: Dict[str, Any], output_path: Path
-    ) -> Dict[str, Any]:
+        self, import_id: str, build_settings: dict[str, Any], output_path: Path
+    ) -> dict[str, Any]:
         """Build Unity package."""
         return {
             "package_created": True,
@@ -306,7 +306,7 @@ class VRMAvatarManager:
             "manifest_generated": True,
         }
 
-    async def _setup_avatarmcp_integration(self, import_id: str, integration_config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _setup_avatarmcp_integration(self, import_id: str, integration_config: dict[str, Any]) -> dict[str, Any]:
         """Setup integration with avatar-mcp."""
         return {
             "osc_control_enabled": True,
@@ -332,8 +332,8 @@ class VRMAvatarToolManager:
         async def import_vrm_to_unity(
             vrm_path: str,
             project_path: str,
-            unity_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            unity_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Import VRM avatar into Unity project with Unity-specific setup.
 
             Imports a VRM avatar into a Unity project with proper Unity integration,
@@ -379,9 +379,9 @@ class VRMAvatarToolManager:
         @self.app.tool
         async def setup_unity_avatar_rigging(
             import_id: str,
-            rigging_config: Dict[str, Any],
-            project_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            rigging_config: dict[str, Any],
+            project_path: str | None = None,
+        ) -> dict[str, Any]:
             """Setup Unity-specific avatar rigging and IK.
 
             Configure Unity humanoid rigging, inverse kinematics, animation
@@ -418,9 +418,9 @@ class VRMAvatarToolManager:
         @self.app.tool
         async def configure_unity_materials(
             import_id: str,
-            material_config: Dict[str, Any],
-            project_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            material_config: dict[str, Any],
+            project_path: str | None = None,
+        ) -> dict[str, Any]:
             """Configure Unity-specific materials and shaders for avatar.
 
             Setup Unity material system, shader compatibility, texture importing,
@@ -456,10 +456,10 @@ class VRMAvatarToolManager:
         @self.app.tool
         async def build_unity_avatar_package(
             import_id: str,
-            build_config: Dict[str, Any],
+            build_config: dict[str, Any],
             output_path: str,
-            project_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+        ) -> dict[str, Any]:
             """Build Unity avatar package with all assets and dependencies.
 
             Create a complete Unity package containing the avatar, all materials,
@@ -500,9 +500,9 @@ class VRMAvatarToolManager:
         @self.app.tool
         async def integrate_with_avatarmcp(
             import_id: str,
-            avatar_config: Dict[str, Any],
-            project_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            avatar_config: dict[str, Any],
+            project_path: str | None = None,
+        ) -> dict[str, Any]:
             """Integrate Unity avatar with avatar-mcp for compositing.
 
             Setup integration between Unity avatar and avatar-mcp for advanced
@@ -537,7 +537,7 @@ class VRMAvatarToolManager:
             return await self.vrm_avatar_manager.integrate_with_avatarmcp(import_id, avatar_config, project_path)
 
         @self.app.tool
-        async def get_unity_import_status(import_id: str) -> Dict[str, Any]:
+        async def get_unity_import_status(import_id: str) -> dict[str, Any]:
             """Get status of Unity VRM import operation.
 
             Check the current status and progress of a Unity VRM import operation,

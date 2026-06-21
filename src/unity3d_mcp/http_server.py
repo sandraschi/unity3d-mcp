@@ -2,6 +2,7 @@
 """HTTP server for Unity3D MCP - FastAPI interface for web-based control."""
 
 import logging
+import os
 import subprocess
 from pathlib import Path
 
@@ -78,8 +79,8 @@ async def launch_app(request: FleetLaunchRequest) -> FleetLaunchResponse:
         allowed_base = Path("D:/Dev/repos").resolve()
         target_path = path.resolve()
         target_path.relative_to(allowed_base)
-    except ValueError:
-        raise HTTPException(status_code=403, detail="Access denied: Path outside allowed directory")
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail="Access denied: Path outside allowed directory") from exc
 
     start_script = path / "web_sota" / "start.ps1"
     if not start_script.exists():
@@ -90,15 +91,23 @@ async def launch_app(request: FleetLaunchRequest) -> FleetLaunchResponse:
                 raise HTTPException(status_code=400, detail="No valid SOTA entry point found")
 
     try:
+        powershell = str(
+            Path(os.environ.get("SystemRoot", "C:\\Windows"))
+            / "System32"
+            / "WindowsPowerShell"
+            / "v1.0"
+            / "powershell.exe"
+        )
         subprocess.Popen(
-            ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", str(start_script)],
+            [powershell, "-ExecutionPolicy", "Bypass", "-File", str(start_script)],
             cwd=str(path),
             creationflags=subprocess.CREATE_NEW_CONSOLE,
+            shell=False,
         )
         return FleetLaunchResponse(success=True, message=f"Launched {path.name} successfully")
     except Exception as e:
         logger.error(f"Failed to launch {path.name}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/v1/workflows")

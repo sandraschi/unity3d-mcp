@@ -133,7 +133,10 @@ async def import_gazebo_via_unity(
         return {"success": False, "error": "Invalid gazebo import response"}
 
     models_map = body.get("models", {})
-    failed = [name for name, status in models_map.items() if "not found" in str(status).lower() or "error" in str(status).lower()]
+    failed = [
+        name for name, status in models_map.items()
+        if "not found" in str(status).lower() or "error" in str(status).lower()
+    ]
     success = body.get("success", True) and not failed
     return {
         "success": success,

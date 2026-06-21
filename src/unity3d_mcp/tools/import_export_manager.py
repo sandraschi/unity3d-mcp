@@ -10,7 +10,7 @@ import asyncio
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +26,10 @@ class ImportExportManager:
     async def import_asset_package(
         self,
         package_path: str,
-        project_path: Optional[str] = None,
+        project_path: str | None = None,
         interactive: bool = False,
-        import_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        import_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Import Unity asset package into project."""
         try:
             package_path = Path(package_path)
@@ -80,10 +80,10 @@ class ImportExportManager:
     async def import_3d_model(
         self,
         model_path: str,
-        project_path: Optional[str] = None,
-        model_format: Optional[str] = None,
-        import_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        model_format: str | None = None,
+        import_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Import 3D model file (FBX, OBJ, GLTF, etc.) into Unity project."""
         try:
             model_path = Path(model_path)
@@ -168,10 +168,10 @@ class ImportExportManager:
     async def import_texture(
         self,
         texture_path: str,
-        project_path: Optional[str] = None,
+        project_path: str | None = None,
         texture_type: str = "diffuse",
-        import_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        import_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Import texture file into Unity project."""
         try:
             texture_path = Path(texture_path)
@@ -225,11 +225,11 @@ class ImportExportManager:
 
     async def export_fbx(
         self,
-        object_names: Union[str, List[str]],
+        object_names: str | list[str],
         output_path: str,
-        project_path: Optional[str] = None,
-        export_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        export_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Export Unity objects to FBX format."""
         try:
             if isinstance(object_names, str):
@@ -285,11 +285,11 @@ class ImportExportManager:
 
     async def export_gltf(
         self,
-        object_names: Union[str, List[str]],
+        object_names: str | list[str],
         output_path: str,
-        project_path: Optional[str] = None,
-        export_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        export_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Export Unity objects to glTF format.
 
         glTF (GL Transmission Format) is the open standard for 3D content —
@@ -348,11 +348,11 @@ class ImportExportManager:
 
     async def export_unity_package(
         self,
-        asset_paths: Union[str, List[str]],
+        asset_paths: str | list[str],
         output_path: str,
-        project_path: Optional[str] = None,
-        package_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        package_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Export Unity assets to .unitypackage format."""
         try:
             if isinstance(asset_paths, str):
@@ -407,9 +407,9 @@ class ImportExportManager:
         self,
         object_name: str,
         output_path: str,
-        project_path: Optional[str] = None,
-        prefab_settings: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        prefab_settings: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Export Unity object as prefab."""
         try:
             output_path = Path(output_path)
@@ -459,9 +459,9 @@ class ImportExportManager:
 
     async def batch_import(
         self,
-        import_operations: List[Dict[str, Any]],
-        project_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        import_operations: list[dict[str, Any]],
+        project_path: str | None = None,
+    ) -> dict[str, Any]:
         """Perform batch import operations."""
         try:
             results = []
@@ -512,7 +512,7 @@ class ImportExportManager:
             logger.error(f"Failed to perform batch import: {e}")
             return {"success": False, "error": str(e), "total_operations": len(import_operations)}
 
-    async def get_import_status(self, import_id: str) -> Dict[str, Any]:
+    async def get_import_status(self, import_id: str) -> dict[str, Any]:
         """Get status of an import operation."""
         if import_id not in self.active_imports:
             return {
@@ -532,7 +532,7 @@ class ImportExportManager:
             "message": operation.get("message", "Import in progress"),
         }
 
-    async def get_export_status(self, export_id: str) -> Dict[str, Any]:
+    async def get_export_status(self, export_id: str) -> dict[str, Any]:
         """Get status of an export operation."""
         if export_id not in self.active_exports:
             return {
@@ -553,7 +553,7 @@ class ImportExportManager:
         }
 
     # Helper methods for analysis and validation
-    async def _analyze_package(self, package_path: Path) -> Dict[str, Any]:
+    async def _analyze_package(self, package_path: Path) -> dict[str, Any]:
         """Analyze Unity asset package contents."""
         # Placeholder for package analysis
         return {
@@ -565,7 +565,7 @@ class ImportExportManager:
             "contains_scripts": False,
         }
 
-    async def _analyze_3d_model(self, model_path: Path, model_format: str) -> Dict[str, Any]:
+    async def _analyze_3d_model(self, model_path: Path, model_format: str) -> dict[str, Any]:
         """Analyze 3D model file."""
         # Placeholder for model analysis
         return {
@@ -578,7 +578,7 @@ class ImportExportManager:
             "has_skeleton": False,  # Placeholder
         }
 
-    async def _analyze_texture(self, texture_path: Path, texture_format: str) -> Dict[str, Any]:
+    async def _analyze_texture(self, texture_path: Path, texture_format: str) -> dict[str, Any]:
         """Analyze texture file."""
         # Placeholder for texture analysis
         return {
@@ -590,12 +590,12 @@ class ImportExportManager:
             "bit_depth": 8,
         }
 
-    async def _validate_export_objects(self, object_names: List[str]) -> List[Dict[str, Any]]:
+    async def _validate_export_objects(self, object_names: list[str]) -> list[dict[str, Any]]:
         """Validate that objects exist for export."""
         # Placeholder validation
         return [{"name": name, "exists": True, "type": "GameObject"} for name in object_names]
 
-    async def _validate_export_assets(self, asset_paths: List[str]) -> List[Dict[str, Any]]:
+    async def _validate_export_assets(self, asset_paths: list[str]) -> list[dict[str, Any]]:
         """Validate that assets exist for export."""
         # Placeholder validation
         return [{"path": path, "exists": True, "type": "Asset"} for path in asset_paths]
@@ -614,10 +614,10 @@ class ImportExportToolManager:
         @self.app.tool
         async def import_asset_package(
             package_path: str,
-            project_path: Optional[str] = None,
+            project_path: str | None = None,
             interactive: bool = False,
-            import_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            import_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Import Unity asset package (.unitypackage) into project.
 
             Imports a Unity asset package containing models, textures, materials,
@@ -659,10 +659,10 @@ class ImportExportToolManager:
         @self.app.tool
         async def import_3d_model(
             model_path: str,
-            project_path: Optional[str] = None,
-            model_format: Optional[str] = None,
-            import_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            model_format: str | None = None,
+            import_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Import 3D model file (FBX, OBJ, GLTF, etc.) into Unity project.
 
             Imports 3D model files in various formats into the Unity project,
@@ -701,10 +701,10 @@ class ImportExportToolManager:
         @self.app.tool
         async def import_texture(
             texture_path: str,
-            project_path: Optional[str] = None,
+            project_path: str | None = None,
             texture_type: str = "diffuse",
-            import_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            import_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Import texture file into Unity project.
 
             Imports texture files and automatically configures them for the
@@ -739,11 +739,11 @@ class ImportExportToolManager:
 
         @self.app.tool
         async def export_fbx(
-            object_names: Union[str, List[str]],
+            object_names: str | list[str],
             output_path: str,
-            project_path: Optional[str] = None,
-            export_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            export_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Export Unity objects to FBX format.
 
             Exports Unity GameObjects to FBX format for use in other 3D applications.
@@ -781,11 +781,11 @@ class ImportExportToolManager:
 
         @self.app.tool
         async def export_gltf(
-            object_names: Union[str, List[str]],
+            object_names: str | list[str],
             output_path: str,
-            project_path: Optional[str] = None,
-            export_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            export_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Export Unity objects to glTF format (open standard for 3D).
 
             glTF is the "JPEG of 3D" — compact, web-native, PBR-ready.
@@ -805,15 +805,17 @@ class ImportExportToolManager:
                 export_gltf("Model", "D:/Exports/Model.glb")
                 export_gltf(["Car", "Truck"], "D:/Exports/Vehicles.gltf")
             """
-            return await self.import_export_manager.export_gltf(object_names, output_path, project_path, export_settings)
+            return await self.import_export_manager.export_gltf(
+                object_names, output_path, project_path, export_settings
+            )
 
         @self.app.tool
         async def export_unity_package(
-            asset_paths: Union[str, List[str]],
+            asset_paths: str | list[str],
             output_path: str,
-            project_path: Optional[str] = None,
-            package_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            package_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Export Unity assets to .unitypackage format.
 
             Creates a Unity asset package containing the specified assets,
@@ -851,9 +853,9 @@ class ImportExportToolManager:
         async def export_prefab(
             object_name: str,
             output_path: str,
-            project_path: Optional[str] = None,
-            prefab_settings: Optional[Dict[str, Any]] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            prefab_settings: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
             """Export Unity object as prefab.
 
             Creates a Unity prefab from a scene object, preserving all
@@ -885,9 +887,9 @@ class ImportExportToolManager:
 
         @self.app.tool
         async def batch_import(
-            import_operations: List[Dict[str, Any]],
-            project_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            import_operations: list[dict[str, Any]],
+            project_path: str | None = None,
+        ) -> dict[str, Any]:
             """Perform batch import operations.
 
             Executes multiple import operations in sequence, useful for
@@ -930,7 +932,7 @@ class ImportExportToolManager:
             return await self.import_export_manager.batch_import(import_operations, project_path)
 
         @self.app.tool
-        async def get_import_status(import_id: str) -> Dict[str, Any]:
+        async def get_import_status(import_id: str) -> dict[str, Any]:
             """Get status of an import operation.
 
             Checks the current status and progress of an ongoing import operation.
@@ -956,7 +958,7 @@ class ImportExportToolManager:
             return await self.import_export_manager.get_import_status(import_id)
 
         @self.app.tool
-        async def get_export_status(export_id: str) -> Dict[str, Any]:
+        async def get_export_status(export_id: str) -> dict[str, Any]:
             """Get status of an export operation.
 
             Checks the current status and progress of an ongoing export operation.

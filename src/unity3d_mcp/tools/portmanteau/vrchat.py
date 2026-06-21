@@ -5,7 +5,7 @@ Consolidates VRChat SDK integration operations into a unified portmanteau interf
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -32,14 +32,14 @@ class VRChatToolManager:
             username: str = "",
             password: str = "",
             totp_code: str = "",
-            project_path: Optional[str] = None,
-            avatar_prefab: Optional[str] = None,
-            avatar_name: Optional[str] = None,
+            project_path: str | None = None,
+            avatar_prefab: str | None = None,
+            avatar_name: str | None = None,
             description: str = "",
-            tags: Optional[List[str]] = None,
+            tags: list[str] | None = None,
             release_status: str = "private",
-            viewpoint_position: Optional[List[float]] = None,
-        ) -> Dict[str, Any]:
+            viewpoint_position: list[float] | None = None,
+        ) -> dict[str, Any]:
             """VRChat operations portmanteau tool.
 
             Consolidates VRChat SDK integration including authentication,

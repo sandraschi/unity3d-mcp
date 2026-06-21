@@ -10,10 +10,10 @@ from .motor_manager import MotorManager, MotorToolManager
 from .vrm_avatar_manager import VRMAvatarManager, VRMAvatarToolManager
 
 __all__ = [
-    "MotorManager",
-    "MotorToolManager",
     "ImportExportManager",
     "ImportExportToolManager",
+    "MotorManager",
+    "MotorToolManager",
     "VRMAvatarManager",
     "VRMAvatarToolManager",
 ]

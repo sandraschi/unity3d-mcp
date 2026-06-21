@@ -6,7 +6,6 @@ import argparse
 import asyncio
 import json
 import logging
-import sys
 from pathlib import Path
 
 from unity3d_mcp.utils.fleet_pipeline import (

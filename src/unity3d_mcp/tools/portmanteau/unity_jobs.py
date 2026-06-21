@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -25,17 +25,17 @@ class UnityJobsToolManager:
             job_id: str = "",
             job_type: str = "build",
             name: str = "unity_job",
-            project_path: Optional[str] = None,
+            project_path: str | None = None,
             build_target: str = "StandaloneWindows64",
-            output_path: Optional[str] = None,
+            output_path: str | None = None,
             development_build: bool = False,
-            input_dir: Optional[str] = None,
+            input_dir: str | None = None,
             pattern: str = "*.glb",
             duration: float = 1.0,
             record_data: bool = False,
             timeout: float = 120.0,
             limit: int = 20,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Async job queue for builds, batch imports, and play-mode simulation.
 
             Operations:

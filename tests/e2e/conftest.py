@@ -6,12 +6,11 @@ These fixtures detect and interact with real Unity installations.
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
 
-def find_unity_executable() -> Optional[Path]:
+def find_unity_executable() -> Path | None:
     """Find Unity Editor executable on the system."""
     # Check environment variable first
     env_path = os.environ.get("UNITY_EDITOR_PATH")
@@ -41,7 +40,7 @@ def find_unity_executable() -> Optional[Path]:
     return None
 
 
-def find_test_unity_project() -> Optional[Path]:
+def find_test_unity_project() -> Path | None:
     """Find a Unity project for testing."""
     # Check environment variable
     env_path = os.environ.get("UNITY_TEST_PROJECT")
@@ -99,7 +98,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(scope="session")
-def unity_executable() -> Optional[Path]:
+def unity_executable() -> Path | None:
     """Get Unity executable path, or None if not found."""
     return find_unity_executable()
 
@@ -111,13 +110,13 @@ def unity_available(unity_executable) -> bool:
 
 
 @pytest.fixture(scope="session")
-def unity_project() -> Optional[Path]:
+def unity_project() -> Path | None:
     """Get test Unity project path, or None if not found."""
     return find_test_unity_project()
 
 
 @pytest.fixture(scope="session")
-def unity_project_with_vrm(unity_project) -> Optional[Path]:
+def unity_project_with_vrm(unity_project) -> Path | None:
     """Get Unity project with UniVRM installed."""
     if unity_project and check_univrm_installed(unity_project):
         return unity_project

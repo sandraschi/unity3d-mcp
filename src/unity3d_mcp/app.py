@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
@@ -204,7 +204,13 @@ async def mcp_tool_bridge(body: ToolCallReq) -> JSONResponse:
 
 def build_app() -> FastAPI:
     app = FastAPI(title="unity3d-mcp", version=__version__, lifespan=mcp_http.lifespan)
-    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.include_router(router)
     app.mount("/mcp", mcp_http)
     return app

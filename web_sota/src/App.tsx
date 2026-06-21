@@ -13,6 +13,7 @@ import { Status } from '@/pages/status';
 import { Apps } from '@/pages/apps';
 import { AgentTools } from '@/pages/agent-tools';
 import { Help } from '@/pages/help';
+import Logging from '@/pages/Logging';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/agent-tools" element={<AgentTools />} />
           <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/logs" element={<Logging />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppLayout>

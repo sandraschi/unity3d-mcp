@@ -6,7 +6,7 @@ VRM avatar import, configuration, and animation setup for Unity.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class VRMAvatarManager:
         project_path: str,
         optimize_for_vrchat: bool = True,
         create_prefab: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import VRM avatar into Unity project."""
         try:
             # Validate VRM file
@@ -66,7 +66,7 @@ class VRMAvatarManager:
             logger.error(f"Failed to import VRM: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def _apply_vrchat_optimizations(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
+    async def _apply_vrchat_optimizations(self, avatar_name: str, project_path: str) -> dict[str, Any]:
         """Apply VRChat-specific optimizations."""
         optimizations = {
             "material_conversion": "Standard to VRChat compatible",
@@ -87,7 +87,7 @@ class AnimationManager:
 
     async def setup_animator(
         self, avatar_path: str, animator_type: str = "humanoid", include_facial: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Setup animator controller for avatar."""
         try:
             avatar_name = Path(avatar_path).stem
@@ -145,8 +145,8 @@ class AnimationManager:
             return {"status": "error", "message": str(e)}
 
     async def create_animation_clip(
-        self, clip_name: str, duration: float, keyframes: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, clip_name: str, duration: float, keyframes: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Create animation clip with keyframes."""
         try:
             clip_path = f"Assets/Animations/{clip_name}.anim"

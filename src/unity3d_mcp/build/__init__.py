@@ -6,7 +6,7 @@ Unity build automation and platform management.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class BuildManager:
         build_target: str,
         output_path: str,
         development_build: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Build Unity project for target platform."""
         try:
             # Validate build target
@@ -75,7 +75,7 @@ class BuildManager:
             logger.error(f"Failed to build project: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def get_build_settings(self, project_path: str) -> Dict[str, Any]:
+    async def get_build_settings(self, project_path: str) -> dict[str, Any]:
         """Get current build settings for project."""
         try:
             build_settings = {
@@ -110,7 +110,7 @@ class PlatformManager:
     def __init__(self, config):
         self.config = config
 
-    async def switch_platform(self, project_path: str, target_platform: str) -> Dict[str, Any]:
+    async def switch_platform(self, project_path: str, target_platform: str) -> dict[str, Any]:
         """Switch Unity project to target platform."""
         try:
             platform_configs = {
@@ -161,7 +161,7 @@ class PlatformManager:
             logger.error(f"Failed to switch platform: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def optimize_for_platform(self, project_path: str, platform: str) -> Dict[str, Any]:
+    async def optimize_for_platform(self, project_path: str, platform: str) -> dict[str, Any]:
         """Apply platform-specific optimizations."""
         try:
             optimization_configs = {

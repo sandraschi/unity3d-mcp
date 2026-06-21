@@ -9,7 +9,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class UnityEditorManager:
         unity_version: str = "",
         batch_mode: bool = False,
         no_graphics: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Launch Unity Editor with specified options."""
         try:
             unity_path = await self._resolve_unity_path(unity_version)
@@ -62,15 +62,17 @@ class UnityEditorManager:
         self,
         class_name: str,
         method_name: str,
-        parameters: Dict[str, Any] = {},
+        parameters: dict[str, Any] | None = None,
         project_path: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute Unity Editor method via command line.
 
         Note: If Unity is already running with the project open, this will attempt
         to launch a new Unity instance in batch mode. For running Unity instances,
         consider using Unity Editor API plugins for real-time communication.
         """
+        if parameters is None:
+            parameters = {}
         try:
             # Try to detect Unity version from project if project_path provided
             unity_version = ""
@@ -182,7 +184,7 @@ class UnityEditorManager:
             logger.error(f"Failed to install MCP bridge: {e}")
             return False
 
-    def write_command_params(self, project_path: str, params: Dict[str, Any]) -> bool:
+    def write_command_params(self, project_path: str, params: dict[str, Any]) -> bool:
         """Write command parameters to JSON file for Unity to read."""
         try:
             param_file = Path(project_path) / "mcp_params.json"
@@ -194,7 +196,7 @@ class UnityEditorManager:
             logger.error(f"Failed to write params: {e}")
             return False
 
-    async def _resolve_unity_path(self, version: str = "") -> Optional[str]:
+    async def _resolve_unity_path(self, version: str = "") -> str | None:
         """Resolve Unity Editor executable path."""
         if self.config.unity_editor_path and Path(self.config.unity_editor_path).exists():
             return self.config.unity_editor_path
@@ -220,7 +222,7 @@ class UnityEditorManager:
                             # Try if the dict itself contains editor info
                             else:
                                 # Check if it's a dict with editor IDs as keys
-                                for key, value in editors_data.items():
+                                for _key, value in editors_data.items():
                                     if isinstance(value, dict) and ("version" in value or "location" in value):
                                         editors.append(value)
                         elif isinstance(editors_data, list):
@@ -296,33 +298,32 @@ class UnityEditorManager:
 class ProjectManager:
     """Manages Unity project operations."""
 
-    # UniVRM package info for different installation methods
-    UNIVRM_PACKAGES = {
-        "univrm": {
-            "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRMShaders#v0.128.0",
-            "name": "com.vrmc.vrmshaders",
-            "version": "0.128.0",
-        },
-        "univrm-core": {
-            "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.128.0",
-            "name": "com.vrmc.gltf",
-        },
-        "vrm0": {
-            "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.128.0",
-            "name": "com.vrmc.univrm",
-        },
-        "vrm1": {
-            "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.128.0",
-            "name": "com.vrmc.vrm",
-        },
-    }
-
     def __init__(self, config):
         self.config = config
+        # UniVRM package info for different installation methods
+        self.univrm_packages = {
+            "univrm": {
+                "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRMShaders#v0.128.0",
+                "name": "com.vrmc.vrmshaders",
+                "version": "0.128.0",
+            },
+            "univrm-core": {
+                "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.128.0",
+                "name": "com.vrmc.gltf",
+            },
+            "vrm0": {
+                "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.128.0",
+                "name": "com.vrmc.univrm",
+            },
+            "vrm1": {
+                "git": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.128.0",
+                "name": "com.vrmc.vrm",
+            },
+        }
 
     async def create_project(
         self, project_name: str, project_path: str, template: str = "3D", unity_version: str = ""
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create new Unity project."""
         try:
             unity_path = await self._resolve_unity_path(unity_version)
@@ -371,7 +372,7 @@ class ProjectManager:
         template: str = "3D",
         unity_version: str = "",
         vrm_version: str = "vrm0",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create new Unity project with UniVRM pre-installed."""
         # First create the project
         result = await self.create_project(project_name, project_path, template, unity_version)
@@ -392,7 +393,7 @@ class ProjectManager:
             "univrm_details": install_result,
         }
 
-    async def check_univrm_installed(self, project_path: str) -> Dict[str, Any]:
+    async def check_univrm_installed(self, project_path: str) -> dict[str, Any]:
         """Check if UniVRM is installed in a Unity project."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -413,7 +414,7 @@ class ProjectManager:
             found_packages = {}
             univrm_installed = False
 
-            for pkg_key, pkg_info in self.UNIVRM_PACKAGES.items():
+            for pkg_key, pkg_info in self.univrm_packages.items():
                 pkg_name = pkg_info["name"]
                 if pkg_name in dependencies:
                     found_packages[pkg_key] = {
@@ -449,7 +450,7 @@ class ProjectManager:
 
     async def install_univrm(
         self, project_path: str, vrm_version: str = "vrm0", refresh_unity: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Install UniVRM packages into a Unity project.
 
         Args:
@@ -493,7 +494,7 @@ class ProjectManager:
 
             installed_packages = []
             for pkg_key in packages_to_install:
-                pkg_info = self.UNIVRM_PACKAGES.get(pkg_key)
+                pkg_info = self.univrm_packages.get(pkg_key)
                 if pkg_info:
                     dependencies[pkg_info["name"]] = pkg_info["git"]
                     installed_packages.append(
@@ -534,7 +535,7 @@ class ProjectManager:
             logger.error(f"Failed to install UniVRM: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def uninstall_univrm(self, project_path: str) -> Dict[str, Any]:
+    async def uninstall_univrm(self, project_path: str) -> dict[str, Any]:
         """Remove UniVRM packages from a Unity project."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -550,7 +551,7 @@ class ProjectManager:
 
             # Remove all UniVRM related packages
             keys_to_remove = []
-            for pkg_key, pkg_info in self.UNIVRM_PACKAGES.items():
+            for _pkg_key, pkg_info in self.univrm_packages.items():
                 pkg_name = pkg_info["name"]
                 if pkg_name in dependencies:
                     keys_to_remove.append(pkg_name)
@@ -574,7 +575,7 @@ class ProjectManager:
             logger.error(f"Failed to uninstall UniVRM: {e}")
             return {"status": "error", "message": str(e)}
 
-    async def _resolve_unity_path(self, version: str = "") -> Optional[str]:
+    async def _resolve_unity_path(self, version: str = "") -> str | None:
         """Resolve Unity Editor path."""
         # Reuse logic from UnityEditorManager
         editor_manager = UnityEditorManager(self.config)
@@ -588,7 +589,7 @@ class SceneManager:
         self.config = config
         self.unity_editor = UnityEditorManager(config)
 
-    async def create_scene(self, scene_name: str, project_path: str, template: str = "Basic") -> Dict[str, Any]:
+    async def create_scene(self, scene_name: str, project_path: str, template: str = "Basic") -> dict[str, Any]:
         """Create new Unity scene."""
         try:
             # This would typically use Unity's EditorSceneManager
@@ -608,12 +609,12 @@ class SceneManager:
         self,
         light_name: str,
         light_type: str = "Spot",
-        color: Optional[List[float]] = None,
+        color: list[float] | None = None,
         intensity: float = 1.0,
-        position: Optional[Dict[str, float]] = None,
-        rotation: Optional[Dict[str, float]] = None,
+        position: dict[str, float] | None = None,
+        rotation: dict[str, float] | None = None,
         project_path: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a light in the current scene using MCPBridge."""
         try:
             if not project_path:

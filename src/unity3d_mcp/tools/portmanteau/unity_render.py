@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -26,13 +26,13 @@ class UnityRenderToolManager:
         @self.app.tool
         async def unity_render(
             operation: str,
-            output_path: Optional[str] = None,
-            output_dir: Optional[str] = None,
+            output_path: str | None = None,
+            output_dir: str | None = None,
             width: int = 1920,
             height: int = 1080,
             angles: int = 4,
             include_base64: bool = False,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Capture Unity scene views for agent vision loops.
 
             Args:
@@ -115,7 +115,7 @@ class UnityRenderToolManager:
             if not result.get("success"):
                 return result
 
-            payload: Dict[str, Any] = {
+            payload: dict[str, Any] = {
                 "success": True,
                 "mode": "bridge",
                 "operation": operation,

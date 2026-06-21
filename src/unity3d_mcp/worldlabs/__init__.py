@@ -9,7 +9,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -17,21 +17,15 @@ logger = logging.getLogger(__name__)
 class WorldLabsManager:
     """Manages World Labs asset imports and Gaussian Splatting setup."""
 
-    # Gaussian Splatting package info
-    GAUSSIAN_SPLATTING_PACKAGE = {
-        "name": "com.aras-p.gaussian-splatting",
-        "git": "https://github.com/aras-p/UnityGaussianSplatting.git",
-        "description": "Unity Gaussian Splatting renderer by Aras Pranckevičius",
-    }
-
-    # Supported mesh formats from Marble
-    SUPPORTED_MESH_FORMATS = [".obj", ".fbx", ".glb", ".gltf"]
-
-    # Gaussian splat formats
-    SPLAT_FORMATS = [".ply", ".splat"]
-
     def __init__(self, config):
         self.config = config
+        self.gaussian_splatting_package = {
+            "name": "com.aras-p.gaussian-splatting",
+            "git": "https://github.com/aras-p/UnityGaussianSplatting.git",
+            "description": "Unity Gaussian Splatting renderer by Aras Pranckevičius",
+        }
+        self.supported_mesh_formats = [".obj", ".fbx", ".glb", ".gltf"]
+        self.splat_formats = [".ply", ".splat"]
 
     async def import_marble_world(
         self,
@@ -40,7 +34,7 @@ class WorldLabsManager:
         asset_name: str = "",
         include_colliders: bool = True,
         optimize_for_vrchat: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import a World Labs Marble-generated world into Unity.
 
         Args:
@@ -73,20 +67,20 @@ class WorldLabsManager:
         project_path: str,
         asset_name: str,
         optimize_for_vrchat: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import a single mesh or splat file."""
         suffix = source.suffix.lower()
         name = asset_name or source.stem
 
-        if suffix in self.SUPPORTED_MESH_FORMATS:
+        if suffix in self.supported_mesh_formats:
             return await self._import_mesh(source, project_path, name, optimize_for_vrchat)
-        elif suffix in self.SPLAT_FORMATS:
+        elif suffix in self.splat_formats:
             return await self._import_gaussian_splat(source, project_path, name)
         else:
             return {
                 "status": "error",
                 "message": (
-                    f"Unsupported format: {suffix}. Supported: {self.SUPPORTED_MESH_FORMATS + self.SPLAT_FORMATS}"
+                    f"Unsupported format: {suffix}. Supported: {self.supported_mesh_formats + self.splat_formats}"
                 ),
             }
 
@@ -97,7 +91,7 @@ class WorldLabsManager:
         asset_name: str,
         include_colliders: bool,
         optimize_for_vrchat: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import a folder of Marble exports."""
         name = asset_name or source.name
 
@@ -120,7 +114,7 @@ class WorldLabsManager:
             suffix = file.suffix.lower()
 
             # Meshes
-            if suffix in self.SUPPORTED_MESH_FORMATS:
+            if suffix in self.supported_mesh_formats:
                 if "collider" in file.stem.lower() or "collision" in file.stem.lower():
                     if include_colliders:
                         dest = dest_colliders / file.name
@@ -132,7 +126,7 @@ class WorldLabsManager:
                     imported["meshes"].append(str(dest))
 
             # Gaussian splats
-            elif suffix in self.SPLAT_FORMATS:
+            elif suffix in self.splat_formats:
                 dest = dest_splats / file.name
                 shutil.copy2(file, dest)
                 imported["splats"].append(str(dest))
@@ -178,7 +172,7 @@ class WorldLabsManager:
         project_path: str,
         name: str,
         optimize_for_vrchat: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import a single mesh file."""
         dest_folder = Path(project_path) / "Assets" / "WorldLabs" / name
         dest_folder.mkdir(parents=True, exist_ok=True)
@@ -211,7 +205,7 @@ class WorldLabsManager:
         source: Path,
         project_path: str,
         name: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Import a Gaussian Splat file."""
         # Check if Gaussian Splatting is installed
         gs_check = await self.check_gaussian_splatting_installed(project_path)
@@ -235,12 +229,12 @@ class WorldLabsManager:
             result["install_instructions"] = [
                 "Install via: install_gaussian_splatting(project_path)",
                 "Or manually add to manifest.json",
-                "Package: " + self.GAUSSIAN_SPLATTING_PACKAGE["git"],
+                "Package: " + self.gaussian_splatting_package["git"],
             ]
 
         return result
 
-    async def check_gaussian_splatting_installed(self, project_path: str) -> Dict[str, Any]:
+    async def check_gaussian_splatting_installed(self, project_path: str) -> dict[str, Any]:
         """Check if Gaussian Splatting renderer is installed."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -288,7 +282,7 @@ class WorldLabsManager:
         except Exception as e:
             return {"status": "error", "installed": False, "message": str(e)}
 
-    async def install_gaussian_splatting(self, project_path: str) -> Dict[str, Any]:
+    async def install_gaussian_splatting(self, project_path: str) -> dict[str, Any]:
         """Install Gaussian Splatting renderer package."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -310,7 +304,7 @@ class WorldLabsManager:
                 manifest = json.load(f)
 
             dependencies = manifest.get("dependencies", {})
-            dependencies[self.GAUSSIAN_SPLATTING_PACKAGE["name"]] = self.GAUSSIAN_SPLATTING_PACKAGE["git"]
+            dependencies[self.gaussian_splatting_package["name"]] = self.gaussian_splatting_package["git"]
 
             manifest["dependencies"] = dependencies
             with open(manifest_path, "w") as f:
@@ -319,8 +313,8 @@ class WorldLabsManager:
             return {
                 "status": "success",
                 "message": "Gaussian Splatting package added to manifest.json",
-                "package": self.GAUSSIAN_SPLATTING_PACKAGE["name"],
-                "source": self.GAUSSIAN_SPLATTING_PACKAGE["git"],
+                "package": self.gaussian_splatting_package["name"],
+                "source": self.gaussian_splatting_package["git"],
                 "next_steps": [
                     "Open Unity to download and import the package",
                     "Create a GaussianSplatRenderer component in your scene",
@@ -337,7 +331,7 @@ class WorldLabsManager:
         project_path: str,
         asset_folder: str,
         target_polygon_count: int = 50000,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Provide optimization recommendations for VRChat.
 
         Note: Actual mesh decimation requires Unity Editor operations.

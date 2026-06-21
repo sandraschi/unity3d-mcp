@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 import UnityPy
@@ -13,7 +13,7 @@ class UnityDiskOps:
     """
 
     @staticmethod
-    def inspect_file(file_path: str) -> Dict[str, Any]:
+    def inspect_file(file_path: str) -> dict[str, Any]:
         """Inspect a serialized Unity file (.unity, .prefab, .asset) without Unity launched."""
         if not os.path.exists(file_path):
             return {"error": f"File not found: {file_path}"}
@@ -35,8 +35,8 @@ class UnityDiskOps:
                         asset_info["name"] = getattr(data, "name", "Unnamed")
                         if hasattr(data, "m_TagString"):
                             asset_info["tag"] = data.m_TagString
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("Failed to read asset", error=str(exc))
 
                 assets.append(asset_info)
 
@@ -47,10 +47,10 @@ class UnityDiskOps:
             }
         except Exception as e:
             logger.exception("unity3d.disk.inspect_error", path=file_path)
-            return {"error": f"Failed to load Unity file: {str(e)}"}
+            return {"error": f"Failed to load Unity file: {e!s}"}
 
     @staticmethod
-    def list_textures(file_path: str) -> List[Dict[str, Any]]:
+    def list_textures(file_path: str) -> list[dict[str, Any]]:
         """List all textures inside a Unity file."""
         try:
             env = UnityPy.load(file_path)
@@ -74,7 +74,7 @@ class UnityDiskOps:
 
     # YAML-based manipulation for Source assets
     @staticmethod
-    def modify_yaml_property(file_path: str, component_type: str, property_name: str, new_value: Any) -> Dict[str, Any]:
+    def modify_yaml_property(file_path: str, component_type: str, property_name: str, new_value: Any) -> dict[str, Any]:
         """Simple regex-based YAML modification for Unity source files (Prefabs/Scenes).
         This is safer than a full YAML parser for Unity's specific dialect.
         """

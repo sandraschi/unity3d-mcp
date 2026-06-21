@@ -6,7 +6,7 @@ including motor configuration, speed control, physics simulation, and status mon
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,10 @@ class MotorManager:
         self,
         object_name: str,
         motor_type: str,
-        motor_config: Dict[str, Any],
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        motor_config: dict[str, Any],
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Add a motor component to a Unity object."""
         try:
             motor_id = f"{object_name}_{motor_type}_motor"
@@ -58,12 +58,12 @@ class MotorManager:
     async def start_motor(
         self,
         object_name: str,
-        motor_id: Optional[str] = None,
-        target_speed: Optional[float] = None,
-        acceleration: Optional[float] = None,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        motor_id: str | None = None,
+        target_speed: float | None = None,
+        acceleration: float | None = None,
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Start a motor on an object."""
         try:
             if object_name not in self.active_motors:
@@ -115,12 +115,12 @@ class MotorManager:
     async def stop_motor(
         self,
         object_name: str,
-        motor_id: Optional[str] = None,
-        deceleration: Optional[float] = None,
+        motor_id: str | None = None,
+        deceleration: float | None = None,
         emergency_stop: bool = False,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Stop a motor on an object."""
         try:
             if object_name not in self.active_motors:
@@ -180,11 +180,11 @@ class MotorManager:
         self,
         object_name: str,
         target_speed: float,
-        motor_id: Optional[str] = None,
-        acceleration: Optional[float] = None,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        motor_id: str | None = None,
+        acceleration: float | None = None,
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Set the speed of a motor on an object."""
         try:
             if object_name not in self.active_motors:
@@ -238,10 +238,10 @@ class MotorManager:
     async def get_motor_status(
         self,
         object_name: str,
-        motor_id: Optional[str] = None,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        motor_id: str | None = None,
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Get the current status of motors on an object."""
         try:
             if object_name not in self.active_motors:
@@ -301,10 +301,10 @@ class MotorManager:
         self,
         object_name: str,
         motor_id: str,
-        physics_config: Dict[str, Any],
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        physics_config: dict[str, Any],
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Configure physics properties for a motor."""
         try:
             if object_name not in self.active_motors:
@@ -345,7 +345,7 @@ class MotorManager:
             logger.error(f"Failed to configure motor physics for {object_name}: {e}")
             return {"success": False, "error": str(e), "object_name": object_name, "motor_id": motor_id}
 
-    def _calculate_power_consumption(self, motor: Dict[str, Any]) -> float:
+    def _calculate_power_consumption(self, motor: dict[str, Any]) -> float:
         """Calculate power consumption based on motor state."""
         if not motor["is_running"]:
             return 0.0
@@ -357,7 +357,7 @@ class MotorManager:
 
         return base_power + speed_power
 
-    def _calculate_efficiency(self, motor: Dict[str, Any]) -> float:
+    def _calculate_efficiency(self, motor: dict[str, Any]) -> float:
         """Calculate motor efficiency percentage."""
         if not motor["is_running"] or motor["current_speed"] == 0:
             return 0.0
@@ -383,10 +383,10 @@ class MotorToolManager:
         async def api_add_motor(
             object_name: str,
             motor_type: str,
-            motor_config: Dict[str, Any],
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            motor_config: dict[str, Any],
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Add a motor component to a Unity object for movement control.
 
             Attaches a configurable motor to an object, enabling speed and acceleration control.
@@ -439,12 +439,12 @@ class MotorToolManager:
         @self.app.tool
         async def api_start_motor(
             object_name: str,
-            motor_id: Optional[str] = None,
-            target_speed: Optional[float] = None,
-            acceleration: Optional[float] = None,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            motor_id: str | None = None,
+            target_speed: float | None = None,
+            acceleration: float | None = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Start a motor on an object with optional speed and acceleration parameters.
 
             Activates a motor and optionally sets it to a target speed with specified acceleration.
@@ -488,12 +488,12 @@ class MotorToolManager:
         @self.app.tool
         async def api_stop_motor(
             object_name: str,
-            motor_id: Optional[str] = None,
-            deceleration: Optional[float] = None,
+            motor_id: str | None = None,
+            deceleration: float | None = None,
             emergency_stop: bool = False,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Stop a motor on an object with optional deceleration.
 
             Deactivates a motor, either gradually with deceleration or emergency stop.
@@ -538,11 +538,11 @@ class MotorToolManager:
         async def api_set_motor_speed(
             object_name: str,
             target_speed: float,
-            motor_id: Optional[str] = None,
-            acceleration: Optional[float] = None,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            motor_id: str | None = None,
+            acceleration: float | None = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Set the speed of a motor on an object.
 
             Changes the target speed of a running motor with optional acceleration control.
@@ -588,10 +588,10 @@ class MotorToolManager:
         @self.app.tool
         async def api_get_motor_status(
             object_name: str,
-            motor_id: Optional[str] = None,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            motor_id: str | None = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Get the current status of motors on an object.
 
             Retrieves real-time information about motor state, speed, and performance.
@@ -636,10 +636,10 @@ class MotorToolManager:
         async def api_configure_motor_physics(
             object_name: str,
             motor_id: str,
-            physics_config: Dict[str, Any],
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            physics_config: dict[str, Any],
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Configure physics properties for a motor.
 
             Sets up realistic physics simulation for motors including friction,

@@ -10,7 +10,7 @@ Support for multiple social VR platforms beyond VRChat:
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,24 +22,21 @@ class ChilloutVRManager:
     CCK package: https://docs.abinteractive.net/cck/
     """
 
-    CCK_PACKAGE = {
-        "name": "com.abi.cck",
-        "git": "https://github.com/ABI-Software/CCK.git",
-        "docs": "https://docs.abinteractive.net/cck/",
-    }
-
-    # ChilloutVR performance limits (more generous than VRChat)
-    PERFORMANCE_LIMITS = {
-        "excellent": {"polygons": 32000, "materials": 4, "bones": 150},
-        "good": {"polygons": 70000, "materials": 8, "bones": 256},
-        "medium": {"polygons": 70000, "materials": 16, "bones": 400},
-        "poor": {"polygons": 150000, "materials": 32, "bones": 750},
-    }
-
     def __init__(self, config):
         self.config = config
+        self.cck_package = {
+            "name": "com.abi.cck",
+            "git": "https://github.com/ABI-Software/CCK.git",
+            "docs": "https://docs.abinteractive.net/cck/",
+        }
+        self.performance_limits = {
+            "excellent": {"polygons": 32000, "materials": 4, "bones": 150},
+            "good": {"polygons": 70000, "materials": 8, "bones": 256},
+            "medium": {"polygons": 70000, "materials": 16, "bones": 400},
+            "poor": {"polygons": 150000, "materials": 32, "bones": 750},
+        }
 
-    async def check_cck_installed(self, project_path: str) -> Dict[str, Any]:
+    async def check_cck_installed(self, project_path: str) -> dict[str, Any]:
         """Check if ChilloutVR CCK is installed."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -77,13 +74,13 @@ class ChilloutVRManager:
                 "status": "success",
                 "installed": False,
                 "message": "CCK not installed",
-                "install_url": self.CCK_PACKAGE["docs"],
+                "install_url": self.cck_package["docs"],
             }
 
         except Exception as e:
             return {"status": "error", "installed": False, "message": str(e)}
 
-    async def install_cck(self, project_path: str) -> Dict[str, Any]:
+    async def install_cck(self, project_path: str) -> dict[str, Any]:
         """Install ChilloutVR CCK package.
 
         Note: CCK requires manual download from ABI website due to licensing.
@@ -98,7 +95,7 @@ class ChilloutVRManager:
                 "3. Import into Unity via Assets > Import Package",
                 "4. Configure CCK settings in the editor",
             ],
-            "documentation": self.CCK_PACKAGE["docs"],
+            "documentation": self.cck_package["docs"],
             "note": "CCK is free but requires ABI account",
         }
 
@@ -107,8 +104,8 @@ class ChilloutVRManager:
         avatar_object: str,
         project_path: str,
         eye_height: float = 1.6,
-        voice_position: Optional[Dict[str, float]] = None,
-    ) -> Dict[str, Any]:
+        voice_position: dict[str, float] | None = None,
+    ) -> dict[str, Any]:
         """Setup CVRAvatar component on avatar.
 
         This generates the configuration - actual component addition
@@ -138,7 +135,7 @@ class ChilloutVRManager:
             "unity_method": "ChilloutVRSetup.ConfigureAvatar",
         }
 
-    async def validate_for_chillout(self, avatar_name: str, project_path: str) -> Dict[str, Any]:
+    async def validate_for_chillout(self, avatar_name: str, project_path: str) -> dict[str, Any]:
         """Validate avatar for ChilloutVR upload."""
         # ChilloutVR is more permissive than VRChat
         return {
@@ -151,7 +148,7 @@ class ChilloutVRManager:
                 "PhysBones equivalent: Dynamic Bones or CVR equivalent",
                 "Less strict on polygon counts",
             ],
-            "performance_limits": self.PERFORMANCE_LIMITS,
+            "performance_limits": self.performance_limits,
         }
 
 
@@ -162,23 +159,20 @@ class ResoniteManager:
     Content is created/edited directly in-world.
     """
 
-    SUPPORTED_FORMATS = [".vrm", ".glb", ".gltf", ".fbx", ".obj"]
-
-    # Resonite has very generous limits
-    PERFORMANCE_RECOMMENDATIONS = {
-        "avatar_polygons": 100000,  # Recommended max
-        "avatar_materials": 20,
-        "texture_resolution": 4096,
-    }
-
     def __init__(self, config):
         self.config = config
+        self.supported_formats = [".vrm", ".glb", ".gltf", ".fbx", ".obj"]
+        self.performance_recommendations = {
+            "avatar_polygons": 100000,
+            "avatar_materials": 20,
+            "texture_resolution": 4096,
+        }
 
     async def prepare_for_resonite(
         self,
         model_path: str,
         optimize: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Prepare a model for Resonite import.
 
         Resonite imports VRM/GLB directly - no SDK needed!
@@ -189,11 +183,11 @@ class ResoniteManager:
             return {"status": "error", "message": f"File not found: {model_path}"}
 
         suffix = path.suffix.lower()
-        if suffix not in self.SUPPORTED_FORMATS:
+        if suffix not in self.supported_formats:
             return {
                 "status": "error",
                 "message": f"Unsupported format: {suffix}",
-                "supported": self.SUPPORTED_FORMATS,
+                "supported": self.supported_formats,
             }
 
         return {
@@ -223,7 +217,7 @@ class ResoniteManager:
             ],
         }
 
-    async def check_resonite_compatibility(self, model_path: str) -> Dict[str, Any]:
+    async def check_resonite_compatibility(self, model_path: str) -> dict[str, Any]:
         """Check if model is compatible with Resonite."""
         path = Path(model_path)
 
@@ -234,7 +228,7 @@ class ResoniteManager:
         file_size = path.stat().st_size / (1024 * 1024)  # MB
 
         compatibility = {
-            "format_supported": suffix in self.SUPPORTED_FORMATS,
+            "format_supported": suffix in self.supported_formats,
             "file_size_mb": round(file_size, 2),
             "size_ok": file_size < 100,  # 100MB soft limit
         }
@@ -271,7 +265,7 @@ class ClusterManager:
     def __init__(self, config):
         self.config = config
 
-    async def check_cluster_kit_installed(self, project_path: str) -> Dict[str, Any]:
+    async def check_cluster_kit_installed(self, project_path: str) -> dict[str, Any]:
         """Check if Cluster Creator Kit is installed."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -318,7 +312,7 @@ class ClusterManager:
         self,
         avatar_path: str,
         project_path: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Prepare avatar for Cluster upload."""
         return {
             "status": "success",
@@ -357,7 +351,7 @@ class PlatformManager:
         self.resonite = ResoniteManager(config)
         self.cluster = ClusterManager(config)
 
-    async def list_supported_platforms(self) -> Dict[str, Any]:
+    async def list_supported_platforms(self) -> dict[str, Any]:
         """List all supported social VR platforms."""
         return {
             "status": "success",
@@ -396,7 +390,7 @@ class PlatformManager:
             },
         }
 
-    async def check_platform_sdk(self, platform: str, project_path: str) -> Dict[str, Any]:
+    async def check_platform_sdk(self, platform: str, project_path: str) -> dict[str, Any]:
         """Check if platform SDK is installed."""
         platform = platform.lower()
 

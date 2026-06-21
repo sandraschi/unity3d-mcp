@@ -5,12 +5,12 @@ FastMCP 3.2.0+ compliant server with comprehensive Unity 3D automation,
 VRM avatar pipeline, and VRChat integration.
 """
 
-import os
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from fastmcp import FastMCP
@@ -104,7 +104,7 @@ async def server_lifespan(mcp_instance: FastMCP):
 class Unity3DMCP:
     """Unity3D MCP Server with comprehensive automation capabilities."""
 
-    def __init__(self, config: Optional[Unity3DConfig] = None):
+    def __init__(self, config: Unity3DConfig | None = None):
         """Initialize Unity3D MCP server."""
         self.config = config or Unity3DConfig()
 
@@ -120,8 +120,8 @@ class Unity3DMCP:
                     try:
                         self.app.add_provider(create_proxy(url))
                         _bridge_proxies.append(url)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("Bridge proxy failed", url=url, error=str(exc))
 
         # Register skills
         skills_dir = Path(__file__).resolve().parent.parent.parent / "skills"
@@ -183,8 +183,8 @@ class Unity3DMCP:
             UnityJobsToolManager,
             UnityRenderToolManager,
             UnitySceneToolManager,
-            UnityVisionRefineToolManager,
             UnityValidationToolManager,
+            UnityVisionRefineToolManager,
             VRChatToolManager,
             WorldLabsToolManager,
         )
@@ -272,7 +272,7 @@ class Unity3DMCP:
         async def check_platform_sdk(
             platform: str,
             project_path: str,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Check if a social VR platform SDK is installed.
 
             Verifies whether SDK for specified platform (VRChat, ChilloutVR, Cluster)
@@ -302,7 +302,7 @@ class Unity3DMCP:
 
         # ChilloutVR Tools
         @self.app.tool
-        async def check_cck_installed(project_path: str) -> Dict[str, Any]:
+        async def check_cck_installed(project_path: str) -> dict[str, Any]:
             """Check if ChilloutVR CCK (Content Creation Kit) is installed.
 
             Verifies whether ChilloutVR CCK is present in Unity project for
@@ -330,7 +330,7 @@ class Unity3DMCP:
             avatar_object: str,
             project_path: str,
             eye_height: float = 1.6,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Setup CVRAvatar component for ChilloutVR.
 
             Configures avatar GameObject with CVRAvatar component required
@@ -369,7 +369,7 @@ class Unity3DMCP:
         async def validate_for_chilloutvr(
             avatar_name: str,
             project_path: str,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Validate avatar for ChilloutVR upload.
 
             Checks avatar against ChilloutVR technical requirements and
@@ -403,7 +403,7 @@ class Unity3DMCP:
         async def prepare_for_resonite(
             model_path: str,
             optimize: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Prepare model for Resonite import (VRM/GLB direct import).
 
             Prepares VRM or GLB model for direct import into Resonite social VR.
@@ -437,7 +437,7 @@ class Unity3DMCP:
             return await self.platforms.resonite.prepare_for_resonite(model_path, optimize)
 
         @self.app.tool
-        async def check_resonite_compatibility(model_path: str) -> Dict[str, Any]:
+        async def check_resonite_compatibility(model_path: str) -> dict[str, Any]:
             """Check if model is compatible with Resonite.
 
             Verifies whether VRM or GLB model meets Resonite import requirements.
@@ -466,7 +466,7 @@ class Unity3DMCP:
 
         # Cluster Tools
         @self.app.tool
-        async def check_cluster_kit(project_path: str) -> Dict[str, Any]:
+        async def check_cluster_kit(project_path: str) -> dict[str, Any]:
             """Check if Cluster Creator Kit is installed.
 
             Verifies whether Cluster Creator Kit (Japanese social VR platform)
@@ -493,7 +493,7 @@ class Unity3DMCP:
         async def prepare_for_cluster(
             avatar_path: str,
             project_path: str,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Prepare avatar for Cluster upload.
 
             Configures VRM avatar for upload to Cluster (Japanese social VR platform).
@@ -526,11 +526,11 @@ class Unity3DMCP:
         async def api_execute_method(
             class_name: str,
             method_name: str,
-            parameters: Optional[Dict[str, Any]] = None,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
+            parameters: dict[str, Any] | None = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
             wait_for_completion: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Execute Unity Editor method with full parameter support via API.
 
             Uses Unity Editor API to execute methods with complex parameters,
@@ -587,10 +587,10 @@ class Unity3DMCP:
 
         @self.app.tool
         async def api_get_scene_objects(
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-            object_filter: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+            object_filter: str | None = None,
+        ) -> dict[str, Any]:
             """Get all objects in Unity scene via API.
 
             Retrieves complete list of scene objects with their properties,
@@ -621,10 +621,10 @@ class Unity3DMCP:
         @self.app.tool
         async def api_modify_object(
             object_name: str,
-            modifications: Dict[str, Any],
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            modifications: dict[str, Any],
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Modify Unity scene object properties via API.
 
             Directly modify object transforms, components, and properties
@@ -668,9 +668,9 @@ class Unity3DMCP:
         async def api_create_prefab(
             object_name: str,
             prefab_name: str,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Create Unity prefab from scene object via API.
 
             Uses Unity Editor API to create prefabs with proper references,
@@ -703,10 +703,10 @@ class Unity3DMCP:
         @self.app.tool
         async def api_run_simulation(
             duration: float,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
+            project_path: str | None = None,
+            scene_path: str | None = None,
             record_data: bool = False,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Run Unity physics simulation via API.
 
             Executes Unity physics simulation for specified duration,
@@ -738,10 +738,10 @@ class Unity3DMCP:
 
         @self.app.tool
         async def api_batch_operations(
-            operations: List[Dict[str, Any]],
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            operations: list[dict[str, Any]],
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Execute multiple Unity operations in batch via API.
 
             Performs multiple Unity Editor operations in a single API call,
@@ -784,13 +784,13 @@ class Unity3DMCP:
         async def api_move_along_path(
             object_name: str,
             path_type: str,
-            path_points: List[Dict[str, float]],
+            path_points: list[dict[str, float]],
             duration: float = 1.0,
             loop: bool = False,
             ease_type: str = "linear",
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Move object along a path (straight, spline, 2D, 3D) via Unity Editor API.
 
             Animates an object along a defined path using Unity's animation system.
@@ -856,14 +856,14 @@ class Unity3DMCP:
 
         @self.app.tool
         async def api_create_path_visualization(
-            path_points: List[Dict[str, float]],
+            path_points: list[dict[str, float]],
             path_type: str = "straight",
             visualization_type: str = "line",
-            color: Optional[Dict[str, float]] = None,
+            color: dict[str, float] | None = None,
             thickness: float = 0.1,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Create visual representation of a path in Unity scene.
 
             Generates visual aids (lines, curves, waypoints) to show the path
@@ -910,13 +910,13 @@ class Unity3DMCP:
         @self.app.tool
         async def api_follow_path_2d(
             object_name: str,
-            path_points: List[Dict[str, float]],
+            path_points: list[dict[str, float]],
             speed: float = 1.0,
             look_ahead: float = 0.5,
             smooth_rotation: bool = True,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Move object along 2D path with forward-looking behavior.
 
             Specialized for 2D movement where objects need to look ahead
@@ -966,13 +966,13 @@ class Unity3DMCP:
         @self.app.tool
         async def api_follow_path_3d(
             object_name: str,
-            path_points: List[Dict[str, float]],
+            path_points: list[dict[str, float]],
             speed: float = 1.0,
             bank_angle: float = 0.0,
             look_ahead: float = 1.0,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Move object along 3D path with banking and advanced controls.
 
             Full 3D path following with banking angles for aircraft/drone-like
@@ -1026,9 +1026,9 @@ class Unity3DMCP:
             object_name: str,
             decelerate: bool = True,
             deceleration_time: float = 0.5,
-            project_path: Optional[str] = None,
-            scene_path: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            scene_path: str | None = None,
+        ) -> dict[str, Any]:
             """Stop object path movement with optional deceleration.
 
             Halts any ongoing path movement for an object, either immediately
@@ -1065,11 +1065,11 @@ class Unity3DMCP:
         self,
         class_name: str,
         method_name: str,
-        parameters: Optional[Dict[str, Any]] = None,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
+        parameters: dict[str, Any] | None = None,
+        project_path: str | None = None,
+        scene_path: str | None = None,
         wait_for_completion: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute Unity Editor method via API.
 
         This would connect to Unity Editor via API (e.g., Unity Hub API,
@@ -1092,10 +1092,10 @@ class Unity3DMCP:
 
     async def _api_get_scene_objects(
         self,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-        object_filter: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        scene_path: str | None = None,
+        object_filter: str | None = None,
+    ) -> dict[str, Any]:
         """Get scene objects via Unity Editor API."""
         return {
             "success": False,
@@ -1106,10 +1106,10 @@ class Unity3DMCP:
     async def _api_modify_object(
         self,
         object_name: str,
-        modifications: Dict[str, Any],
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        modifications: dict[str, Any],
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Modify scene object via Unity Editor API."""
         return {
             "success": False,
@@ -1121,9 +1121,9 @@ class Unity3DMCP:
         self,
         object_name: str,
         prefab_name: str,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Create prefab via Unity Editor API."""
         return {
             "success": False,
@@ -1134,10 +1134,10 @@ class Unity3DMCP:
     async def _api_run_simulation(
         self,
         duration: float,
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
+        project_path: str | None = None,
+        scene_path: str | None = None,
         record_data: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run physics simulation via Unity Editor API."""
         return {
             "success": False,
@@ -1147,10 +1147,10 @@ class Unity3DMCP:
 
     async def _api_batch_operations(
         self,
-        operations: List[Dict[str, Any]],
-        project_path: Optional[str] = None,
-        scene_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        operations: list[dict[str, Any]],
+        project_path: str | None = None,
+        scene_path: str | None = None,
+    ) -> dict[str, Any]:
         """Execute batch operations via Unity Editor API."""
         return {
             "success": False,
@@ -1162,13 +1162,13 @@ class Unity3DMCP:
         self,
         object_name: str,
         path_type: str,
-        path_points: List[Dict[str, float]],
+        path_points: list[dict[str, float]],
         duration: float,
         loop: bool,
         ease_type: str,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Move object along path via Unity Editor API."""
         return {
             "success": False,
@@ -1182,14 +1182,14 @@ class Unity3DMCP:
 
     async def _api_create_path_visualization(
         self,
-        path_points: List[Dict[str, float]],
+        path_points: list[dict[str, float]],
         path_type: str,
         visualization_type: str,
-        color: Optional[Dict[str, float]],
+        color: dict[str, float] | None,
         thickness: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Create path visualization via Unity Editor API."""
         return {
             "success": False,
@@ -1203,13 +1203,13 @@ class Unity3DMCP:
     async def _api_follow_path_2d(
         self,
         object_name: str,
-        path_points: List[Dict[str, float]],
+        path_points: list[dict[str, float]],
         speed: float,
         look_ahead: float,
         smooth_rotation: bool,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Follow 2D path via Unity Editor API."""
         return {
             "success": False,
@@ -1223,13 +1223,13 @@ class Unity3DMCP:
     async def _api_follow_path_3d(
         self,
         object_name: str,
-        path_points: List[Dict[str, float]],
+        path_points: list[dict[str, float]],
         speed: float,
         bank_angle: float,
         look_ahead: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Follow 3D path with banking via Unity Editor API."""
         return {
             "success": False,
@@ -1245,9 +1245,9 @@ class Unity3DMCP:
         object_name: str,
         decelerate: bool,
         deceleration_time: float,
-        project_path: Optional[str],
-        scene_path: Optional[str],
-    ) -> Dict[str, Any]:
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
         """Stop path movement via Unity Editor API."""
         return {
             "success": False,
@@ -1262,7 +1262,7 @@ class Unity3DMCP:
         # Updated for fastmcp 3.2.0+
         await run_server_async(self.app, server_name="unity3d-mcp")
 
-    async def run_http(self, host: str = "0.0.0.0", port: int = 10831):
+    async def run_http(self, host: str = "127.0.0.1", port: int = 10831):
         """Run server in HTTP mode."""
         # Updated for fastmcp 3.2.0+
         try:
@@ -1283,7 +1283,7 @@ class Unity3DMCP:
         run_server(self, server_name="unity3d-mcp")
 
 
-def create_app(config: Optional[Unity3DConfig] = None) -> Unity3DMCP:
+def create_app(config: Unity3DConfig | None = None) -> Unity3DMCP:
     """Create Unity3D MCP application instance."""
     return Unity3DMCP(config)
 
@@ -1361,7 +1361,7 @@ _bridge_client = UnityBridgeClient()
 
 
 @app.tool()
-async def unity3d_bridge_status() -> Dict[str, Any]:
+async def unity3d_bridge_status() -> dict[str, Any]:
     """Check if the Unity Editor Bridge (MCPBridge.cs) is alive and reachable.
 
     Returns:
@@ -1379,15 +1379,15 @@ async def unity3d_bridge_status() -> Dict[str, Any]:
 @app.tool()
 async def unity3d_editor_api(
     action: str,
-    target: Optional[str] = None,
-    name: Optional[str] = None,
-    object_type: Optional[str] = None,
-    position: Optional[List[float]] = None,
-    rotation: Optional[List[float]] = None,
-    output_path: Optional[str] = None,
-    width: Optional[int] = None,
-    height: Optional[int] = None,
-) -> Dict[str, Any]:
+    target: str | None = None,
+    name: str | None = None,
+    object_type: str | None = None,
+    position: list[float] | None = None,
+    rotation: list[float] | None = None,
+    output_path: str | None = None,
+    width: int | None = None,
+    height: int | None = None,
+) -> dict[str, Any]:
     """[Hands-In] Execute a real-time command in an active Unity Editor session.
 
     Args:
@@ -1401,7 +1401,7 @@ async def unity3d_editor_api(
         width: Capture width for capture_game_view
         height: Capture height for capture_game_view
     """
-    payload: Dict[str, Any] = {}
+    payload: dict[str, Any] = {}
     if name is not None:
         payload["name"] = name
     if object_type is not None:
@@ -1423,10 +1423,10 @@ async def unity3d_editor_api(
 async def unity3d_disk_api(
     operation: str,
     file_path: str,
-    component_type: Optional[str] = None,
-    property_name: Optional[str] = None,
-    new_value: Optional[str] = None,
-) -> Dict[str, Any]:
+    component_type: str | None = None,
+    property_name: str | None = None,
+    new_value: str | None = None,
+) -> dict[str, Any]:
     """[Hands-Off] Manipulate Unity project assets directly on disk without Unity running.
 
     Args:
@@ -1494,7 +1494,7 @@ Always start by checking if the project path is valid.
         return f"Unity3D Agentic Workflow Result for '{goal}':\n\n{result.content}"
 
     except Exception as e:
-        error_msg = f"Agentic workflow failed: {str(e)}"
+        error_msg = f"Agentic workflow failed: {e!s}"
         logger.error(error_msg)
         return error_msg
 

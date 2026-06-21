@@ -5,7 +5,7 @@ Consolidates asset management operations into a unified portmanteau interface.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -28,10 +28,10 @@ class UnityAssetToolManager:
         @self.app.tool
         async def unity_asset(
             operation: str,
-            texture_paths: Optional[List[str]] = None,
+            texture_paths: list[str] | None = None,
             platform: str = "PC",
             quality: str = "High",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Unity Asset operations portmanteau tool.
 
             Consolidates asset management operations including texture optimization.

@@ -3,20 +3,19 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
+from ...platforms import PlatformManager
 from ...utils.platform_audit import run_unified_audit
 from ...utils.scene_validator import (
-    evaluate_scene_metrics,
     list_platform_limits,
     validate_model_file,
     validate_prefab_on_disk,
     validate_scene_via_bridge,
 )
 from ...vrchat import VRChatSDKManager
-from ...platforms import PlatformManager
 from .unity_api_bridge import UnityBridgeClient
 
 logger = logging.getLogger(__name__)
@@ -42,12 +41,12 @@ class UnityValidationToolManager:
         async def unity_validation(
             operation: str,
             target_platform: str = "vrchat",
-            project_path: Optional[str] = None,
-            avatar_prefab: Optional[str] = None,
-            model_path: Optional[str] = None,
-            polycount_limit: Optional[int] = None,
-            material_limit: Optional[int] = None,
-        ) -> Dict[str, Any]:
+            project_path: str | None = None,
+            avatar_prefab: str | None = None,
+            model_path: str | None = None,
+            polycount_limit: int | None = None,
+            material_limit: int | None = None,
+        ) -> dict[str, Any]:
             """Validate Unity scenes, avatars, and fleet models for social VR platforms.
 
             Operations:
@@ -134,7 +133,7 @@ class UnityValidationToolManager:
                     }
 
                 if operation == "unified_audit":
-                    scene_metrics: Dict[str, Any] | None = None
+                    scene_metrics: dict[str, Any] | None = None
                     bridge_report = await validate_scene_via_bridge(self.bridge, target_platform=target_platform)
                     if bridge_report.get("success") and bridge_report.get("metrics"):
                         scene_metrics = {

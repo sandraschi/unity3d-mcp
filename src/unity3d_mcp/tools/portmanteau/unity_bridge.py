@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -26,16 +26,17 @@ class UnityBridgeToolManager:
         @self.app.tool
         async def unity_bridge(
             operation: str,
-            target: Optional[str] = None,
-            name: Optional[str] = None,
+            target: str | None = None,
+            name: str | None = None,
             object_type: str = "GameObject",
-            position: Optional[List[float]] = None,
-            rotation: Optional[List[float]] = None,
-        ) -> Dict[str, Any]:
+            position: list[float] | None = None,
+            rotation: list[float] | None = None,
+        ) -> dict[str, Any]:
             """Live Unity Editor bridge (MCPBridge.cs on port 10835).
 
             Args:
-                operation: status | execution_mode | ping | get_hierarchy | create_object | delete_object | transform_object
+                operation: status | execution_mode | ping | get_hierarchy
+                    | create_object | delete_object | transform_object
                 target: GameObject name or instance ID
                 name: Name for create_object
                 object_type: GameObject | Light | Camera
@@ -69,7 +70,7 @@ class UnityBridgeToolManager:
                 return {
                     "success": False,
                     "error": f"Unknown operation: {operation}",
-                    "available_operations": list(action_map.keys()) + ["status", "execution_mode"],
+                    "available_operations": [*list(action_map.keys()), "status", "execution_mode"],
                 }
 
             kwargs: dict[str, Any] = {}

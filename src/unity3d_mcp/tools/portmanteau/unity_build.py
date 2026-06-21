@@ -5,7 +5,7 @@ Consolidates build pipeline operations into a unified portmanteau interface.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -28,11 +28,11 @@ class UnityBuildToolManager:
         @self.app.tool
         async def unity_build(
             operation: str,
-            project_path: Optional[str] = None,
-            build_target: Optional[str] = None,
-            output_path: Optional[str] = None,
+            project_path: str | None = None,
+            build_target: str | None = None,
+            output_path: str | None = None,
             development_build: bool = False,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Unity Build operations portmanteau tool.
 
             Consolidates build pipeline operations for Unity projects.

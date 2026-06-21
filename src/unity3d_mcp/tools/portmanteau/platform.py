@@ -6,7 +6,7 @@ Supports ChilloutVR, Resonite, and Cluster platforms.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -32,14 +32,14 @@ class PlatformToolManager:
         async def multiplatform(
             operation: str,
             platform: str = "",
-            project_path: Optional[str] = None,
-            avatar_object: Optional[str] = None,
-            avatar_name: Optional[str] = None,
+            project_path: str | None = None,
+            avatar_object: str | None = None,
+            avatar_name: str | None = None,
             eye_height: float = 1.6,
-            model_path: Optional[str] = None,
+            model_path: str | None = None,
             optimize: bool = True,
-            asset_folder: Optional[str] = None,
-        ) -> Dict[str, Any]:
+            asset_folder: str | None = None,
+        ) -> dict[str, Any]:
             """Multi-platform social VR operations portmanteau tool.
 
             Consolidates operations for ChilloutVR, Resonite, and Cluster platforms.

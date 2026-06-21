@@ -7,7 +7,7 @@ Shared utilities for path resolution, configuration, and logging.
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class UnityPathResolver:
     def __init__(self, config):
         self.config = config
 
-    def find_unity_installations(self) -> List[Dict[str, str]]:
+    def find_unity_installations(self) -> list[dict[str, str]]:
         """Find all Unity Editor installations."""
         installations = []
 
@@ -28,7 +28,7 @@ class UnityPathResolver:
             try:
                 with open(hub_path) as f:
                     editors_data = json.load(f)
-                    for editor_id, editor_info in editors_data.items():
+                    for _editor_id, editor_info in editors_data.items():
                         installations.append(
                             {
                                 "version": editor_info.get("version", "unknown"),
@@ -52,7 +52,7 @@ class UnityPathResolver:
 
         return installations
 
-    def resolve_project_path(self, project_identifier: str) -> Optional[str]:
+    def resolve_project_path(self, project_identifier: str) -> str | None:
         """Resolve project path from name or path."""
         path = Path(project_identifier)
 
@@ -83,7 +83,7 @@ class ConfigManager:
         self.config = config
         self.config_file = Path.home() / ".unity3d_mcp_config.json"
 
-    def load_config(self) -> Dict[str, Any]:
+    def load_config(self) -> dict[str, Any]:
         """Load configuration from file."""
         if self.config_file.exists():
             try:
@@ -94,7 +94,7 @@ class ConfigManager:
 
         return {}
 
-    def save_config(self, config_data: Dict[str, Any]) -> bool:
+    def save_config(self, config_data: dict[str, Any]) -> bool:
         """Save configuration to file."""
         try:
             with open(self.config_file, "w") as f:
@@ -104,7 +104,7 @@ class ConfigManager:
             logger.error(f"Failed to save config: {e}")
             return False
 
-    def get_recent_projects(self) -> List[str]:
+    def get_recent_projects(self) -> list[str]:
         """Get list of recently used Unity projects."""
         config = self.load_config()
         return config.get("recent_projects", [])
@@ -169,7 +169,7 @@ class UnityVersionResolver:
             "HDRP": ["2019.4", "2020.3", "2021.3", "2022.3"],
         }
 
-    def get_recommended_version(self, requirements: List[str]) -> Optional[str]:
+    def get_recommended_version(self, requirements: list[str]) -> str | None:
         """Get recommended Unity version for requirements."""
         if not requirements:
             return "2022.3"  # Latest LTS
@@ -189,7 +189,7 @@ class UnityVersionResolver:
 
         return "2022.3"  # Fallback to latest LTS
 
-    def check_compatibility(self, unity_version: str, requirements: List[str]) -> Dict[str, bool]:
+    def check_compatibility(self, unity_version: str, requirements: list[str]) -> dict[str, bool]:
         """Check compatibility of Unity version with requirements."""
         compatibility = {}
 
@@ -206,7 +206,7 @@ class PerformanceProfiler:
     def __init__(self):
         self.profiles = {}
 
-    def profile_avatar(self, avatar_data: Dict[str, Any]) -> Dict[str, Any]:
+    def profile_avatar(self, avatar_data: dict[str, Any]) -> dict[str, Any]:
         """Profile avatar performance metrics."""
         polygon_count = avatar_data.get("polygon_count", 0)
         material_count = avatar_data.get("material_count", 0)

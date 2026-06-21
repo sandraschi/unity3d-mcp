@@ -1,0 +1,14 @@
+{
+    "product_name": "Unity3d MCP",
+    "install_dir": "%LOCALAPPDATA%\\Unity3d MCP",
+    "operator_exe": "unity3d-mcp-native.exe",
+    "backend_process_names": ["unity3d-mcp-native", "unity3d-mcp-backend"],
+    "backend_port": 10700,
+    "health_path": "/api/v1/health",
+    "diagnostics_path": "/api/v1/diagnostics",
+    "feature_smoke_path": "/api/v1/system/info",
+    "window_title_re": "Unity3d MCP",
+    "nsis_glob": "native/target/release/bundle/nsis/Unity3d MCP_*_x64-setup.exe",
+    "bridge_ok_text": "REST bridge reachable",
+    "uninstall_registry_filter": "*Unity3d MCP*"
+}

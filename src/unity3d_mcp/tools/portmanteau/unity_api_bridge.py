@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import httpx
 import structlog
@@ -26,9 +26,9 @@ class UnityBridgeClient:
         except Exception:
             return False
 
-    async def execute_command(self, action: str, target: str | None = None, **kwargs) -> Dict[str, Any]:
+    async def execute_command(self, action: str, target: str | None = None, **kwargs) -> dict[str, Any]:
         """Send a JSON command to the Unity Editor Bridge."""
-        payload: Dict[str, Any] = {"action": action}
+        payload: dict[str, Any] = {"action": action}
         if target is not None:
             payload["target"] = target
         payload.update(kwargs)
@@ -54,7 +54,7 @@ class UnityBridgeClient:
         output_path: str,
         width: int = 1920,
         height: int = 1080,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Capture active scene camera to PNG via Editor bridge."""
         return await self.execute_command(
             "capture_game_view",
@@ -69,7 +69,7 @@ class UnityBridgeClient:
         angles: int = 4,
         width: int = 1280,
         height: int = 720,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return await self.execute_command(
             "capture_multi_angle",
             output_dir=output_dir,
@@ -78,10 +78,10 @@ class UnityBridgeClient:
             height=height,
         )
 
-    async def get_scene_summary(self) -> Dict[str, Any]:
+    async def get_scene_summary(self) -> dict[str, Any]:
         return await self.execute_command("get_scene_summary")
 
-    async def validate_scene(self) -> Dict[str, Any]:
+    async def validate_scene(self) -> dict[str, Any]:
         return await self.execute_command("validate_scene")
 
     async def create_prefab(
@@ -89,7 +89,7 @@ class UnityBridgeClient:
         target: str,
         prefab_path: str | None = None,
         name: str | None = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return await self.execute_command(
             "create_prefab",
             target=target,
@@ -97,29 +97,29 @@ class UnityBridgeClient:
             name=name,
         )
 
-    async def run_simulation(self, duration: float = 1.0, record_data: bool = False) -> Dict[str, Any]:
+    async def run_simulation(self, duration: float = 1.0, record_data: bool = False) -> dict[str, Any]:
         return await self.execute_command(
             "run_simulation",
             duration=duration,
             record_data=1 if record_data else 0,
         )
 
-    async def simulation_status(self) -> Dict[str, Any]:
+    async def simulation_status(self) -> dict[str, Any]:
         return await self.execute_command("simulation_status")
 
-    async def stop_simulation(self) -> Dict[str, Any]:
+    async def stop_simulation(self) -> dict[str, Any]:
         return await self.execute_command("stop_simulation")
 
-    async def get_hierarchy(self) -> Dict[str, Any]:
+    async def get_hierarchy(self) -> dict[str, Any]:
         return await self.execute_command("get_hierarchy")
 
     async def transform_object(
-        self, target: str, position: List[float] = None, rotation: List[float] = None
-    ) -> Dict[str, Any]:
+        self, target: str, position: list[float] | None = None, rotation: list[float] | None = None
+    ) -> dict[str, Any]:
         return await self.execute_command("transform_object", target=target, position=position, rotation=rotation)
 
-    async def create_object(self, name: str, type: str = "GameObject") -> Dict[str, Any]:
+    async def create_object(self, name: str, type: str = "GameObject") -> dict[str, Any]:
         return await self.execute_command("create_object", name=name, type=type)
 
-    async def delete_object(self, target: str) -> Dict[str, Any]:
+    async def delete_object(self, target: str) -> dict[str, Any]:
         return await self.execute_command("delete_object", target=target)

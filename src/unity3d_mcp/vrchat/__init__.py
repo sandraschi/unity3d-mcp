@@ -24,7 +24,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -32,21 +32,20 @@ logger = logging.getLogger(__name__)
 class VRChatSDKManager:
     """Manages VRChat SDK operations with real upload support."""
 
-    # VRChat SDK paths and files
     VRCHAT_SDK_PACKAGE = "com.vrchat.avatars"
     VRCHAT_AUTH_FILE = "auth.json"
-    VRCHAT_CONFIG_PATHS = [
-        Path(os.environ.get("LOCALAPPDATA", "")) / "VRChat" / "VRChat",
-        Path(os.environ.get("APPDATA", "")) / "VRChat",
-        Path.home() / ".vrchat",
-    ]
 
     def __init__(self, config):
         self.config = config
-        self._auth_token: Optional[str] = None
-        self._username: Optional[str] = None
+        self._auth_token: str | None = None
+        self._username: str | None = None
+        self.vrchat_config_paths = [
+            Path(os.environ.get("LOCALAPPDATA", "")) / "VRChat" / "VRChat",
+            Path(os.environ.get("APPDATA", "")) / "VRChat",
+            Path.home() / ".vrchat",
+        ]
 
-    async def check_sdk_installed(self, project_path: str) -> Dict[str, Any]:
+    async def check_sdk_installed(self, project_path: str) -> dict[str, Any]:
         """Check if VRChat SDK is installed in the Unity project."""
         try:
             manifest_path = Path(project_path) / "Packages" / "manifest.json"
@@ -82,7 +81,7 @@ class VRChatSDKManager:
             logger.error(f"Failed to check SDK installation: {e}")
             return {"installed": False, "error": str(e)}
 
-    async def check_authentication(self) -> Dict[str, Any]:
+    async def check_authentication(self) -> dict[str, Any]:
         """Check if user is authenticated with VRChat."""
         try:
             # Check environment variables first
@@ -99,7 +98,7 @@ class VRChatSDKManager:
                 }
 
             # Check for stored SDK credentials
-            for config_path in self.VRCHAT_CONFIG_PATHS:
+            for config_path in self.vrchat_config_paths:
                 auth_file = config_path / self.VRCHAT_AUTH_FILE
                 if auth_file.exists():
                     try:
@@ -136,7 +135,7 @@ class VRChatSDKManager:
             logger.error(f"Failed to check authentication: {e}")
             return {"authenticated": False, "error": str(e)}
 
-    async def _check_unity_editorprefs(self) -> Dict[str, Any]:
+    async def _check_unity_editorprefs(self) -> dict[str, Any]:
         """Check Unity EditorPrefs for VRChat credentials (Windows)."""
         try:
             import winreg
@@ -149,7 +148,7 @@ class VRChatSDKManager:
                 i = 0
                 while True:
                     try:
-                        name, value, _ = winreg.EnumValue(key, i)
+                        name, _value, _ = winreg.EnumValue(key, i)
                         if "vrchat" in name.lower() and "auth" in name.lower():
                             return {
                                 "authenticated": True,
@@ -167,10 +166,10 @@ class VRChatSDKManager:
 
     async def authenticate(
         self,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        totp_code: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        username: str | None = None,
+        password: str | None = None,
+        totp_code: str | None = None,
+    ) -> dict[str, Any]:
         """Authenticate with VRChat API."""
         try:
             import aiohttp
@@ -257,7 +256,7 @@ class VRChatSDKManager:
     async def _store_credentials(self, auth_token: str, username: str) -> None:
         """Store credentials for future use."""
         try:
-            config_path = self.VRCHAT_CONFIG_PATHS[0]
+            config_path = self.vrchat_config_paths[0]
             config_path.mkdir(parents=True, exist_ok=True)
 
             auth_file = config_path / self.VRCHAT_AUTH_FILE
@@ -275,7 +274,7 @@ class VRChatSDKManager:
         except Exception as e:
             logger.warning(f"Could not store credentials: {e}")
 
-    async def validate_avatar(self, avatar_prefab: str, project_path: str) -> Dict[str, Any]:
+    async def validate_avatar(self, avatar_prefab: str, project_path: str) -> dict[str, Any]:
         """Validate avatar against VRChat requirements using Unity."""
         try:
             # Check SDK first
@@ -308,7 +307,7 @@ class VRChatSDKManager:
             logger.error(f"Avatar validation failed: {e}")
             return {"valid": False, "errors": [str(e)]}
 
-    async def _run_unity_validation(self, unity_path: str, project_path: str, avatar_prefab: str) -> Dict[str, Any]:
+    async def _run_unity_validation(self, unity_path: str, project_path: str, avatar_prefab: str) -> dict[str, Any]:
         """Run VRChat SDK validation via Unity batch mode."""
         try:
             # The VRChat SDK has built-in validation that can be called
@@ -335,11 +334,13 @@ class VRChatSDKManager:
         avatar_prefab: str,
         avatar_name: str,
         description: str = "",
-        tags: List[str] = [],
-        project_path: Optional[str] = None,
+        tags: list[str] | None = None,
+        project_path: str | None = None,
         release_status: str = "private",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Upload avatar to VRChat using SDK."""
+        if tags is None:
+            tags = []
         try:
             project_path = project_path or self.config.project_path
             if not project_path:
@@ -404,9 +405,9 @@ class VRChatSDKManager:
         avatar_prefab: str,
         avatar_name: str,
         description: str,
-        tags: List[str],
+        tags: list[str],
         release_status: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute VRChat SDK upload via Unity batch mode."""
         try:
             # Set environment for Unity process
@@ -476,7 +477,7 @@ class VRChatSDKManager:
                     "stderr": stderr_text[-1000:],
                 }
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return {
                 "status": "error",
                 "message": "Upload timed out after 5 minutes",
@@ -485,7 +486,7 @@ class VRChatSDKManager:
             logger.error(f"Unity upload execution failed: {e}")
             return {"status": "error", "message": str(e)}
 
-    def _extract_avatar_id(self, output: str) -> Optional[str]:
+    def _extract_avatar_id(self, output: str) -> str | None:
         """Extract avatar ID from Unity output."""
         import re
 
@@ -516,7 +517,7 @@ class VRChatSDKManager:
 
         return "Upload failed. Check Unity Editor logs for details."
 
-    async def _resolve_unity_path(self, version: str = "") -> Optional[str]:
+    async def _resolve_unity_path(self, version: str = "") -> str | None:
         """Resolve Unity Editor executable path."""
         if self.config.unity_editor_path and Path(self.config.unity_editor_path).exists():
             return self.config.unity_editor_path
@@ -550,9 +551,11 @@ class VRChatSDKManager:
         return None
 
     async def setup_avatar_descriptor(
-        self, avatar_prefab: str, viewpoint_position: List[float] = [0, 1.6, 0]
-    ) -> Dict[str, Any]:
+        self, avatar_prefab: str, viewpoint_position: list[float] | None = None
+    ) -> dict[str, Any]:
         """Setup VRC Avatar Descriptor component."""
+        if viewpoint_position is None:
+            viewpoint_position = [0, 1.6, 0]
         try:
             descriptor_config = {
                 "viewpoint": {"position": viewpoint_position, "rotation": [0, 0, 0]},
