@@ -1,0 +1,57 @@
+# unity3d-mcp — Unity 3D Engine Control
+
+MCP server for Unity 3D automation: scene management, GameObjects, materials, animations, builds, VRM avatar pipeline, VRChat/ChilloutVR/Resonite/Cluster publishing. Backend port 10831, dashboard 10830.
+
+## Tools
+
+- `unity_core` — Project lifecycle (create/open/list), editor launch/control
+- `unity_scene` — Scene CRUD, GameObjects, transforms, hierarchy
+- `unity_bridge` — Hands-In (live Editor TCP bridge) vs Hands-Off (disk-only) execution mode
+- `unity_render` — Agent vision: capture, multi-angle, scene summary
+- `unity_vision_refine` — Review bundle + apply bridge commands from VLM feedback
+- `unity_api` — Scene objects, modify, create_prefab, run_simulation, path movement
+- `unity_jobs` — Async build, batch import, simulation
+- `unity_asset` — Package import, 3D model import (FBX/OBJ/GLTF), texture/material management
+- `unity_import` — Blender/fleet handoff: GLB/VRM/FBX batch import
+- `unity_build` — Build for multiple platforms, preset management
+- `unity_avatar` — VRM import, rigging setup, optimization, VRChat pipeline
+- `unity_validation` — Scene/avatar preflight: polycount, materials, missing scripts, unified audit
+- `vrchat` — VRChat SDK project setup, avatar upload, OSC
+- `worldlabs` — Marble world import + assemble_review agent loop
+- `platform` — Cross-platform audit: VRChat/CVR/Resonite/Cluster
+- `list_vr_platforms` — List all supported social VR platforms
+- `check_platform_sdk` — Check SDK installation for specific platform
+- `check_cck_installed` — Check ChilloutVR CCK install
+- `setup_cvr_avatar` — Configure CVRAvatar component
+- `validate_for_chilloutvr` — Validate avatar for CVR upload
+- `prepare_for_resonite` — Prepare VRM/GLB for Resonite direct import
+- `check_resonite_compatibility` — Check model Resonite compatibility
+- `check_cluster_kit` — Check Cluster Creator Kit install
+- `prepare_for_cluster` — Prepare avatar for Cluster upload
+- `api_execute_method` — Execute Unity Editor method with complex parameters
+- `api_get_scene_objects` — Full scene object list with properties
+- `api_modify_object` — Direct object property modification
+- `api_create_prefab` — Create prefab with references
+- `api_run_simulation` — Physics simulation with data recording
+- `api_batch_operations` — Atomic multi-operation execution
+- `api_move_along_path` — Animate object along path (straight/bezier/spline)
+- `api_create_path_visualization` — Visual path representation
+- `api_follow_path_2d/3d` — 2D/3D path following with look-ahead/banking
+
+## Skills
+
+- `unity-editor-automation` — Expert guide for Editor control
+- `vrc-avatar-pipeline` — VRM to VRChat optimization guide
+
+## Prompts
+
+- `unity_setup_workflow` — Project initialization guide
+- `vrc_avatar_workflow` — VRM optimization lifecycle
+
+## Config
+
+- Port: 10831 (backend), 10830 (frontend), 10835 (MCPBridge.cs TCP)
+- Env: UNITY_EDITOR_PATH, UNITY_PROJECT_PATH
+- Mode: Hands-In (live bridge) vs Hands-Off (batchmode/disk)
+
+See [llms-full.txt](llms-full.txt) for full tool reference.

@@ -1,0 +1,140 @@
+# unity3d-mcp — Full Reference
+
+## Architecture
+
+FastMCP 3.2 server with dual execution modes. Hands-In mode connects to a running Unity Editor via MCPBridge.cs (TCP port 10835) for live scene manipulation, play-mode control, and viewport captures. Hands-Off mode uses UnityPy (disk-level) for headless imports and batch builds (`-batchmode -quit`).
+
+### Component Managers
+
+- **UnityEditorManager** — Launch, locate, and control Unity Editor instances
+- **ProjectManager** — Create, open, configure Unity projects
+- **SceneManager** — Scene CRUD, GameObject hierarchy, transforms
+- **VRMAvatarManager** — VRM import, humanoid rigging, blend shapes
+- **AnimationManager** — Animation clips, controllers, state machines
+- **AssetManager** — Package import, texture optimization, asset organization
+- **MaterialManager** — Material creation, conversion (built-in ↔ URP ↔ HDRP)
+- **BuildManager** — Platform builds, preset management, batch mode
+- **PlatformManager** — Multi-platform social VR (VRChat, CVR, Resonite, Cluster)
+- **VRChatSDKManager** — VRChat SDK ops, avatar upload, 2FA/TOTP auth
+
+### Observability
+
+- Prometheus metrics on port 9092 (`/metrics`)
+- JSON structured logging (UNITY3D_MCP_LOG_FORMAT=json)
+- Docker Compose monitoring stack (Prometheus, Grafana, Loki)
+
+## Tools — Full Reference
+
+### unity_bridge (Dual Mode)
+
+| Operation | Description |
+|-----------|-------------|
+| `status` | Bridge connectivity and effective mode |
+| `set_execution_mode` | Persist auto/hands_in/hands_off |
+| `ensure_gui` | Start/connect Unity Editor bridge |
+| `list_objects` | Object tree for active document |
+| `screenshot_view` | Capture viewport PNG |
+| `execute_script` | Run C# in live Editor context |
+
+### unity_core
+
+| Operation | Description |
+|-----------|-------------|
+| `project_create` | New Unity project with template |
+| `project_open` | Open existing project |
+| `project_list` | List recent projects |
+| `editor_launch` | Launch Unity Editor |
+| `editor_quit` | Quit Unity Editor |
+
+### unity_scene
+
+| Operation | Description |
+|-----------|-------------|
+| `create` | New scene |
+| `info` | Scene metadata |
+| `list_objects` | All GameObjects |
+| `create_object` | Instantiate primitive/prefab |
+| `delete_object` | Remove GameObject |
+| `set_transform` | Set position/rotation/scale |
+
+### unity_render
+
+| Operation | Description |
+|-----------|-------------|
+| `capture` | Single viewport capture |
+| `multi_angle` | Multiple camera angles |
+| `scene_summary` | Text summary of scene contents |
+
+### unity_avatar
+
+| Operation | Description |
+|-----------|-------------|
+| `import_vrm` | Import VRM avatar |
+| `setup_rigging` | Configure humanoid rig |
+| `optimize` | Polygon reduction, texture compression |
+| `build_vrc_package` | Build VRChat avatar upload package |
+
+### unity_build
+
+| Operation | Description |
+|-----------|-------------|
+| `build` | Build project for target platform |
+| `list_presets` | Available build presets |
+| `job_status` | Monitor async build progress |
+
+### unity_api (Advanced Editor API)
+
+- `api_execute_method` — Execute Unity C# method with complex parameters
+- `api_get_scene_objects` — Full scene object list with components
+- `api_modify_object` — Transform/component property modification
+- `api_create_prefab` — Create prefab asset from scene object
+- `api_run_simulation` — Physics simulation with data recording
+- `api_batch_operations` — Batch multiple operations atomically
+- `api_move_along_path` — Path animation (straight/bezier/spline/catmull_rom)
+- `api_create_path_visualization` — Line/waypoint path visualization
+- `api_follow_path_2d` — 2D path with rotation look-ahead
+- `api_follow_path_3d` — 3D path with banking angles
+- `api_stop_path_movement` — Stop with optional deceleration
+
+Note: API tools are currently scaffolded as "not yet implemented" — they require Unity Editor plugin development.
+
+### Platform Tools
+
+- `list_vr_platforms` — VRChat, CVR, Resonite, Cluster info
+- `check_platform_sdk` — SDK presence check by platform
+- `check_cck_installed` / `setup_cvr_avatar` / `validate_for_chilloutvr` — CVR flow
+- `prepare_for_resonite` / `check_resonite_compatibility` — Resonite flow
+- `check_cluster_kit` / `prepare_for_cluster` — Cluster flow
+
+### worldlabs
+
+| Operation | Description |
+|-----------|-------------|
+| `import_marble` | Import Marble 3D world into Unity |
+| `assemble_review` | AI-driven review loop for imported worlds |
+
+## Config
+
+### Env Vars
+- `UNITY_EDITOR_PATH` — Path to Unity Editor executable
+- `UNITY_PROJECT_PATH` — Default Unity project directory
+- `UNITY3D_MCP_LOG_FORMAT` — "json" for structured logging
+- `UNITY3D_MCP_START_METRICS_SERVER` — Enable Prometheus (default true)
+- `MCP_BRIDGE_URLS` — Comma-separated peer MCP server URLs
+
+### Ports
+- 10831 — Backend (REST + MCP SSE)
+- 10830 — Frontend (Vite dev dashboard)
+- 10835 — MCPBridge.cs TCP (Unity Editor plugin)
+- 9092 — Prometheus metrics
+
+## Error Handling
+
+All tools return `{"success": bool, "data": {...}}`. Bridge tools return clear errors when no Unity Editor is connected. API tools return `{"success": false, "error": "Unity Editor API not yet implemented"}` when using scaffolded operations.
+
+## Cross-repo Integration
+
+- **blender-mcp** — GLB/VRM export → unity_import import_blender
+- **worldlabs-mcp** — Marble worlds → worldlabs import
+- **robotics-mcp** — Vbot spawning in Unity scenes
+- **osc-mcp** — VRChat OSC parameter control (moved to separate server)
