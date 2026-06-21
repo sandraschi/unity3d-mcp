@@ -35,3 +35,15 @@ check-sec:
 audit-deps:
     Set-Location '{{justfile_directory()}}'
     uv run safety check
+# ── Playwright E2E ─────────────────────────────────────────────────────
+
+# Install Playwright browsers (one-time)
+e2e-install:
+    cd {{REPO}}\web_sota
+    npx playwright install chromium
+
+# Run Playwright E2E smoke tests (start backend first: just serve)
+e2e:
+    cd {{REPO}}\web_sota
+    npx playwright test
+
