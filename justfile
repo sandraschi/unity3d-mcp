@@ -47,3 +47,19 @@ e2e:
     cd {{REPO}}\web_sota
     npx playwright test
 
+# ── Native build ──────────────────────────────────────────────────────────
+
+# Build the PyInstaller backend .exe and copy to Tauri resources
+build-sidecar:
+    pwsh -NoProfile -File '{{justfile_directory()}}\native\build.ps1'
+
+# Build the Tauri NSIS desktop installer
+build-native: build-sidecar
+    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+    Set-Location '{{justfile_directory()}}\native'
+    npx @tauri-apps/cli build --bundles nsis
+
+# Run CUA-NSIS smoke test
+cua-nsis-test:
+    uv run python scripts/cua-smoke.py
+

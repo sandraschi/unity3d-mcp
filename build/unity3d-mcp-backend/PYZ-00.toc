@@ -1,0 +1,1 @@
+('D:\\Dev\\repos\\unity3d-mcp\\build\\unity3d-mcp-backend\\PYZ-00.pyz', [])

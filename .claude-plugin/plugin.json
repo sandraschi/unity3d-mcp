@@ -1,0 +1,6 @@
+{
+  "name": "unity3d-mcp",
+  "version": "0.1.0",
+  "description": "Unity 3D automation via MCP — 50+ tools: editor control, VRM avatars, VRChat, World Labs",
+  "hooks": "../hooks/hooks.json"
+}

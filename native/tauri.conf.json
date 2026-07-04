@@ -30,7 +30,8 @@
         "targets": ["nsis"],
         "icon": ["icons/icon.png", "icons/icon.ico"],
         "resources": [
-            "resources/unity3d-mcp-backend.exe"],
+            "resources/unity3d-mcp-backend.exe",
+            "resources/.env.example"],
         "windows": {
             "webviewInstallMode": {
                 "type": "skip"
@@ -43,3 +44,4 @@
     },
     "plugins": {}
 }
+

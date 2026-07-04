@@ -1,0 +1,16 @@
+{
+  "manifest_version": "0.3",
+  "name": "unity3d-mcp",
+  "version": "0.1.0",
+  "description": "Unity 3D automation via MCP — 50+ tools: editor control, VRM avatars, VRChat, World Labs",
+  "author": { "name": "Sandra Schipal" },
+  "server": {
+    "type": "python",
+    "entry_point": "src/unity3d_mcp/server.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["-m", "unity3d_mcp"],
+      "env": { "PYTHONPATH": "${__dirname}/src", "PYTHONUNBUFFERED": "1" }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+web_sota/node_modules/
+web_sota/dist/
+docs/
+tests/
+native/
+*.ps1
+*.bat
+justfile
+uv.lock
+Dockerfile
+docker-compose.yml

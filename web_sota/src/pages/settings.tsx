@@ -8,7 +8,7 @@ function LLMSettings() {
     const [providers, setProviders] = useState<Record<string, {name:string}[]>>({});
     const [selectedProvider, setSelectedProvider] = useState("ollama");
     const [selectedModel, setSelectedModel] = useState("");
-    const [status, setStatus] = useState<"loading"|"ready"|"error">("loading");
+    const [, setStatus] = useState<"loading"|"ready"|"error">("loading");
     useEffect(() => {
         fetch("/api/llm/providers").then(r => r.json()).then(d => {
             setProviders(d);

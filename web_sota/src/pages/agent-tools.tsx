@@ -23,7 +23,7 @@ export function AgentTools() {
   const [modelPath, setModelPath] = useState("D:/exports/avatar.glb");
   const [avatarPrefab, setAvatarPrefab] = useState("Assets/Avatars/MyAvatar.prefab");
   const [outputPath, setOutputPath] = useState("D:/Temp/unity_review.png");
-  const [outputDir, setOutputDir] = useState("D:/Temp/unity_angles");
+  const [outputDir] = useState("D:/Temp/unity_angles");
   const [platform, setPlatform] = useState("vrchat");
 
   const tabs: { id: TabId; label: string; icon: typeof Camera }[] = [

@@ -43,5 +43,10 @@
 
   body {
     @apply bg-background text-foreground;
+    color-scheme: dark;
   }
+}
+
+select, input, textarea {
+  color-scheme: dark;
 }

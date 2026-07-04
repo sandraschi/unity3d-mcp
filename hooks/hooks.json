@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "SessionStart": [{
+      "matcher": "",
+      "hooks": [{
+        "type": "text",
+        "text": "## Session Context (Unity3D MCP)\n\nYou have access to a Unity 3D automation server with 50+ tools: editor control, project/scene management, VRM avatar import and optimization, VRChat upload, World Labs integration, 3D model import, and motor control.\n\n**Before starting work:**\n1. Check server health: unity3d_status()\n2. List active scenes: list_scenes()\n3. Check Unity Editor connection: check_unity_bridge()\n\n**At end of work, save findings:**\n- Save open scenes: save_current_scene()\n- Build any modified projects: build_unity_project()"
+      }]
+    }]
+  }
+}

@@ -150,7 +150,7 @@ function PackageItem({ name, version, publisher, status, newVersion, description
                 <div className="flex items-center gap-3">
                     <h4 className="text-sm font-bold font-mono text-slate-200">{name}</h4>
                     <span className="text-[10px] font-medium text-slate-500">v{version}</span>
-                    <Badge variant="outline" className={`text-[10px] h-4 border-slate-800 ${status === 'update-available' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-slate-800 text-slate-400'}`}>
+                    <Badge variant="outline" className={`text-xs h-4 border-slate-800 ${status === 'update-available' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-slate-800 text-slate-400'}`}>
                         {status.replace('-', ' ')}
                     </Badge>
                 </div>
