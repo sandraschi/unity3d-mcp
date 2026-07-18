@@ -25,15 +25,13 @@ The Unity3D-MCP server provides a comprehensive toolset for project lifecycle ma
 
 ## 🕹️ Dual-Mode: Hands-In (Live) / Hands-Off (Disk)
 
-### `unity3d_bridge_status`
-**Objective**: Check the connection to an active Unity bridge (`MCPBridge.cs`).
-- **Return**: `{status: "connected/disconnected", port: 10835}`.
-
-### `unity3d_editor_api`
-**Objective**: [Hands-In] Real-time session control.
-- **`action`**: `ping`, `get_hierarchy`, `transform_object`, `create_object`, `delete_object`.
+### `unity_bridge`
+**Objective**: Live Unity Editor bridge (`MCPBridge.cs`); status check and [Hands-In] real-time session control in one tool.
+- **`operation`**: `status`, `execution_mode`, `ping`, `get_hierarchy`, `transform_object`, `create_object`, `delete_object`, `capture_game_view`.
 - **`target`**: Name or InstanceID for transformation/deletion.
 - **`position / rotation`**: Float arrays `[x, y, z]` for object placement.
+- **`output_path / width / height`**: For `capture_game_view`.
+- **Return of `operation="status"`**: `{success, status: "connected/disconnected", mode: "hands_in/hands_off", port: 10835}`.
 
 ### `unity3d_disk_api`
 **Objective**: [Hands-Off] Direct project file manipulation.

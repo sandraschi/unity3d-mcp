@@ -16,8 +16,7 @@ The Unity3D-MCP server is built on a SOTA **Dual-Mode** architecture designed to
     *   `MCP Server (Python)` → `POST http://localhost:10835` → `Unity Bridge (C#)` → `Reflection/API Call` → `JSON Response`.
 
 ### 🛠️ Key Tools
-- **`unity3d_bridge_status`**: Heartbeat check for the live bridge.
-- **`unity3d_editor_api`**: The primary router for live commands (transform, hierarchy, creation).
+- **`unity_bridge`**: Single tool for the live bridge — `operation="status"` for the heartbeat check, plus `ping`/`get_hierarchy`/`create_object`/`delete_object`/`transform_object`/`capture_game_view` for live commands. (Prior to 2026-07-18 this was split across two duplicate tools, `unity3d_bridge_status` and `unity3d_editor_api`; both were removed and consolidated here.)
 
 ---
 

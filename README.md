@@ -37,7 +37,7 @@ this is the real, current tool-count-reduction pattern this server uses):
 | `vrchat` | `check_auth`, `authenticate`, `check_sdk`, `validate_avatar`, `setup_descriptor`, `upload_avatar` — **avatars only, no world upload/publish** |
 | `worldlabs` | `assemble_review`, `import_marble`, `check_gaussian`, `install_gaussian`, `optimize_for_vrchat` |
 | `multiplatform` | `list_platforms`, `check_sdk`, `check_cck`, `setup_cvr_avatar`, `validate_cvr`, `prepare_resonite`, `check_resonite_compat`, `check_cluster_kit`, `prepare_cluster`, `audit_all` (ChilloutVR/Resonite/Cluster — not VRChat, that's the `vrchat` tool) |
-| `unity_bridge` | `status`, `execution_mode`, `ping`, `get_hierarchy`, `create_object`, `delete_object`, `transform_object` — **live Editor, Hands-In only** |
+| `unity_bridge` | `status`, `execution_mode`, `ping`, `get_hierarchy`, `create_object`, `delete_object`, `transform_object`, `capture_game_view` — **live Editor, Hands-In only** |
 | `unity_render` | `bridge_status`, `get_scene_summary`, `capture_multi_angle` — agent vision |
 | `unity_api` | `execute_method` (bridge-aware, not implemented), `get_scene_objects` **(works, live bridge)**, `modify_object` **(works, live bridge)**, `create_prefab`, `run_simulation`, `batch_operations`, `move_along_path`, `create_path_visualization`, `follow_path_2d`, `follow_path_3d`, `stop_path_movement` — the rest are scaffolded, not implemented |
 | `unity_jobs` | `submit` (`job_type`: build/batch_import/simulation), `status`, `list`, `cancel` — async queue |
@@ -45,39 +45,44 @@ this is the real, current tool-count-reduction pattern this server uses):
 | `unity_vision_refine` | `capture`, `review_bundle`, `apply_bridge_commands` |
 | `unity_validation` | `list_limits`, `validate_scene`, `check_polycount`, `check_materials`, `validate_model`, `validate_avatar`, `unified_audit` |
 
-**4 standalone tools** (dual-mode/agentic, registered directly, not via a
+**2 standalone tools** (dual-mode/agentic, registered directly, not via a
 manager class):
 
 | Tool | Purpose |
 |------|---------|
-| `unity3d_bridge_status` | Bridge connectivity check (overlaps `unity_bridge(operation="status")` — known duplication, see housekeeping note) |
-| `unity3d_editor_api` | `[Hands-In]` live Editor commands: ping/get_hierarchy/create_object/delete_object/transform_object/capture_game_view (overlaps `unity_bridge` for everything except `capture_game_view` — known duplication) |
 | `unity3d_disk_api` | `[Hands-Off]` UnityPy disk manipulation: inspect_file, list_textures, modify_yaml — no overlap, genuinely standalone |
 | `unity3d_agentic_workflow` | SEP-1577 sampling — autonomous multi-step orchestration from a high-level goal |
 
-**Platform-helper tools** (`list_vr_platforms`, `check_platform_sdk`,
-`check_cck_installed`, `setup_cvr_avatar`, `validate_for_chilloutvr`,
-`prepare_for_resonite`, `check_resonite_compatibility`, `check_cluster_kit`,
-`prepare_for_cluster`) exist as individually-registered flat tools *and*
-duplicate `multiplatform`'s operations one-for-one. Both work; prefer
-`multiplatform` for new code.
+**Cleaned up 2026-07-18** (previously flagged here as known duplication,
+now actually removed — see `TODO.md` for the full record):
 
-**Known duplication, not yet cleaned up** (tracked in `TODO.md`): the 11
-`api_*` flat tools (`api_execute_method`, `api_get_scene_objects`, etc.)
-registered directly in `server.py` are strictly superseded by `unity_api` —
-they're older, and unlike `unity_api`, every single one unconditionally
-returns `{"success": false, "error": "not yet implemented"}`, even for
-operations (`get_scene_objects`, `modify_object`) that `unity_api` now
-actually performs via the live bridge. Use `unity_api`, not the flat
-`api_*` names. Motor control (`api_add_motor` etc.), generic asset
-export/import (`export_fbx`, `import_asset_package`, `batch_import`), and
-dedicated VRM-Unity-rigging tools (`import_vrm_to_unity`,
+- The 9 flat platform-helper tools (`list_vr_platforms`,
+  `check_platform_sdk`, `check_cck_installed`, `setup_cvr_avatar`,
+  `validate_for_chilloutvr`, `prepare_for_resonite`,
+  `check_resonite_compatibility`, `check_cluster_kit`,
+  `prepare_for_cluster`) are gone. Use `multiplatform(operation=...)`.
+- The 11 flat `api_*` tools (`api_execute_method`, `api_get_scene_objects`,
+  etc.) and their backing `_api_*` stub methods on the server class are
+  gone. Use `unity_api(operation=...)` — the real implementation, which
+  actually works for `get_scene_objects`/`modify_object` via the live
+  bridge (the flat versions unconditionally returned "not implemented",
+  even for those).
+- `unity3d_bridge_status` and `unity3d_editor_api` are gone, folded into
+  `unity_bridge`. The one operation `unity3d_editor_api` had that
+  `unity_bridge` didn't — `capture_game_view` — is now a `unity_bridge`
+  operation too. Use `unity_bridge(operation="status")` and
+  `unity_bridge(operation=...)` instead.
+
+**Still real, still unregistered** (not part of this pass — a bigger,
+separate task if ever done): motor control (`api_add_motor` etc.), generic
+asset export/import (`export_fbx`, `import_asset_package`, `batch_import`),
+and dedicated VRM-Unity-rigging tools (`import_vrm_to_unity`,
 `setup_unity_avatar_rigging`, etc.) are **not exposed as MCP tools at
 all** — the underlying manager classes exist (`motor_manager.py`,
 `import_export_manager.py`, `vrm_avatar_manager.py`) but nothing in
-`server.py` registers them. If you see these names elsewhere (this
-README's older revisions, `app.py`), they describe dead code or
-unregistered internals, not callable tools.
+`server.py` registers them. `app.py` (and its `.bak` twin) is dead code
+containing a second, never-wired implementation of some of this — don't
+trust it as a source of truth for what's callable.
 
 Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
 
@@ -218,7 +223,7 @@ This server uniquely supports two distinct operational modes for maximum flexibi
 
 #### 1. Hands-In (Active Session)
 Real-time control of a running Unity Editor. Requires the **MCPBridge.cs** plugin.
-- **Tools**: `unity3d_editor_api`, `unity3d_bridge_status`
+- **Tools**: `unity_bridge` (operations: status, execution_mode, ping, get_hierarchy, create_object, delete_object, transform_object, capture_game_view)
 - **Use Case**: Scene layout, live debugging, lighting setup, and real-time hierarchy manipulation.
 - **Port**: 10835 (HTTP)
 - **Guide**: [Real-Time Editor Automation](file:///D:/Dev/repos/unity3d-mcp/docs/GUIDE_EDITOR_AUTO.md)

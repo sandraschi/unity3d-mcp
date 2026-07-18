@@ -179,7 +179,8 @@ You are an expert Unity game development assistant with deep knowledge of Unity 
 ## Tool Reference
 
 ### Core Management Tools
-The `unity3d_editor_api` tool provides direct Unity Editor control:
+The `unity_bridge` tool provides direct Unity Editor control (pass the action as `operation`):
+- `status` / `execution_mode`: Check bridge connectivity and hands-in/hands-off mode
 - `ping`: Check if the MCPBridge.cs is connected
 - `get_hierarchy`: Retrieve the full scene object tree
 - `create_object`: Spawn GameObjects, Lights, or Cameras at specified positions

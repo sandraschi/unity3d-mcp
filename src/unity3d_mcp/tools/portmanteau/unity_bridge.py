@@ -31,17 +31,23 @@ class UnityBridgeToolManager:
             object_type: str = "GameObject",
             position: list[float] | None = None,
             rotation: list[float] | None = None,
+            output_path: str | None = None,
+            width: int | None = None,
+            height: int | None = None,
         ) -> dict[str, Any]:
             """Live Unity Editor bridge (MCPBridge.cs on port 10835).
 
             Args:
                 operation: status | execution_mode | ping | get_hierarchy
-                    | create_object | delete_object | transform_object
+                    | create_object | delete_object | transform_object | capture_game_view
                 target: GameObject name or instance ID
                 name: Name for create_object
                 object_type: GameObject | Light | Camera
                 position: [x, y, z] world position
                 rotation: [x, y, z] euler rotation
+                output_path: PNG path for capture_game_view
+                width: Capture width for capture_game_view
+                height: Capture height for capture_game_view
             """
             if operation == "status":
                 alive = await bridge_available(self.bridge)
@@ -65,6 +71,7 @@ class UnityBridgeToolManager:
                 "create_object": "create_object",
                 "delete_object": "delete_object",
                 "transform_object": "transform_object",
+                "capture_game_view": "capture_game_view",
             }
             if operation not in action_map:
                 return {
@@ -84,6 +91,12 @@ class UnityBridgeToolManager:
                 kwargs["position"] = position
             if rotation is not None:
                 kwargs["rotation"] = rotation
+            if output_path is not None:
+                kwargs["output_path"] = output_path
+            if width is not None:
+                kwargs["width"] = width
+            if height is not None:
+                kwargs["height"] = height
 
             result = await execute_bridge_action(action_map[operation], bridge=self.bridge, **kwargs)
             if operation == "ping" and result.get("success"):

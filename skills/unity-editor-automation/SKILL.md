@@ -17,7 +17,7 @@ This skill provides the foundational logic for orchestrating Unity Editor operat
 
 ### 1. Hands-In (Active Session)
 **Scenario**: Unity Editor is open, and you want to see changes happening live.
-- **Tool**: `unity3d_editor_api`
+- **Tool**: `unity_bridge` (operations: status, execution_mode, ping, get_hierarchy, create_object, delete_object, transform_object, capture_game_view)
 - **Requirement**: `MCPBridge.cs` must be installed in your project.
 - **Capabilities**: Real-time hierarchy inspection, object movement, lighting adjustment, and scene manipulation.
 
@@ -37,7 +37,7 @@ To enable **Hands-In** live control, you must install the MCP bridge in your Uni
 1.  **Locate the Bridge**: Find the `MCPBridge.cs` script in the `src/unity3d_mcp/resources/` directory of this server.
 2.  **Import to Unity**: Copy `MCPBridge.cs` into your Unity project's `Assets/Editor` folder (create the folder if it doesn't exist).
 3.  **Automatic Startup**: Once imported, Unity will automatically compile and start the bridge on **http://localhost:10835**.
-4.  **Verification**: Look for the `[MCP] Bridge active` message in the Unity Console. You can also use the `unity3d_bridge_status` tool to check connection status.
+4.  **Verification**: Look for the `[MCP] Bridge active` message in the Unity Console. You can also use `unity_bridge(operation="status")` to check connection status.
 
 
 ## 🛠️ Common Workflows

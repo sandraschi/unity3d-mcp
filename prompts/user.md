@@ -40,7 +40,7 @@ Set the following environment variables based on your needs:
 
 ### Launching the Editor
 ```python
-await unity3d_editor_api(action="ping")
+await unity_bridge(operation="ping")
 ```
 
 Check editor status without parameters. The tool automatically detects Unity installations from Unity Hub and common installation paths.
@@ -320,19 +320,19 @@ Unity3D-MCP supports two execution modes:
 When the Unity Editor is running with MCPBridge.cs installed:
 ```python
 # Get live scene hierarchy
-await unity3d_editor_api(action="get_hierarchy")
+await unity_bridge(operation="get_hierarchy")
 
 # Move an object in real-time
-await unity3d_editor_api(
-    action="transform_object",
+await unity_bridge(
+    operation="transform_object",
     target="MyCube",
     position=[5.0, 1.0, 3.0],
     rotation=[0.0, 45.0, 0.0]
 )
 
 # Capture game view screenshot
-await unity3d_editor_api(
-    action="capture_game_view",
+await unity_bridge(
+    operation="capture_game_view",
     output_path="D:/screenshots/scene.png",
     width=1920,
     height=1080
@@ -515,8 +515,8 @@ MCPBridge.cs enables real-time communication with a running Unity Editor. For Ha
 
 To verify bridge status:
 ```python
-await unity3d_bridge_status()
-# Returns: {"status": "connected", "port": 10835}
+await unity_bridge(operation="status")
+# Returns: {"success": True, "status": "connected", "mode": "hands_in", "port": 10835, ...}
 ```
 
 If the bridge is disconnected:
@@ -905,15 +905,15 @@ await api_execute_method(
 ### Creating GameObjects
 ```python
 # Create a primitive GameObject
-await unity3d_editor_api(
-    action="create_object",
+await unity_bridge(
+    operation="create_object",
     name="MyCube",
     object_type="GameObject"
 )
 
 # Create a camera
-await unity3d_editor_api(
-    action="create_object",
+await unity_bridge(
+    operation="create_object",
     name="MainCamera",
     object_type="Camera",
     position=[0, 1, -5]

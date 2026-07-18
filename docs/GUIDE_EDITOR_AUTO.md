@@ -13,10 +13,10 @@ Unity3D-MCP's "Hands-In" mode allows you to control an active Unity session with
 ### Verification:
 ```python
 # Check status
-unity3d_bridge_status()
+unity_bridge(operation="status")
 ```
 
-- **Returns**: `{"status": "connected", "port": 10835}`.
+- **Returns**: `{"success": True, "status": "connected", "mode": "hands_in", "port": 10835, ...}`.
 
 ---
 
@@ -25,7 +25,7 @@ unity3d_bridge_status()
 ### Automation:
 ```python
 # Get Hierarchy
-unity3d_editor_api(action="get_hierarchy")
+unity_bridge(operation="get_hierarchy")
 ```
 
 - **Objective**: Returns a list of all GameObjects in the active scene with their **InstanceIDs**.
@@ -37,10 +37,10 @@ unity3d_editor_api(action="get_hierarchy")
 ### Commands:
 ```python
 # Move object
-unity3d_editor_api(
-    action="transform_object", 
-    target="MainCamera", 
-    position=[0, 5, -10], 
+unity_bridge(
+    operation="transform_object",
+    target="MainCamera",
+    position=[0, 5, -10],
     rotation=[15, 0, 0]
 )
 ```
@@ -54,10 +54,10 @@ unity3d_editor_api(
 ### Automation:
 ```python
 # Create batch
-unity3d_editor_api(action="create_object", name="LightingProbe", type="Light")
+unity_bridge(operation="create_object", name="LightingProbe", object_type="Light")
 
 # Delete object
-unity3d_editor_api(action="delete_object", target="TemporaryObject")
+unity_bridge(operation="delete_object", target="TemporaryObject")
 ```
 
 - **Objective**: Allows rapid level design and cleanup of temporary assets.
