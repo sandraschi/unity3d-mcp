@@ -65,7 +65,7 @@ class UnityAvatarToolManager:
             elif operation == "setup_animator":
                 if not avatar_path:
                     return {"success": False, "error": "avatar_path required for setup_animator"}
-                return await self.animation.setup_animator(avatar_path, animator_type, include_facial)
+                return await self.animation.setup_animator(avatar_path, animator_type, include_facial, project_path)
 
             else:
                 return {

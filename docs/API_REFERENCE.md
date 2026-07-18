@@ -48,21 +48,72 @@ they're `unity_core` operations.)
 - **`file_path`**: Path to `.unity`, `.prefab`, or `.asset`.
 - **`new_value`**: Used for `modify_yaml` to update properties (e.g., light intensity).
 
+### `unity_api`
+**Objective**: [Hands-In] Advanced Editor automation via the same
+`MCPBridge.cs` bridge as `unity_bridge`. **All operations require a live
+Unity Editor session with the bridge running** — without it, every
+operation returns `{"success": false, "error": "Unity Editor bridge not
+connected..."}`, not a fake success.
+- `operation="get_scene_objects"` — `object_filter`. Lists live scene objects via `get_hierarchy`.
+- `operation="modify_object"` — `object_name`, `modifications` (`position`/`rotation`).
+- `operation="create_prefab"` — `object_name`, `prefab_name`. Calls `PrefabUtility.SaveAsPrefabAsset` on the Editor side.
+- `operation="run_simulation"` — `duration`, `record_data`. Enters Play mode for `duration` seconds.
+- `operation="execute_method"` — `class_name`, `method_name`. **Fixed
+  2026-07-18** (was a hardcoded stub). Uses C# reflection to invoke a
+  public, static, **parameterless** method — the same constraint Unity's
+  own `-executeMethod` CLI flag has. `parameters` is accepted but ignored,
+  and the response says so explicitly rather than pretending to apply it.
+- `operation="batch_operations"` — `operations` (list of dicts, each using
+  the same flat command shape as a single operation). **Fixed 2026-07-18.**
+  Executed sequentially on the Editor side; results and a `success_count`
+  are returned per sub-operation.
+- `operation="move_along_path"` / `"follow_path_2d"` / `"follow_path_3d"` —
+  `object_name`, `path_points`, `speed`/`duration`, `loop`, etc. **Fixed
+  2026-07-18.** All curve `path_type`s (`bezier`, `spline`, `catmull_rom`)
+  are approximated as straight multi-segment linear interpolation on the
+  bridge — real curve math is not implemented, and this is stated in the
+  tool's own docstring, not hidden.
+- `operation="create_path_visualization"` — `path_points`, `color`,
+  `thickness`. **Fixed 2026-07-18.** Creates a real `GameObject` with a
+  `LineRenderer` component tracing the path. `visualization_type` values
+  other than `"line"` (`"dotted"`, `"waypoints"`, `"full"`) are accepted
+  but not yet rendered differently.
+- `operation="stop_path_movement"` — `object_name`, `decelerate`,
+  `deceleration_time`. **Fixed 2026-07-18.** With `decelerate=True`, ramps
+  speed to zero over `deceleration_time` seconds rather than stopping
+  instantly.
+
+⚠️ **Disclosure**: the C# side of these fixes (`MCPBridge.cs`) was written
+and manually reviewed line-by-line, but **could not be compiled or tested
+against a live Unity Editor** in the environment it was built in (no
+`dotnet`/`mono`/`csc` available, and package-manager installs were blocked
+by container permissions). Treat this bridge code as unverified until
+smoke-tested against a real Editor session.
+
 ---
 
 ## 🎭 Avatar & VRM Optimization
 
 ### `unity_avatar`
 - `operation="import_vrm"` — `vrm_path`, `project_path`, `optimize_for_vrchat` (bool, default True), `create_prefab` (bool, default True). Copies the VRM into `Assets/Models/`.
-  ⚠️ **Honesty note**: when `optimize_for_vrchat=True`, the returned
-  `vrchat_optimizations` report (`material_conversion`, `texture_compression`,
-  `polygon_reduction`, `performance_rank`, `sdk_components`) is a **hardcoded
-  dict, not a computed result** — it does not actually invoke Unity to
-  convert shaders, compress textures, or add SDK components. Treat it as a
-  todo-list of what *should* happen, not a report of what did. Flagged in
-  `TODO.md`, not fixed as part of this pass (that's new engineering work,
-  not a doc correction).
-- `operation="setup_animator"` — `avatar_path`, `animator_type` ("humanoid"/"generic"), `include_facial`. Same caveat: returns a templated animator-controller config, does not write a real `.controller` asset to disk.
+  **Fixed 2026-07-18.** When `optimize_for_vrchat=True`, `vrchat_optimizations`
+  now parses the VRM's real binary glTF JSON chunk (stdlib `struct`/`json`,
+  no Unity needed) and reports real `material_count`, `texture_count`,
+  `mesh_count`, and a per-material summary, written to a JSON manifest at
+  `Assets/Models/{name}_vrchat_conversion_manifest.json`. It does **not**
+  perform shader conversion or texture compression — those fields are
+  explicitly labeled `"NOT performed here"` rather than faked, since a
+  guessed Unity shader GUID can silently produce a broken pink-shader
+  material. Verified against `tests/unit/test_avatar_real.py` (15 tests,
+  including against the real `tests/fixtures/Nekomimi-chan.vrm` fixture).
+- `operation="setup_animator"` — `avatar_path`, `animator_type` ("humanoid"/"generic"), `include_facial`, `project_path`.
+  **Fixed 2026-07-18.** Now writes a real Unity `AnimatorController` YAML
+  asset (`Assets/Animators/{name}_Controller.controller`) plus its `.meta`
+  file with a real GUID, using correct Unity class IDs (`!u!91`
+  AnimatorController, `!u!1107` AnimatorStateMachine, `!u!1102`
+  AnimatorState). Returns a `caveats` list stating this was **not validated
+  against a live Unity Editor** — structurally correct by construction and
+  by test, not confirmed to open cleanly in the Editor.
 
 (Previously documented here as three separate tools: `import_vrm_avatar`,
 `optimize_for_vrchat`, `setup_avatar_rigging`. None of those names exist —

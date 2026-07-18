@@ -358,11 +358,13 @@ await unity3d_disk_api(
 
 **Corrected 2026-07-18**: the flat `api_follow_path_2d`/`api_follow_path_3d`
 tools were removed (they duplicated `unity_api`, worse). The syntax below
-now targets `unity_api`, but be aware **these operations are scaffolded,
-not implemented** — `unity_api.py`'s `_api_follow_path_2d`/`_api_follow_path_3d`
-unconditionally return `{"success": false, "error": "Unity Editor API not
-yet implemented"}` regardless of input. This section is aspirational, not
-currently callable functionality.
+now targets `unity_api`. **Fixed 2026-07-18 (later same day)**:
+`_api_follow_path_2d`/`_api_follow_path_3d` now call real `MCPBridge.cs`
+handlers via the Editor bridge (require a live Unity Editor session with
+the bridge running). Curve interpolation is straight multi-segment linear,
+not true bezier/spline math — see `docs/API_REFERENCE.md`. Not
+compile-verified against a live Editor (no C# compiler was available when
+this was built); treat as unverified until smoke-tested.
 
 ### 2D Path Following
 ```python
@@ -475,25 +477,22 @@ section describes uncallable functionality.
 await unity_api(
     operation="batch_operations",
     operations=[
-        {
-            "type": "execute_method",
-            "class_name": "VbotSpawner",
-            "method_name": "SpawnRobot",
-            "parameters": {"robotId": "robot_01", "robotType": "scout"}
-        },
-        {
-            "type": "execute_method",
-            "class_name": "VbotSpawner",
-            "method_name": "SpawnRobot",
-            "parameters": {"robotId": "robot_02", "robotType": "heavy"}
-        }
+        {"action": "execute_method", "class_name": "VbotSpawner", "method_name": "SpawnScout"},
+        {"action": "execute_method", "class_name": "VbotSpawner", "method_name": "SpawnHeavy"},
     ]
 )
 ```
 (Corrected 2026-07-18: the flat `api_batch_operations` tool was removed;
-`unity_api(operation="batch_operations")` is its replacement name, but
-**it's scaffolded, not implemented** — always returns `{"success": false,
-"error": "Unity Editor API not yet implemented"}` regardless of input.)
+`unity_api(operation="batch_operations")` is its replacement name.
+**Fixed 2026-07-18 (later same day)**: now calls a real `BatchOperations`
+handler on the Editor bridge that executes each sub-op sequentially. Each
+sub-op must use the key `"action"` (not `"type"`) and the same flat
+command shape as a top-level call — Unity's `JsonUtility` can't
+deserialize free-form heterogeneous dicts, so the earlier `"type"`/
+`"parameters"` shape shown above never worked and has been corrected here.
+Note `execute_method` sub-ops are parameterless-only — see "Path
+Operations" note below for why. Requires a live Editor bridge session; not
+compile-verified — see `docs/API_REFERENCE.md`.)
 
 ## MCPBridge.cs Setup
 
@@ -633,21 +632,32 @@ The agentic workflow automatically:
 **Corrected 2026-07-18**: there used to be two competing `execute_method`
 paths — `unity_core(operation="execute_method")` (real, CLI-backed) and
 the flat `api_execute_method` tool (removed; superseded by
-`unity_api(operation="execute_method")`, which is a stub — see below).
-They are not interchangeable; know which one you're calling.
+`unity_api(operation="execute_method")`). **Both are now real**, but they
+work differently and are not interchangeable — know which one you're
+calling.
 
 ### `unity_core(operation="execute_method")` — real, CLI-backed
 - `class_name`: Unity C# class (e.g., "MCP.MCPBridge", "VbotSpawner")
 - `method_name`: Method to execute
-- `parameters`: Dictionary of parameters
+- `parameters`: Dictionary of parameters — **accepted but not actually
+  passed to Unity.** Checked the implementation (`core/__init__.py`
+  `execute_method`): it logs `parameters` and warns
+  `"Unity -executeMethod doesn't support parameters via command line"`,
+  then runs the method with none. Same real limitation as the bridge path
+  below, just via a different mechanism (subprocess CLI vs. reflection).
 - `project_path`: Path to Unity project
-- Runs Unity in `-batchmode -executeMethod`; this genuinely invokes Unity.
+- Runs Unity in `-batchmode -executeMethod`; this genuinely invokes Unity
+  in a fresh batch-mode process (not the already-open Editor session).
 
-### `unity_api(operation="execute_method")` — scaffolded, not implemented
-Delegates to the live bridge if connected and returns "not yet
-implemented" either way; the error message itself suggests falling back
-to `unity_core(operation="execute_method")` above. Do not rely on this
-one for anything real yet.
+### `unity_api(operation="execute_method")` — real, bridge-dependent (fixed 2026-07-18)
+Uses C# reflection over the live Editor bridge to invoke a public,
+**static, parameterless** method — the same hard constraint Unity's own
+`-executeMethod` CLI flag has. Unlike `unity_core`'s path, this one does
+**not** support passing `parameters` at all — if you pass any, the
+response reports them back as `parameters_ignored` rather than silently
+dropping or attempting to coerce them. Requires a live Unity Editor
+session with `MCPBridge.cs` running; not compile-verified (see
+`docs/API_REFERENCE.md`).
 
 ## Troubleshooting
 
@@ -695,17 +705,22 @@ orchestrator.mount(osc_mcp, prefix="osc")
 `api_follow_path_2d`, `api_follow_path_3d`, `api_stop_path_movement`,
 `api_create_path_visualization`, `api_get_scene_objects`,
 `api_batch_operations`) were removed as standalone tools — they're now
-`unity_api(operation=...)` calls. But their real implementation status
-varies a lot, so don't assume "renamed" means "working":
+`unity_api(operation=...)` calls. **Updated 2026-07-18 (later same day)**:
+all of these now call real `MCPBridge.cs` handlers over the Editor bridge
+— see the caveats per operation below and `docs/API_REFERENCE.md` for the
+full list.
 
-### Path Operations — scaffolded, not implemented
+### Path Operations — real, bridge-dependent
 `unity_api(operation="move_along_path"/"follow_path_2d"/"follow_path_3d"/"stop_path_movement")`
-all unconditionally return `{"success": false, "error": "Unity Editor API
-not yet implemented"}`. The descriptions below (straight/bezier/spline
-path types, look_ahead, bank_angle, deceleration) describe the intended
-design, not current behavior.
+call real handlers on the Editor bridge and require a live Unity Editor
+session with `MCPBridge.cs` running. All `path_type`s (`straight`,
+`bezier`, `spline`, `catmull_rom`) are approximated as straight
+multi-segment linear interpolation on the bridge — real curve math is not
+implemented, only straight-line movement through the given points in
+order. `look_ahead`, `bank_angle`, and deceleration (`stop_path_movement`
+with `decelerate=True`) are genuinely implemented.
 
-### Path Visualization — scaffolded, not implemented
+### Path Visualization — real, bridge-dependent
 ```python
 await unity_api(
     operation="create_path_visualization",
@@ -715,18 +730,22 @@ await unity_api(
     color={"r": 1.0, "g": 0.0, "b": 0.0, "a": 1.0}
 )
 ```
-Same caveat — always returns "not yet implemented".
+Creates a real `GameObject` with a `LineRenderer` component tracing the
+given points. `visualization_type` values other than `"line"` (`"dotted"`,
+`"waypoints"`, `"full"`) are accepted but not yet rendered distinctly —
+you'll get a plain solid line regardless.
 
 ### Scene Query Tools — real, works via live bridge
-`unity_api(operation="get_scene_objects")` **actually works** (unlike the
-rest of `unity_api`) when the Editor bridge is connected — it calls
-`get_hierarchy` on the live bridge and returns real object names,
-positions, and an optional name filter. Hands-Off mode (no bridge) is not
-supported for this operation despite what the old docs implied.
+`unity_api(operation="get_scene_objects")` calls `get_hierarchy` on the
+live bridge and returns real object names, positions, and an optional
+name filter. Hands-Off mode (no bridge) is not supported for this
+operation despite what the old docs implied.
 
-### Batch Operations — scaffolded, not implemented
-`unity_api(operation="batch_operations")` always returns "not yet
-implemented" regardless of what operations you pass.
+### Batch Operations — real, bridge-dependent
+`unity_api(operation="batch_operations")` executes each sub-op in
+`operations` sequentially via the Editor bridge and returns a per-op
+result list plus a `success_count`. See the "Batch API Operations"
+section above for the correct sub-op shape (`action`, not `type`).
 
 ## Unity Version Compatibility Matrix
 
@@ -1098,11 +1117,13 @@ Chain multiple MCP servers for a complete game development pipeline:
 
 ### Physics Simulation
 ```python
-# Set up scene with objects — scaffolded, not implemented (see "Batch
-# Operations" above), skip this step until it's real
-await unity_api(operation="batch_operations", operations=[...])
+# Set up scene with objects — real, bridge-dependent (see "Batch
+# Operations" above for the correct sub-op shape)
+await unity_api(operation="batch_operations", operations=[
+    {"action": "create_object", "name": "Ball", "type": "GameObject"},
+])
 
-# Run simulation — this one is REAL, unlike most of unity_api
+# Run simulation — also real
 result = await unity_api(
     operation="run_simulation",
     duration=5.0,
@@ -1114,10 +1135,11 @@ for frame in result.get("recorded_data", []):
     print(f"Frame {frame['time']}: {frame['positions']}")
 ```
 (Corrected 2026-07-18: the flat `api_batch_operations`/`api_run_simulation`
-tools were removed — both are now `unity_api` operations. Worth knowing
-`run_simulation` is genuinely implemented (calls
-`run_bridge_simulation`, drives real Unity play-mode physics via the
-bridge) even though most of `unity_api`'s other operations are stubs.)
+tools were removed — both are now `unity_api` operations.
+**Fixed 2026-07-18 (later same day)**: `batch_operations` is now
+genuinely implemented too, not just `run_simulation` — both drive real
+Unity behavior via the bridge. Neither works without a live Editor
+session.)
 
 Use simulations for:
 - Testing robot movements and collisions

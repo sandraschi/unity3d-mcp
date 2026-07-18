@@ -112,3 +112,72 @@ Stretch goals:
   `unity_build` has a real `get_build_settings` method on `BuildManager`
   that is never exposed as a `unity_build` operation — reachable only by
   importing the server module directly, not via MCP.
+  **Note (2026-07-18, later same day): `create_prefab` was mischaracterized
+  above as scaffolded — it was already real (`_api_create_prefab` calls
+  `execute_bridge_action("create_prefab", ...)`, and `CreatePrefab(cmd)` on
+  the C# side genuinely calls `PrefabUtility.SaveAsPrefabAsset`). Corrected
+  in `README.md`/`docs/API_REFERENCE.md` in the pass below.**
+
+## Fixed 2026-07-18 ("fix lying hardcodes, implement the stubs properly")
+
+- **`unity_avatar(operation="import_vrm", optimize_for_vrchat=True)`'s
+  `vrchat_optimizations` hardcode** — replaced with a real binary
+  glTF/VRM parser (`avatar/parse_vrm_gltf_json`, stdlib `struct`/`json`
+  only) that reports real `material_count`, `texture_count`, `mesh_count`,
+  and a per-material summary, plus writes a JSON manifest to
+  `Assets/Models/{name}_vrchat_conversion_manifest.json`. Deliberately
+  does **not** fake shader conversion or texture compression — those
+  fields are labeled `"NOT performed here"` rather than guessed, since a
+  wrong Unity shader GUID silently produces a broken pink-shader material.
+  Verified against `tests/unit/test_avatar_real.py` (15 tests, including
+  against the real `tests/fixtures/Nekomimi-chan.vrm` fixture).
+- **`unity_avatar(operation="setup_animator")`'s templated-dict hardcode**
+  — replaced with a real Unity `AnimatorController` YAML asset writer
+  (`avatar/build_animator_controller_yaml`), writing an actual
+  `Assets/Animators/{name}_Controller.controller` + `.meta` (real GUID) to
+  disk, with correct Unity class IDs (`!u!91`/`!u!1107`/`!u!1102`).
+  Returns a `caveats` list stating it was **not validated against a live
+  Unity Editor**. Verified structurally by 15 pytest tests, not by opening
+  the asset in Unity.
+- **`unity_api`'s 7 stub operations implemented**:
+  `execute_method`, `batch_operations`, `move_along_path`,
+  `follow_path_2d`, `follow_path_3d`, `stop_path_movement`,
+  `create_path_visualization` — all now call real, working C# handlers
+  added to `MCPBridge.cs`, wired through `execute_bridge_action(...)` on
+  the Python side (`tools/portmanteau/unity_api.py`), the same pattern
+  `get_scene_objects`/`modify_object` already used. Scoped, disclosed
+  limitations (not lies — real but incomplete):
+  - `execute_method` only supports public, static, **parameterless**
+    methods via reflection — the same constraint Unity's own
+    `-executeMethod` CLI flag has. Arbitrary parameter marshaling was
+    deliberately not attempted (type-mismatched `Invoke` calls throw).
+  - Path movement (`move_along_path`/`follow_path_2d`/`follow_path_3d`)
+    approximates all `path_type` curve variants (`bezier`, `spline`,
+    `catmull_rom`) as straight multi-segment linear interpolation — no
+    true curve math.
+  - `create_path_visualization`'s `visualization_type` only draws a plain
+    `LineRenderer` today; `"dotted"`/`"waypoints"`/`"full"` variants are
+    accepted but not yet rendered distinctly.
+  - **Not compile-verified.** No C# compiler (`dotnet`/`mono`/`csc`/`mcs`)
+    was available in the build environment, and `apt-get`/`sudo` package
+    installs were blocked by container permissions. The C# was written and
+    manually reviewed line-by-line (brace balance, control flow, type
+    usage) but **not compiled or run against a live Unity Editor**. Treat
+    `MCPBridge.cs` as unverified until smoke-tested in a real Editor
+    session — this is a real, disclosed gap, not swept under the rug.
+  - **Python-side verification also incomplete**: `uv run ruff`/`uv run
+    pytest` could not run in the session that wrote the Python wiring
+    changes (no network access to resolve the `uv`-managed Python
+    interpreter, and no cached `ruff`/`pytest`/`fastmcp`/`httpx` wheels
+    available offline). Verified instead via `python3 -m py_compile` on
+    every changed file and the full `src/unity3d_mcp` tree (all pass), plus
+    manual review against the existing `get_scene_objects`/`modify_object`
+    pattern in the same file. Run `uv run ruff check` and `uv run pytest`
+    yourself before trusting this in CI.
+- Corrected the `create_prefab` mischaracterization from the previous
+  entry above in `README.md` and `docs/API_REFERENCE.md` — it was already
+  real (bridge-backed via `PrefabUtility.SaveAsPrefabAsset`), not
+  scaffolded.
+- Added a `unity_api` section to `docs/API_REFERENCE.md` (previously
+  entirely absent from that file) documenting every operation's real
+  behavior and the limitations above.

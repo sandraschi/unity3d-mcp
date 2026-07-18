@@ -2,7 +2,9 @@
 Unity API Portmanteau Tool Manager
 
 Consolidates advanced Unity Editor API operations into a unified portmanteau interface.
-Note: Most operations are currently scaffolded for future Unity Editor API integration.
+All operations call the real MCPBridge.cs Editor bridge (HTTP, localhost:10835) when
+Unity is running with the bridge installed. If the bridge isn't connected, each
+operation returns an honest "bridge not connected" error rather than a fake result.
 """
 
 import logging
@@ -10,7 +12,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from ...utils.unity_runtime import bridge_available, execute_bridge_action, get_bridge_client
+from ...utils.unity_runtime import execute_bridge_action, get_bridge_client
 from .unity_api_bridge import UnityBridgeClient
 
 logger = logging.getLogger(__name__)
@@ -60,18 +62,25 @@ class UnityAPIToolManager:
             """Unity API operations portmanteau tool.
 
             Consolidates advanced Unity Editor API operations for complex automation.
-            Most operations are currently scaffolded for future Unity Editor API integration.
+            All operations require a live Unity Editor session with MCPBridge.cs
+            installed and running (HTTP bridge on localhost:10835); if the bridge
+            isn't connected, each operation returns an honest "not connected"
+            error rather than a fake success.
 
             Args:
                 operation: Operation to perform
-                    - "execute_method": Execute Unity Editor method with full parameter support
+                    - "execute_method": Invoke a public static PARAMETERLESS Unity
+                      method by name (same constraint as Unity's -executeMethod CLI
+                      flag — parameterized calls are not supported)
                     - "get_scene_objects": Get all objects in Unity scene
                     - "modify_object": Modify Unity scene object properties
                     - "create_prefab": Create Unity prefab from scene object
                     - "run_simulation": Run Unity physics simulation
                     - "batch_operations": Execute multiple Unity operations in batch
-                    - "move_along_path": Move object along a path
-                    - "create_path_visualization": Create visual representation of a path
+                    - "move_along_path": Move object along a path (curve types are
+                      approximated as straight multi-segment interpolation, not true
+                      bezier/spline math)
+                    - "create_path_visualization": Create a real LineRenderer tracing the path
                     - "follow_path_2d": Move object along 2D path with forward-looking behavior
                     - "follow_path_3d": Move object along 3D path with banking
                     - "stop_path_movement": Stop object path movement
@@ -170,7 +179,7 @@ class UnityAPIToolManager:
                     ],
                 }
 
-    # Unity Editor API Implementation Methods (currently scaffolded)
+    # Unity Editor API Implementation Methods (bridge-backed via MCPBridge.cs)
     async def _api_execute_method(
         self,
         class_name: str | None,
@@ -180,26 +189,33 @@ class UnityAPIToolManager:
         scene_path: str | None,
         wait_for_completion: bool,
     ) -> dict[str, Any]:
-        """Execute Unity Editor method via bridge when available, else CLI fallback hint."""
-        if await bridge_available(self.bridge):
-            return {
-                "success": False,
-                "mode": "bridge",
-                "error": (
-                    "Generic execute_method via bridge not yet implemented. "
-                    "Use unity_core operation=execute_method for CLI batch execution."
-                ),
-                "class_name": class_name,
-                "method_name": method_name,
-            }
-        return {
-            "success": False,
-            "error": "Unity Editor bridge not connected and CLI execute_method requires project_path",
-            "class_name": class_name,
-            "method_name": method_name,
-            "parameters": parameters,
-            "note": "Connect MCPBridge.cs or use unity_core execute_method",
-        }
+        """Invoke a public static PARAMETERLESS method via the Editor bridge.
+
+        This mirrors Unity's own `-executeMethod` CLI constraint (public,
+        static, no parameters) rather than attempting unsafe arbitrary
+        parameter marshaling. If `parameters` is non-empty it is reported
+        back as ignored, not silently dropped.
+        """
+        if not class_name or not method_name:
+            return {"success": False, "error": "class_name and method_name are required"}
+
+        result = await execute_bridge_action(
+            "execute_method",
+            bridge=self.bridge,
+            class_name=class_name,
+            method_name=method_name,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+            if parameters:
+                result["parameters_ignored"] = parameters
+                result["note"] = (
+                    "The bridge only supports public static parameterless methods "
+                    "(same constraint as Unity's -executeMethod CLI flag). The "
+                    "parameters you passed were NOT sent or applied."
+                )
+        return result
 
     async def _api_get_scene_objects(
         self,
@@ -313,13 +329,25 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Execute batch operations via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "operation_count": len(operations) if operations else 0,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Execute a list of sub-commands sequentially via the Editor bridge.
+
+        Each entry in `operations` must use the same flat command shape as a
+        top-level bridge action (action/target/name/...) — Unity's
+        JsonUtility can't deserialize free-form heterogeneous dicts, so the
+        bridge reuses one schema recursively rather than a per-op schema.
+        """
+        if not operations:
+            return {"success": False, "error": "operations list is required and must be non-empty"}
+
+        result = await execute_bridge_action(
+            "batch_operations",
+            bridge=self.bridge,
+            operations=operations,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_move_along_path(
         self,
@@ -332,16 +360,31 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Move object along path via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "path_type": path_type,
-            "points_count": len(path_points) if path_points else 0,
-            "duration": duration,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Move object along a path via the Editor bridge.
+
+        Curve `path_type`s (bezier/spline/catmull_rom) are approximated as
+        straight multi-segment linear interpolation on the C# side — real
+        curve math is not implemented, and the bridge response says so.
+        """
+        if not object_name:
+            return {"success": False, "error": "object_name required for move_along_path"}
+        if not path_points or len(path_points) < 2:
+            return {"success": False, "error": "path_points must contain at least 2 points"}
+
+        result = await execute_bridge_action(
+            "move_along_path",
+            bridge=self.bridge,
+            target=object_name,
+            path_points=path_points,
+            path_type=path_type,
+            duration=duration,
+            loop=loop,
+            ease_type=ease_type,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_create_path_visualization(
         self,
@@ -353,15 +396,34 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Create path visualization via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "path_type": path_type,
-            "visualization_type": visualization_type,
-            "points_count": len(path_points) if path_points else 0,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Create a real LineRenderer GameObject tracing the path via the Editor bridge.
+
+        `visualization_type` values other than "line" ("dotted", "waypoints",
+        "full") are accepted but the bridge currently only draws a plain
+        LineRenderer — not yet a distinct rendering per type.
+        """
+        if not path_points or len(path_points) < 2:
+            return {"success": False, "error": "path_points must contain at least 2 points"}
+
+        result = await execute_bridge_action(
+            "create_path_visualization",
+            bridge=self.bridge,
+            path_points=path_points,
+            path_type=path_type,
+            visualization_type=visualization_type,
+            color=color,
+            thickness=thickness,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+            if visualization_type != "line":
+                result["note"] = (
+                    f"visualization_type='{visualization_type}' requested, but the bridge "
+                    "only draws a plain LineRenderer today — 'dotted'/'waypoints'/'full' "
+                    "rendering variants are not yet implemented."
+                )
+        return result
 
     async def _api_follow_path_2d(
         self,
@@ -373,15 +435,25 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Follow 2D path via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "path_length": len(path_points) if path_points else 0,
-            "speed": speed,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Follow a 2D path via the Editor bridge (Y locked to the object's current height)."""
+        if not object_name:
+            return {"success": False, "error": "object_name required for follow_path_2d"}
+        if not path_points or len(path_points) < 2:
+            return {"success": False, "error": "path_points must contain at least 2 points"}
+
+        result = await execute_bridge_action(
+            "follow_path_2d",
+            bridge=self.bridge,
+            target=object_name,
+            path_points=path_points,
+            speed=speed,
+            look_ahead=look_ahead,
+            smooth_rotation=smooth_rotation,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_follow_path_3d(
         self,
@@ -393,15 +465,25 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Follow 3D path with banking via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "path_length": len(path_points) if path_points else 0,
-            "banking_enabled": bank_angle > 0,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Follow a 3D path with optional banking via the Editor bridge."""
+        if not object_name:
+            return {"success": False, "error": "object_name required for follow_path_3d"}
+        if not path_points or len(path_points) < 2:
+            return {"success": False, "error": "path_points must contain at least 2 points"}
+
+        result = await execute_bridge_action(
+            "follow_path_3d",
+            bridge=self.bridge,
+            target=object_name,
+            path_points=path_points,
+            speed=speed,
+            bank_angle=bank_angle,
+            look_ahead=look_ahead,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
 
     async def _api_stop_path_movement(
         self,
@@ -411,11 +493,23 @@ class UnityAPIToolManager:
         project_path: str | None,
         scene_path: str | None,
     ) -> dict[str, Any]:
-        """Stop path movement via Unity Editor API."""
-        return {
-            "success": False,
-            "error": "Unity Editor API not yet implemented",
-            "object_name": object_name,
-            "deceleration_applied": decelerate,
-            "note": "API tools scaffolded for future Unity Editor integration",
-        }
+        """Stop an in-progress path movement via the Editor bridge.
+
+        With `decelerate=True` the bridge ramps speed to zero over
+        `deceleration_time` seconds (ticked on subsequent Editor frames)
+        rather than stopping instantly.
+        """
+        if not object_name:
+            return {"success": False, "error": "object_name required for stop_path_movement"}
+
+        result = await execute_bridge_action(
+            "stop_path_movement",
+            bridge=self.bridge,
+            target=object_name,
+            decelerate=decelerate,
+            deceleration_time=deceleration_time,
+        )
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result

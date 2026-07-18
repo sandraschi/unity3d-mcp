@@ -39,7 +39,7 @@ this is the real, current tool-count-reduction pattern this server uses):
 | `multiplatform` | `list_platforms`, `check_sdk`, `check_cck`, `setup_cvr_avatar`, `validate_cvr`, `prepare_resonite`, `check_resonite_compat`, `check_cluster_kit`, `prepare_cluster`, `audit_all` (ChilloutVR/Resonite/Cluster — not VRChat, that's the `vrchat` tool) |
 | `unity_bridge` | `status`, `execution_mode`, `ping`, `get_hierarchy`, `create_object`, `delete_object`, `transform_object`, `capture_game_view` — **live Editor, Hands-In only** |
 | `unity_render` | `bridge_status`, `get_scene_summary`, `capture_multi_angle` — agent vision |
-| `unity_api` | `execute_method` (bridge-aware, not implemented), `get_scene_objects` **(works, live bridge)**, `modify_object` **(works, live bridge)**, `create_prefab`, `run_simulation`, `batch_operations`, `move_along_path`, `create_path_visualization`, `follow_path_2d`, `follow_path_3d`, `stop_path_movement` — the rest are scaffolded, not implemented |
+| `unity_api` | `get_scene_objects`, `modify_object`, `create_prefab`, `run_simulation`, `execute_method`, `batch_operations`, `move_along_path`, `create_path_visualization`, `follow_path_2d`, `follow_path_3d`, `stop_path_movement` — **all real, bridge-dependent** (require a live Unity Editor session with `MCPBridge.cs` running; return an honest "bridge not connected" error otherwise, not a fake success) |
 | `unity_jobs` | `submit` (`job_type`: build/batch_import/simulation), `status`, `list`, `cancel` — async queue |
 | `unity_import` | `import_blender`, `import_fleet_batch`, `list_formats` — Blender/fleet GLB/VRM/FBX/OBJ handoff |
 | `unity_vision_refine` | `capture`, `review_bundle`, `apply_bridge_commands` |
@@ -177,14 +177,24 @@ If you don't have `just` installed:
 
 ### Advanced Unity Editor API operations
 
-Covered by the `unity_api` portmanteau tool (see the tool table above) —
-`get_scene_objects` and `modify_object` work today via the live Editor
-bridge; `execute_method`, `create_prefab`, `run_simulation`,
-`batch_operations`, and the path-movement operations
-(`move_along_path`, `create_path_visualization`, `follow_path_2d`,
-`follow_path_3d`, `stop_path_movement`) are scaffolded and return
-`{"success": false, "error": "not yet implemented"}` pending Unity Editor
-plugin work.
+Covered by the `unity_api` portmanteau tool (see the tool table above).
+Every operation is real and bridge-dependent: it calls the `MCPBridge.cs`
+Editor bridge (HTTP, `localhost:10835`) and requires Unity to be open with
+that script installed and running. Two known, honestly-documented
+limitations in the current bridge implementation:
+- `execute_method` only supports public, static, **parameterless** Unity
+  methods (the same constraint Unity's own `-executeMethod` CLI flag has).
+  Passing `parameters` is accepted but explicitly reported back as
+  ignored, not silently dropped or type-coerced.
+- Path movement (`move_along_path`, `follow_path_2d`, `follow_path_3d`)
+  approximates all `path_type` curve variants (`bezier`, `spline`,
+  `catmull_rom`) as straight multi-segment linear interpolation — real
+  curve math is not implemented.
+
+This was verified by manual C# code review only (no `dotnet`/`mono`/`csc`
+compiler was available in the environment this was built in), so treat it
+as unverified against a live Unity Editor until you've smoke-tested it
+yourself.
 
 **Not currently exposed as MCP tools at all** (real code exists in
 `motor_manager.py`, `import_export_manager.py`, and

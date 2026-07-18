@@ -251,13 +251,17 @@ does despite what older docs implied.
 `unity_avatar`'s avatar-scoped `optimize_for_vrchat` flag, don't confuse
 the two) / `assemble_review`.
 
-### `unity_api` — mixed: some real, most scaffolded
-`get_scene_objects` and `modify_object` **work** (live bridge). Everything
-else (`execute_method`, `create_prefab`, `batch_operations`,
-`move_along_path`, `create_path_visualization`, `follow_path_2d`,
-`follow_path_3d`, `stop_path_movement`) unconditionally returns "not yet
-implemented" — except `run_simulation`, which **is genuinely
-implemented** (drives real Unity play-mode physics via the bridge).
+### `unity_api` — real, bridge-dependent (fixed 2026-07-18)
+All operations (`get_scene_objects`, `modify_object`, `create_prefab`,
+`run_simulation`, `execute_method`, `batch_operations`, `move_along_path`,
+`create_path_visualization`, `follow_path_2d`, `follow_path_3d`,
+`stop_path_movement`) call the real `MCPBridge.cs` Editor bridge and
+require a live Unity Editor session with the bridge running — without it,
+each returns an honest "bridge not connected" error, not a fake success.
+`execute_method` only supports public static parameterless methods
+(reflection, same constraint as Unity's `-executeMethod` CLI flag). Path
+movement approximates curve `path_type`s as straight-line interpolation,
+not true bezier/spline math. See `docs/API_REFERENCE.md` for full detail.
 
 ### `unity_validation` — real
 `list_limits` / `validate_scene` / `check_polycount` / `check_materials` /
