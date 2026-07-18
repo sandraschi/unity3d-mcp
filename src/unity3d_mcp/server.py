@@ -1263,14 +1263,32 @@ class Unity3DMCP:
         await run_server_async(self.app, server_name="unity3d-mcp")
 
     async def run_http(self, host: str = "127.0.0.1", port: int = 10831):
-        """Run server in HTTP mode."""
-        # Updated for fastmcp 3.2.0+
+        """Run server in HTTP mode with combined MCP + Chat API."""
         try:
-            # Use unified transport with http mode
-            from argparse import Namespace
+            import uvicorn
+            from starlette.applications import Starlette
+            from starlette.routing import Mount, Route
 
-            args = Namespace(http=True, stdio=False, sse=False, host=host, port=port, path="/mcp", debug=False)
-            await run_server_async(self.app, args=args, server_name="unity3d-mcp")
+            from unity3d_mcp.chat_api import chat_app as _chat_app
+
+            mcp_asgi = self.app.http_app()
+
+            # Quick health endpoint
+            async def _health(request):
+                from starlette.responses import JSONResponse
+                return JSONResponse({"status": "ok", "server": "unity3d-mcp"})
+
+            combined = Starlette(routes=[
+                Mount("/mcp", app=mcp_asgi),
+                Mount("/api", app=_chat_app),
+                Route("/api/health", endpoint=_health, methods=["GET"]),
+                Route("/health", endpoint=_health, methods=["GET"]),
+            ])
+
+            logger.info(f"Starting Unity3D MCP + Chat on http://{host}:{port}")
+            config = uvicorn.Config(combined, host=host, port=port, log_level="info")
+            server = uvicorn.Server(config)
+            await server.serve()
         except Exception as e:
             logger.error("Failed to run HTTP mode", error=str(e))
             raise
@@ -1334,9 +1352,9 @@ async def unity_setup_workflow(project_name: str = "MyNewProject") -> str:
     """Standardized prompt for initializing a new Unity project with SOTA standards."""
     return f"""Launch and initialize a new Unity project named '{project_name}'.
 Follow these steps:
-1. Create the project directory using `create_unity_project`.
-2. Launch the Unity Editor via `launch_unity_editor`.
-3. Set the build target to 'StandaloneWindows64' if applicable.
+1. Create the project directory using `unity_core(operation="create_project")`.
+2. Launch the Unity Editor via `unity_core(operation="launch_editor")`.
+3. Set the build target to 'StandaloneWindows64' if applicable (`unity_build(operation="build_project")`).
 4. Verify project health after initialization.
 """
 
@@ -1346,9 +1364,10 @@ async def vrc_avatar_workflow(avatar_name: str, vrm_path: str) -> str:
     """Step-by-step instructions for the VRM-to-VRChat avatar optimization pipeline."""
     return f"""Optimize the VRM avatar '{avatar_name}' from '{vrm_path}' for VRChat.
 Workflow:
-1. Import the VRM asset using `import_vrm_avatar`.
-2. Apply VRChat-specific optimizations via `optimize_for_vrchat`.
-3. Validate the avatar performance using `vrchat_validate_avatar`.
+1. Import the VRM asset using `unity_avatar(operation="import_vrm")`.
+2. Apply texture/platform optimizations via `unity_asset(operation="optimize_textures")`.
+3. Run a preflight check via `unity_validation(operation="validate_avatar")`, then
+   confirm upload readiness with `vrchat(operation="validate_avatar")`.
 4. Report any validation errors that might block the upload.
 """
 

@@ -15,19 +15,69 @@
 - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 - [Roadmap (Phases 1–5)](docs/ROADMAP.md)
 
-### Agent Lab (v1.5.0)
+### Tool surface (verified against `src/unity3d_mcp/server.py`, 2026-07-18)
+
+**This table is the single source of truth for this server's tools.** Any
+other tool names you see elsewhere in this README below this point, or
+inferred from `src/unity3d_mcp/app.py` (unused dead code — not imported by
+`__main__.py` or referenced in `pyproject.toml`; the real entry point is
+`server.py`), are stale. See the housekeeping note at the bottom of this
+section.
+
+**15 portmanteau tools** (one tool, `operation` argument selects behavior —
+this is the real, current tool-count-reduction pattern this server uses):
+
+| Tool | Operations |
+|------|------------|
+| `unity_core` | `launch_editor`, `create_project`, `execute_method`, `check_univrm`, `install_univrm`, `create_project_with_univrm` |
+| `unity_scene` | `create_light` |
+| `unity_avatar` | `import_vrm`, `setup_animator` |
+| `unity_asset` | `optimize_textures` |
+| `unity_build` | `build_project` |
+| `vrchat` | `check_auth`, `authenticate`, `check_sdk`, `validate_avatar`, `setup_descriptor`, `upload_avatar` — **avatars only, no world upload/publish** |
+| `worldlabs` | `assemble_review`, `import_marble`, `check_gaussian`, `install_gaussian`, `optimize_for_vrchat` |
+| `multiplatform` | `list_platforms`, `check_sdk`, `check_cck`, `setup_cvr_avatar`, `validate_cvr`, `prepare_resonite`, `check_resonite_compat`, `check_cluster_kit`, `prepare_cluster`, `audit_all` (ChilloutVR/Resonite/Cluster — not VRChat, that's the `vrchat` tool) |
+| `unity_bridge` | `status`, `execution_mode`, `ping`, `get_hierarchy`, `create_object`, `delete_object`, `transform_object` — **live Editor, Hands-In only** |
+| `unity_render` | `bridge_status`, `get_scene_summary`, `capture_multi_angle` — agent vision |
+| `unity_api` | `execute_method` (bridge-aware, not implemented), `get_scene_objects` **(works, live bridge)**, `modify_object` **(works, live bridge)**, `create_prefab`, `run_simulation`, `batch_operations`, `move_along_path`, `create_path_visualization`, `follow_path_2d`, `follow_path_3d`, `stop_path_movement` — the rest are scaffolded, not implemented |
+| `unity_jobs` | `submit` (`job_type`: build/batch_import/simulation), `status`, `list`, `cancel` — async queue |
+| `unity_import` | `import_blender`, `import_fleet_batch`, `list_formats` — Blender/fleet GLB/VRM/FBX/OBJ handoff |
+| `unity_vision_refine` | `capture`, `review_bundle`, `apply_bridge_commands` |
+| `unity_validation` | `list_limits`, `validate_scene`, `check_polycount`, `check_materials`, `validate_model`, `validate_avatar`, `unified_audit` |
+
+**4 standalone tools** (dual-mode/agentic, registered directly, not via a
+manager class):
 
 | Tool | Purpose |
 |------|---------|
-| `unity_bridge` | Live Editor bridge — **`execution_mode`** (Hands-In vs Hands-Off), hierarchy, CRUD |
-| `unity_render` | Agent vision — capture, multi-angle, scene summary |
-| `unity_vision_refine` | Review bundle + apply bridge commands after vision model feedback |
-| `unity_import` | **Blender/fleet handoff** — GLB/VRM/FBX batch import into Assets |
-| `unity_validation` | **Scene/avatar preflight** — polycount, materials, missing scripts, unified audit |
-| `unity_api` | Scene objects, modify, create_prefab, run_simulation |
-| `unity_jobs` | Async build, batch_import, simulation |
-| `worldlabs` | Marble import + **`assemble_review`** agent loop |
-| `multiplatform` | CVR/Resonite/Cluster + **`audit_all`** unified platform audit |
+| `unity3d_bridge_status` | Bridge connectivity check (overlaps `unity_bridge(operation="status")` — known duplication, see housekeeping note) |
+| `unity3d_editor_api` | `[Hands-In]` live Editor commands: ping/get_hierarchy/create_object/delete_object/transform_object/capture_game_view (overlaps `unity_bridge` for everything except `capture_game_view` — known duplication) |
+| `unity3d_disk_api` | `[Hands-Off]` UnityPy disk manipulation: inspect_file, list_textures, modify_yaml — no overlap, genuinely standalone |
+| `unity3d_agentic_workflow` | SEP-1577 sampling — autonomous multi-step orchestration from a high-level goal |
+
+**Platform-helper tools** (`list_vr_platforms`, `check_platform_sdk`,
+`check_cck_installed`, `setup_cvr_avatar`, `validate_for_chilloutvr`,
+`prepare_for_resonite`, `check_resonite_compatibility`, `check_cluster_kit`,
+`prepare_for_cluster`) exist as individually-registered flat tools *and*
+duplicate `multiplatform`'s operations one-for-one. Both work; prefer
+`multiplatform` for new code.
+
+**Known duplication, not yet cleaned up** (tracked in `TODO.md`): the 11
+`api_*` flat tools (`api_execute_method`, `api_get_scene_objects`, etc.)
+registered directly in `server.py` are strictly superseded by `unity_api` —
+they're older, and unlike `unity_api`, every single one unconditionally
+returns `{"success": false, "error": "not yet implemented"}`, even for
+operations (`get_scene_objects`, `modify_object`) that `unity_api` now
+actually performs via the live bridge. Use `unity_api`, not the flat
+`api_*` names. Motor control (`api_add_motor` etc.), generic asset
+export/import (`export_fbx`, `import_asset_package`, `batch_import`), and
+dedicated VRM-Unity-rigging tools (`import_vrm_to_unity`,
+`setup_unity_avatar_rigging`, etc.) are **not exposed as MCP tools at
+all** — the underlying manager classes exist (`motor_manager.py`,
+`import_export_manager.py`, `vrm_avatar_manager.py`) but nothing in
+`server.py` registers them. If you see these names elsewhere (this
+README's older revisions, `app.py`), they describe dead code or
+unregistered internals, not callable tools.
 
 Copy `src/unity3d_mcp/resources/MCPBridge.cs` to your project's `Assets/Editor/` folder.
 
@@ -120,56 +170,27 @@ If you don't have `just` installed:
 - **Resonite**: Direct VRM/GLB import (no Unity needed!)
 - **Cluster**: Japanese social VR with VRM support
 
-### Unity Editor API Tools (Advanced)
+### Advanced Unity Editor API operations
 
-** Future Enhancement** - Scaffolded for Unity Editor API integration
+Covered by the `unity_api` portmanteau tool (see the tool table above) —
+`get_scene_objects` and `modify_object` work today via the live Editor
+bridge; `execute_method`, `create_prefab`, `run_simulation`,
+`batch_operations`, and the path-movement operations
+(`move_along_path`, `create_path_visualization`, `follow_path_2d`,
+`follow_path_3d`, `stop_path_movement`) are scaffolded and return
+`{"success": false, "error": "not yet implemented"}` pending Unity Editor
+plugin work.
 
-These tools provide direct Unity Editor API access for advanced operations that CLI cannot handle:
-
-#### Core API Tools
-- **Method Execution**: `api_execute_method()` - Execute Unity methods with complex parameters
-- **Scene Inspection**: `api_get_scene_objects()` - Get detailed scene object information
-- **Object Manipulation**: `api_modify_object()` - Direct object property modification
-- **Prefab Creation**: `api_create_prefab()` - Create prefabs with proper references
-- **Physics Simulation**: `api_run_simulation()` - Run physics simulation with data recording
-- **Batch Operations**: `api_batch_operations()` - Atomic multi-operation execution
-
-#### Path Movement Tools
-- **Path Animation**: `api_move_along_path()` - Move objects along straight/spline/2D/3D paths
-- **Path Visualization**: `api_create_path_visualization()` - Create visual path representations
-- **2D Path Following**: `api_follow_path_2d()` - 2D movement with rotation and look-ahead
-- **3D Path Following**: `api_follow_path_3d()` - 3D movement with banking and elevation
-- **Movement Control**: `api_stop_path_movement()` - Stop path movement with deceleration
-
-#### Motor Control Tools
-- **Add Motor**: `api_add_motor()` - Attach configurable motors to objects
-- **Start Motor**: `api_start_motor()` - Start motors with speed/acceleration control
-- **Stop Motor**: `api_stop_motor()` - Stop motors with deceleration options
-- **Set Speed**: `api_set_motor_speed()` - Dynamic speed adjustments during operation
-- **Motor Status**: `api_get_motor_status()` - Real-time motor monitoring and diagnostics
-- **Physics Config**: `api_configure_motor_physics()` - Realistic motor physics simulation
-
-#### Import/Export Tools
-- **Import Package**: `import_asset_package()` - Import Unity .unitypackage files
-- **Import 3D Model**: `import_3d_model()` - Import FBX, OBJ, GLTF, etc.
-- **Import Texture**: `import_texture()` - Import textures with type-specific settings
-- **Export FBX**: `export_fbx()` - Export objects to FBX format
-- **Export Package**: `export_unity_package()` - Create .unitypackage files
-- **Export Prefab**: `export_prefab()` - Export objects as prefabs
-- **Batch Import**: `batch_import()` - Perform multiple imports at once
-- **Import Status**: `get_import_status()` - Monitor import operation progress
-- **Export Status**: `get_export_status()` - Monitor export operation progress
-
-#### VRM Avatar Tools (Unity Integration)
-- **Import VRM to Unity**: `import_vrm_to_unity()` - Import VRM into Unity projects
-- **Unity Rigging Setup**: `setup_unity_avatar_rigging()` - Configure Unity humanoid rigging
-- **Unity Materials**: `configure_unity_materials()` - Setup Unity-specific materials
-- **Build Avatar Package**: `build_unity_avatar_package()` - Create complete Unity packages
-- **Avatar-mcp Integration**: `integrate_with_avatarmcp()` - Connect to avatar-mcp for compositing
-- **Import Status**: `get_unity_import_status()` - Monitor Unity VRM import progress
-- **Legacy VRM Import**: `import_vrm_avatar()` - Basic VRM import (delegates to avatar-mcp)
-
-*Note: These tools are currently scaffolded and return "not implemented" status. They require Unity Editor plugin development for full functionality.*
+**Not currently exposed as MCP tools at all** (real code exists in
+`motor_manager.py`, `import_export_manager.py`, and
+`vrm_avatar_manager.py`, but nothing in `server.py` registers it):
+motor control (attach/start/stop/configure motors on objects), generic
+asset export/import (`.unitypackage`, standalone FBX/prefab export,
+texture-specific import), and dedicated VRM-Unity-rigging tools separate
+from `unity_avatar`'s `import_vrm`/`setup_animator`. If you need any of
+these, they'd need a portmanteau wrapper written and registered in
+`server.py` first — that's real, scoped future work, not a documentation
+fix. Tracked in `TODO.md`.
 
 ### Agentic Sampling (SEP-1577)
 
@@ -339,52 +360,15 @@ unity3d-mcp --mode dual
 
 ### MCP Tools
 
-#### Core Unity Operations
-
-- `launch_unity_editor`: Launch Unity Editor with project
-- `create_unity_project`: Create new Unity project
-- `execute_unity_method`: Execute Unity Editor methods
-
-#### Avatar Management
-
-- `import_vrm_avatar`: Import VRM avatar into Unity
-- `setup_avatar_animator`: Configure animator controller
-- `optimize_for_vrchat`: Apply VRChat optimizations
-
-#### Asset Operations
-
-- `import_asset_package`: Import Unity packages
-- `optimize_textures`: Optimize textures for platforms
-- `create_material`: Create Unity materials
-
-#### Build Pipeline
-
-- `build_unity_project`: Build for target platforms
-- `switch_platform`: Switch Unity platform
-- `optimize_for_platform`: Apply platform optimizations
-
-#### VRChat Integration
-
-- `upload_vrchat_avatar`: Upload avatar to VRChat
-- `vrchat_check_auth`: Check authentication status
-- `vrchat_authenticate`: Authenticate with VRChat API
-- `vrchat_check_sdk`: Verify SDK installation
-- `vrchat_validate_avatar`: Validate avatar before upload
-- `send_avatar_parameter`: Send OSC parameters
-- `send_chatbox_message`: Send VRChat chatbox messages
-
-#### World Labs (Marble/Chisel)
-
-- `import_marble_world`: Import 3D worlds from Marble exports
-- `check_gaussian_splatting`: Check renderer installation
-- `install_gaussian_splatting`: Install Gaussian Splatting package
-- `optimize_worldlabs_for_vrchat`: Get VRChat optimization tips
-
-#### UniVRM Management
-
-- `check_univrm_installed`: Check UniVRM installation
-- `install_univrm`: Install UniVRM packages
-- `create_unity_project_with_univrm`: Create project with UniVRM
+See **[Tool surface](#tool-surface-verified-against-srcunity3d_mcpserverpy-2026-07-18)**
+near the top of this README for the complete, verified-against-source tool
+list with real operation names. (An earlier revision of this README had a
+second, incompatible tool list here using names like `launch_unity_editor`,
+`import_vrm_avatar`, `upload_vrchat_avatar` — those aren't callable tools;
+the real operations are `unity_core(operation="launch_editor")`,
+`unity_avatar(operation="import_vrm")`,
+`vrchat(operation="upload_avatar")`, etc. Removed 2026-07-18 to stop the
+two lists drifting further apart — one source of truth from now on.)
 
 ## Architecture
 
