@@ -6,14 +6,16 @@ Stretch goals:
 
 ## Found 2026-07-18, during a README accuracy audit (not fixed, flagged only — removing registered tools is a breaking change and deserves its own pass)
 
-- **`app.py` is dead code.** Not imported by `__main__.py`, not referenced
-  in `pyproject.toml`. The real entry point is `server.py`
-  (`server_instance.app`). `app.py` and `app.py.20260712_153809.bak`
-  contain an entire second implementation of motor control, path
-  movement, import/export, and VRM-Unity-rigging tools that were never
-  wired up and aren't running. Either delete `app.py` or actually
-  register its tools — right now it's just confusing dead weight that an
-  earlier README revision was silently describing as if it were live.
+- **`app.py` is dead code.** — **Fixed 2026-07-18 (second follow-up
+  pass).** Deleted `app.py` and `app.py.20260712_153809.bak`. Confirmed
+  safe first: not imported by `__main__.py`, not referenced in
+  `pyproject.toml`, and the server (`unity3d_mcp.server`) imports and
+  initializes cleanly with both files gone (verified live, not just via
+  grep). The motor/import-export/VRM-rigging code it contained was a
+  second, never-wired implementation — nothing was lost by deleting it
+  since it was never reachable; the *real* copies of that logic
+  (`motor_manager.py`, `import_export_manager.py`, `vrm_avatar_manager.py`)
+  are untouched and still exist, still unregistered as tools.
 - **11 duplicate `api_*` flat tools in `server.py`** — **Fixed 2026-07-18
   (same day, follow-up pass).** Removed entirely (`api_execute_method`,
   `api_get_scene_objects`, `api_modify_object`, `api_create_prefab`,
@@ -66,16 +68,47 @@ Stretch goals:
 - README's tool documentation (three separate, mutually-inconsistent tool
   lists) rewritten to one source of truth. **Fixed** same session.
 
-## Still open, not started (lower priority, found in passing)
+## Fixed 2026-07-18 (second follow-up pass, "fix it all, even if it predates this session")
 
-- `docs/API_REFERENCE.md` and `prompts/*` still document several tool
-  names that were never real to begin with (not something this pass
-  broke) — `import_vrm_avatar`, `optimize_for_vrchat`, `setup_avatar_rigging`,
+- **All pre-existing phantom tool names across docs/prompts/skills** —
+  every flat tool name that was never real (`import_vrm_avatar`,
+  `optimize_for_vrchat` as a standalone tool, `setup_avatar_rigging`,
   `motor_control`, `import_3d_model`, `execute_unity_method`,
-  `create_unity_project`, `switch_platform`, `install_univrm`,
-  `install_asset_package` and similar do not exist as MCP tools. Same
-  phantom-op bug class as everything above, pre-dates this session,
-  out of scope for this pass — flagged here so it isn't mistaken for
-  "already covered."
-- `app.py` (dead code, contains an unregistered second implementation of
-  motor/import-export/VRM-rigging tools) still not deleted or wired up.
+  `create_unity_project`, `switch_platform`, `install_univrm` as a
+  standalone tool, `install_asset_package`, `check_vrchat_authentication`,
+  `authenticate_vrchat`, `vrchat_validate_avatar`, `vrchat_upload_avatar`,
+  `create_material`, `convert_materials_vrchat`, `import_package`,
+  `get_build_settings`/`switch_platform`/`optimize_for_platform` as
+  standalone tools, `import_marble_world`,
+  `check_gaussian_splatting_installed`, `install_gaussian_splatting`,
+  `export_gltf`, `export_unity_package`, `create_animation_clip`,
+  `setup_animator_controller`, `worldlabs_chisel_edit`,
+  `create_expression_menu`, `configure_unity_materials`, and more) has
+  been corrected across every file that had it: `docs/API_REFERENCE.md`
+  (rewritten in full), `docs/ARCHITECTURE_DUAL_MODE.md`,
+  `docs/GUIDE_EDITOR_AUTO.md`, `skills/unity-editor-automation/SKILL.md`,
+  `skills/vrc-avatar-pipeline/SKILL.md` (both skill files are functionally
+  loaded via `SkillsDirectoryProvider` — fixed with the same rigor as a
+  runtime bug, not just docs), and every file in `prompts/`
+  (`system.md`, `user.md`, `examples.json`, `game_development.md`,
+  `build_deployment.md`, `performance_optimization.md`,
+  `vrchat_integration.md`, `vrm_avatar_pipeline.md` — confirmed these
+  `prompts/*` files are not wired into `src/` at runtime, so lower stakes
+  than the skills, fixed anyway).
+- Each corrected reference points to the real `tool(operation=...)` call
+  where one exists, or is explicitly marked "no equivalent exists" where
+  none does (motor control, generic asset import/export, material
+  creation, animation clip authoring, expression menu construction —
+  none of these are automatable through this server in any form, real or
+  stub).
+- Also flagged inline, not fixed (new engineering, not a doc correction):
+  `unity_avatar(operation="import_vrm", optimize_for_vrchat=True)` and
+  `operation="setup_animator"` both return hardcoded/templated reports,
+  not results computed from the actual model — found while verifying
+  `avatar/__init__.py` against the docs being corrected. `unity_api`'s
+  `execute_method`/`create_prefab`/`batch_operations`/path-movement
+  operations are confirmed scaffolded (always "not implemented"); its
+  `get_scene_objects`/`modify_object`/`run_simulation` are confirmed real.
+  `unity_build` has a real `get_build_settings` method on `BuildManager`
+  that is never exposed as a `unity_build` operation — reachable only by
+  importing the server module directly, not via MCP.

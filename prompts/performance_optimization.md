@@ -1,11 +1,16 @@
 # Performance Optimization - Unity3D-MCP
 
+**Corrected 2026-07-18**: `profile_project()` (previously shown below) is
+not a real tool — there is no FPS/CPU/GPU/draw-call profiler integration
+anywhere in this server. The metrics-target guidance below is still
+useful as a reference, but nothing here automates measuring them.
+
 ## Unity Performance Profiling
 
 ### Profiler Analysis
-```python
-profile_project()
-
+No automated profiler tool exists. Use the Unity Editor's built-in
+Profiler window manually. Reference targets:
+```
 Key metrics:
 - FPS (target: 60+ desktop, 90+ VR)
 - CPU time (< 16ms per frame)
@@ -15,7 +20,18 @@ Key metrics:
 - Batching effectiveness
 ```
 
+The closest thing this server has to automated checks is
+`unity_validation`:
+```python
+unity_validation(operation="check_polycount", model_path="...")
+unity_validation(operation="check_materials", model_path="...")
+unity_validation(operation="list_limits")
+```
+These check static model/material limits, not runtime FPS/CPU/GPU/draw
+calls.
+
 ### Avatar Optimization
+General reference guidance (manual, not automated by any tool here):
 ```
 Triangle reduction:
 - Decimate modifier
@@ -23,13 +39,14 @@ Triangle reduction:
 - Optimize clothing layers
 - Use LODs if supported
 
-Texture optimization:
+Texture optimization (unity_asset(operation="optimize_textures") does
+part of this — real, but check its actual output against what you need):
 - Compress (DXT5, BC7)
 - Reduce resolution
 - Atlas multiple textures
 - Crunch compression
 
-Material optimization:
+Material optimization (no automated tool for this):
 - Merge materials
 - Remove duplicate materials
 - Use shader LOD
@@ -37,6 +54,7 @@ Material optimization:
 ```
 
 ### Draw Call Reduction
+Manual Unity Editor techniques, not automated here:
 ```
 Batching strategies:
 - Static batching (non-moving objects)
@@ -48,6 +66,8 @@ Batching strategies:
 ## VRChat-Specific Optimization
 
 ### Quest Compatibility
+Reference limits (check against them manually, or via
+`unity_validation(operation="check_polycount"/"check_materials")`):
 ```
 Quest requirements (strict):
 - Max 7,500 triangles (Excellent)
@@ -59,6 +79,7 @@ Quest requirements (strict):
 ```
 
 ### Shader Optimization
+Reference only:
 ```
 VRChat-approved shaders:
 - Standard (basic, compatible)
@@ -75,4 +96,3 @@ Avoid:
 ---
 
 **Austrian Performance**: Every frame counts, every vertex optimized! 🇦🇹⚡
-

@@ -10,7 +10,7 @@ This skill provides the foundational logic for orchestrating Unity Editor operat
 ## 🚀 Core Principles
 
 1.  **Project First**: Always ensure a project exists or is correctly initialized before running editor commands.
-2.  **CLI Precision**: Use the specific CLI wrappers (e.g., `execute_unity_method`) to perform operations that don't required a visible editor.
+2.  **CLI Precision**: Use `unity_core(operation="execute_method")` to perform operations that don't require a visible editor.
 3.  **Scene Hygiene**: Save current work frequently and validate scene paths before manipulation.
 
 ## 🔑 Dual-Mode Architecture (Hands-In vs Hands-Off)
@@ -44,15 +44,25 @@ To enable **Hands-In** live control, you must install the MCP bridge in your Uni
 
 ### Project Initialization
 To create a SOTA-compliant Unity project:
-1.  Call `create_unity_project` with a descriptive path.
-2.  Set the target platform early using `switch_platform`.
-3.  Import baseline packages (UniVRM, VRChat SDK) using `install_univrm` and `install_asset_package`.
+1.  Call `unity_core(operation="create_project", project_name=..., project_path=..., template=..., unity_version=...)`.
+2.  There is **no** `switch_platform` tool — no MCP tool changes the active
+    build target directly. `unity_build(operation="build_project",
+    build_target=...)` builds for a target platform but does not switch the
+    open Editor's active target. If you need the Editor itself switched,
+    that's a manual step for now.
+3.  Import UniVRM with `unity_core(operation="install_univrm",
+    project_path=..., vrm_version=...)` (real, works). There is **no**
+    `install_asset_package` tool — generic asset-package installation
+    (e.g. VRChat SDK via .unitypackage) is not exposed as an MCP tool;
+    real but unregistered code exists in `import_export_manager.py`. Do
+    this step manually in the Unity Editor for now.
 
 ### Method Execution
-For advanced automation, use `execute_unity_method`:
-- **Class**: The full namespace + class name in your Unity project.
-- **Method**: A `[MenuItem]` or `static` method accessible to the editor.
-- **Args**: Pass JSON-formatted arguments to the method entry point.
+For advanced automation, use `unity_core(operation="execute_method")`:
+- **`class_name`**: The full namespace + class name in your Unity project.
+- **`method_name`**: A `[MenuItem]` or `static` method accessible to the editor.
+- **`parameters`**: Dict of arguments passed to the method entry point.
+- **`project_path`**: Unity project path.
 
 ---
 **Status:** ✅ SOTA v12.0 Compliant

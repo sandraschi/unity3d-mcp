@@ -48,95 +48,107 @@ Check editor status without parameters. The tool automatically detects Unity ins
 ### Project Management
 ```python
 # Check if a project has UniVRM installed
-await check_univrm_installed(project_path="D:/Projects/MyAvatar")
+await unity_core(operation="check_univrm", project_path="D:/Projects/MyAvatar")
 
 # Install UniVRM in an existing project
-await install_univrm(project_path="D:/Projects/MyAvatar", vrm_version="vrm0")
+await unity_core(operation="install_univrm", project_path="D:/Projects/MyAvatar", vrm_version="vrm0")
 
 # Create a new project with UniVRM pre-installed
-await create_project_with_univrm(
+await unity_core(
+    operation="create_project_with_univrm",
     project_name="VRChatProject",
     project_path="D:/Projects",
     unity_version="2022.3",
     vrm_version="vrm1"
 )
 ```
+(These are `unity_core` operations, not standalone tools — corrected 2026-07-18.)
 
 ### Scene Management
 ```python
 # Create a directional light
-await api_execute_method(
-    class_name="MCP.MCPBridge",
-    method_name="CreateLight",
-    parameters={
-        "name": "Sun",
-        "type": "Directional",
-        "intensity": 1.0
-    }
+await unity_scene(
+    operation="create_light",
+    light_name="Sun",
+    light_type="Directional",
+    intensity=1.0
 )
 ```
+(Corrected 2026-07-18: the old `api_execute_method(class_name="MCP.MCPBridge",
+method_name="CreateLight", ...)` example no longer works — the flat
+`api_execute_method` tool was removed. `unity_scene(operation="create_light")`
+is the real, currently-registered tool for this.)
 
 ## VRM Avatar Pipeline
 
 ### Importing VRM Files
 ```python
-await import_vrm_avatar(
+await unity_avatar(
+    operation="import_vrm",
     vrm_path="D:/Avatars/my_avatar.vrm",
     project_path="D:/Projects/MyAvatar",
     optimize_for_vrchat=True,
     create_prefab=True
 )
 ```
+(Corrected 2026-07-18: `import_vrm_avatar` never existed — it's
+`unity_avatar(operation="import_vrm")`. Also worth knowing: the
+`vrchat_optimizations` report this returns when `optimize_for_vrchat=True`
+is currently a hardcoded placeholder, not a computed result — see
+`TODO.md`.)
 
 ### Animation Setup
 ```python
 # Setup animator with facial expressions
-await setup_animator_controller(
+await unity_avatar(
+    operation="setup_animator",
     avatar_path="D:/Projects/MyAvatar/Assets/Models/my_avatar.vrm",
     animator_type="humanoid",
     include_facial=True
 )
-
-# Create a custom animation clip
-await create_animation_clip(
-    clip_name="Wave",
-    duration=1.5,
-    keyframes=[
-        {"property": "Arm_Left.localRotation.x", "time": 0.0, "value": 0.0},
-        {"property": "Arm_Left.localRotation.x", "time": 0.75, "value": -45.0},
-        {"property": "Arm_Left.localRotation.x", "time": 1.5, "value": 0.0}
-    ]
-)
 ```
+(Corrected 2026-07-18: `setup_animator_controller` never existed — it's
+`unity_avatar(operation="setup_animator")`. Same caveat as above: the
+returned animator-controller config is templated, not written to a real
+`.controller` asset on disk.)
+
+**No `create_animation_clip` tool, or any equivalent, exists.** Custom
+keyframe animation clip creation is not automatable through this server —
+author animation clips manually in the Unity Editor.
 
 ## VRChat Integration
 
 ### Authentication
 ```python
 # Check current authentication status
-await check_vrchat_authentication()
+await vrchat(operation="check_auth")
 
 # Authenticate with VRChat API
-await authenticate_vrchat(username="your_username", password="your_password")
+await vrchat(operation="authenticate", username="your_username", password="your_password")
 
 # With 2FA
-await authenticate_vrchat(
+await vrchat(
+    operation="authenticate",
     username="your_username",
     password="your_password",
     totp_code="123456"
 )
 ```
+(Corrected 2026-07-18: `check_vrchat_authentication`/`authenticate_vrchat`
+never existed — both are `vrchat` operations.)
 
 ### Avatar Validation and Upload
 ```python
 # Validate avatar before upload
-await vrchat_validate_avatar(
+await vrchat(
+    operation="validate_avatar",
     avatar_prefab="Assets/Avatars/MyAvatar.prefab",
     project_path="D:/Projects/MyAvatar"
 )
 
 # Upload to VRChat
-await vrchat_upload_avatar(
+await vrchat(
+    operation="upload_avatar",
     avatar_prefab="Assets/Avatars/MyAvatar.prefab",
     avatar_name="My Awesome Avatar",
     description="A cool avatar with custom expressions",
@@ -144,96 +156,96 @@ await vrchat_upload_avatar(
     release_status="public"
 )
 ```
+(Corrected 2026-07-18: `vrchat_validate_avatar`/`vrchat_upload_avatar`
+never existed — both are `vrchat` operations. This one is real, CLI-backed
+— confirmed it shells out to actual Unity/VRChat SDK build tooling, not a
+stub.)
 
 ## Asset Management
 
 ### Importing Assets
-```python
-# Import a .unitypackage
-await import_package(
-    package_path="D:/Downloads/Textures.unitypackage",
-    project_path="D:/Projects/MyGame",
-    interactive=False
-)
-```
+**No `import_package` tool, or any equivalent, exists.** Generic
+`.unitypackage` import is not exposed as an MCP tool — real but
+unregistered code exists in `import_export_manager.py` (see `TODO.md`).
+Import `.unitypackage` files manually via the Unity Editor for now.
 
 ### Material Management
+**No `create_material` or `convert_materials_vrchat` tool, or any
+equivalent, exists.** Material creation and VRChat shader conversion are
+not automatable through this server — both are manual Unity Editor tasks
+today.
+
 ```python
-# Create a new material
-await create_material("RedMetal", "Standard", {
-    "_Color": [1.0, 0.0, 0.0, 1.0],
-    "_Metallic": 0.8,
-    "_Glossiness": 0.3
-})
-
-# Convert materials for VRChat
-await convert_materials_vrchat(
-    material_paths=["Assets/Materials/Character.mat"],
-    project_path="D:/Projects/MyAvatar"
-)
-
 # Optimize textures for target platform
-await optimize_textures(
+await unity_asset(
+    operation="optimize_textures",
     texture_paths=["Assets/Textures/albedo.png"],
     platform="Android",
     quality="High"
 )
 ```
+(Corrected 2026-07-18: `optimize_textures` as a standalone tool never
+existed — it's `unity_asset(operation="optimize_textures")`. Parameters
+match what's shown above.)
 
 ## Build Pipeline
 
 ### Building Projects
 ```python
 # Build for Windows
-await build_project(
+await unity_build(
+    operation="build_project",
     project_path="D:/Projects/MyGame",
     build_target="StandaloneWindows64",
     output_path="D:/Builds/MyGame"
 )
 
 # Build for Android
-await build_project(
+await unity_build(
+    operation="build_project",
     project_path="D:/Projects/MyGame",
     build_target="Android",
     output_path="D:/Builds/MyGame_Android",
     development_build=True
 )
 ```
+(Corrected 2026-07-18: `build_project` as a standalone tool never
+existed — it's `unity_build(operation="build_project")`.)
 
 ### Build Settings
-```python
-# Get current build settings
-await get_build_settings(project_path="D:/Projects/MyGame")
-
-# Switch platform
-await switch_platform(
-    project_path="D:/Projects/MyGame",
-    target_platform="Android"
-)
-
-# Apply platform optimizations
-await optimize_for_platform(
-    project_path="D:/Projects/MyGame",
-    platform="Android"
-)
-```
+**None of `get_build_settings`, `switch_platform`, or
+`optimize_for_platform` are MCP-callable tools.** `BuildManager` does have
+a real `get_build_settings(project_path)` method (see the "Local Dev
+Workflow Script" example further down, which calls it directly via
+Python), but it is not exposed as a `unity_build` operation — only
+`build_project` is registered. `switch_platform` and
+`optimize_for_platform` don't exist in any form, registered or not.
 
 ## Social VR Platform Operations
+
+**Corrected 2026-07-18**: ChilloutVR/Resonite/Cluster used to have
+individually-registered flat tools (`check_cck_installed`,
+`setup_cvr_avatar`, `validate_for_chilloutvr`, `prepare_for_resonite`,
+`check_resonite_compatibility`, `check_cluster_kit`,
+`prepare_for_cluster`). These were removed — everything below is now a
+single `multiplatform` operation.
 
 ### ChilloutVR
 ```python
 # Check CCK installation
-await check_cck_installed(project_path="D:/Projects/CVR")
+await multiplatform(operation="check_cck", project_path="D:/Projects/CVR")
 
 # Setup avatar for ChilloutVR
-await setup_cvr_avatar(
+await multiplatform(
+    operation="setup_cvr_avatar",
     avatar_object="MyAvatar",
     project_path="D:/Projects/CVR",
     eye_height=1.6
 )
 
 # Validate for CVR upload
-await validate_for_chilloutvr(
+await multiplatform(
+    operation="validate_cvr",
     avatar_name="MyAvatar",
     project_path="D:/Projects/CVR"
 )
@@ -242,20 +254,21 @@ await validate_for_chilloutvr(
 ### Resonite
 ```python
 # Prepare model for Resonite (VRM/GLB direct import)
-await prepare_for_resonite(model_path="D:/Avatars/model.vrm")
+await multiplatform(operation="prepare_resonite", model_path="D:/Avatars/model.vrm")
 
 # Check compatibility
-await check_resonite_compatibility(model_path="D:/Avatars/model.glb")
+await multiplatform(operation="check_resonite_compat", model_path="D:/Avatars/model.glb")
 ```
 
 ### Cluster
 ```python
 # Check Cluster Creator Kit
-await check_cluster_kit(project_path="D:/Projects/Cluster")
+await multiplatform(operation="check_cluster_kit", project_path="D:/Projects/Cluster")
 
 # Prepare avatar for Cluster
-await prepare_for_cluster(
-    avatar_path="Assets/Avatars/MyAvatar.prefab",
+await multiplatform(
+    operation="prepare_cluster",
+    asset_folder="Assets/Avatars/MyAvatar.prefab",
     project_path="D:/Projects/Cluster"
 )
 ```
@@ -265,52 +278,29 @@ await prepare_for_cluster(
 ### Importing Marble Worlds
 ```python
 # Import a Marble-exported world
-await import_marble_world(
+await worldlabs(
+    operation="import_marble",
     source_path="D:/Worlds/forest/",
     project_path="D:/Projects/MarbleWorlds",
     asset_name="ForestScene"
 )
 
 # Check and install Gaussian Splatting
-await check_gaussian_splatting_installed(project_path="D:/Projects/MarbleWorlds")
+await worldlabs(operation="check_gaussian", project_path="D:/Projects/MarbleWorlds")
 
 # Install Gaussian Splatting package
-await install_gaussian_splatting(project_path="D:/Projects/MarbleWorlds")
+await worldlabs(operation="install_gaussian", project_path="D:/Projects/MarbleWorlds")
 ```
+(Corrected 2026-07-18: `import_marble_world`,
+`check_gaussian_splatting_installed`, `install_gaussian_splatting` never
+existed as standalone tools — all three are `worldlabs` operations.)
 
 ## Motor Control System
 
-### Basic Motor Operations
-```python
-# Create a motor configuration
-await motor_control(
-    operation="configure",
-    motor_id="motor_1",
-    max_speed=1000,
-    acceleration=500,
-    deceleration=500,
-    pid_p=0.5,
-    pid_i=0.01,
-    pid_d=0.1
-)
-
-# Run motor program
-await motor_control(
-    operation="run_program",
-    motor_id="motor_1",
-    program=[
-        {"target_speed": 500, "duration": 2.0},
-        {"target_speed": 1000, "duration": 3.0},
-        {"target_speed": 0, "duration": 1.0}
-    ]
-)
-
-# Monitor motor status
-await motor_control(
-    operation="status",
-    motor_id="motor_1"
-)
-```
+**No `motor_control` tool, or any equivalent, exists.** Real motor-control
+code exists in `motor_manager.py` but is never registered as an MCP tool
+— this entire section describes functionality you cannot currently call.
+Tracked in `TODO.md` as unregistered-but-real code.
 
 ## Hands-In and Hands-Off Dual Mode
 
@@ -366,9 +356,18 @@ await unity3d_disk_api(
 
 ## Advanced Path Operations
 
+**Corrected 2026-07-18**: the flat `api_follow_path_2d`/`api_follow_path_3d`
+tools were removed (they duplicated `unity_api`, worse). The syntax below
+now targets `unity_api`, but be aware **these operations are scaffolded,
+not implemented** — `unity_api.py`'s `_api_follow_path_2d`/`_api_follow_path_3d`
+unconditionally return `{"success": false, "error": "Unity Editor API not
+yet implemented"}` regardless of input. This section is aspirational, not
+currently callable functionality.
+
 ### 2D Path Following
 ```python
-await api_follow_path_2d(
+await unity_api(
+    operation="follow_path_2d",
     object_name="GroundRobot",
     path_points=[
         {"x": 0, "z": 0},
@@ -383,7 +382,8 @@ await api_follow_path_2d(
 
 ### 3D Path Following with Banking
 ```python
-await api_follow_path_3d(
+await unity_api(
+    operation="follow_path_3d",
     object_name="Drone",
     path_points=[
         {"x": 0, "y": 2, "z": 0},
@@ -401,7 +401,8 @@ await api_follow_path_3d(
 ### Avatar Performance
 ```python
 # Analyze avatar performance
-await vrchat_validate_avatar(
+await vrchat(
+    operation="validate_avatar",
     avatar_prefab="Assets/Avatars/MyAvatar.prefab",
     project_path="D:/Projects/MyAvatar"
 )
@@ -413,80 +414,66 @@ await vrchat_validate_avatar(
 ### Texture Optimization
 ```python
 # Optimize textures for VR
-await optimize_textures(
+await unity_asset(
+    operation="optimize_textures",
     texture_paths=["Assets/Textures/face_albedo.png", "Assets/Textures/body_albedo.png"],
-    platform="VR",
+    platform="PC",
     quality="High"
 )
 ```
+(Real `unity_asset` platform values per its docstring: "PC", "Android",
+"iOS", "WebGL", "Quest" — not "VR".)
 
 ## Import/Export Management
 
 ### Model Import
-The import_export_manager supports various 3D formats. Each import extracts materials and textures automatically.
+**Corrected 2026-07-18**: `import_3d_model` never existed. The real tool
+is `unity_import`, and its real scope is narrower than this section
+implied — it's built for the blender-mcp/fleet export handoff, not
+arbitrary FBX/OBJ import with per-call `extract_materials`/`scale`
+control:
 
 ```python
-# Import a single FBX file
-await import_3d_model(
+# Import a single asset (GLB/VRM/FBX/OBJ) exported from blender-mcp or the fleet pipeline
+await unity_import(
+    operation="import_blender",
     file_path="D:/Models/character.fbx",
-    project_path="D:/Projects/MyGame",
-    extract_materials=True
+    project_path="D:/Projects/MyGame"
 )
 
-# Import multiple files as batch
-await import_3d_model(
-    file_path=["D:/Models/building.fbx", "D:/Models/tree.fbx"],
+# Batch import a directory of exports
+await unity_import(
+    operation="import_fleet_batch",
+    input_dir="D:/Models/",
     project_path="D:/Projects/MyGame",
-    scale=0.01
+    pattern="*.glb"
 )
 ```
+There is no per-call `extract_materials` or `scale` parameter, and no
+multi-path-list single call — batch import goes through `input_dir` +
+`pattern`, one directory at a time.
 
 ### GLTF/GLB Export
-Export scenes or objects for use in other engines or web viewers.
-
-```python
-# Export single object
-await export_gltf(
-    object_names="Character",
-    output_path="D:/Exports/character.gltf"
-)
-
-# Export multiple objects to single file
-await export_gltf(
-    object_names=["Building", "Terrain"],
-    output_path="D:/Exports/level.glb"
-)
-```
+**No `export_gltf` tool, or any equivalent, exists.** Exporting Unity
+scenes/objects to GLTF/GLB for other engines is not automatable through
+this server — real but unregistered code may exist in
+`import_export_manager.py` (unverified for this specific direction; see
+`TODO.md`).
 
 ### Unity Package Export
-Share your assets as .unitypackage files:
-
-```python
-await export_unity_package(
-    asset_paths=["Assets/Characters", "Assets/Animations"],
-    output_path="D:/Exports/character_pack.unitypackage"
-)
-```
+**No `export_unity_package` tool, or any equivalent, exists.** Same
+situation as GLTF export above — not currently callable.
 
 ## Batch Operations
 
 ### Sequential Motor Programs
-```python
-await motor_control(
-    operation="run_program",
-    motor_id="assembly_arm",
-    program=[
-        {"target_speed": 200, "duration": 1.0},
-        {"target_speed": 500, "duration": 2.0},
-        {"target_speed": 0, "duration": 0.5}
-    ],
-    loop=True
-)
-```
+No `motor_control` tool exists (see "Motor Control System" above) — this
+section describes uncallable functionality.
 
 ### Batch API Operations
 ```python
-await api_batch_operations(
+await unity_api(
+    operation="batch_operations",
     operations=[
         {
             "type": "execute_method",
@@ -503,6 +490,10 @@ await api_batch_operations(
     ]
 )
 ```
+(Corrected 2026-07-18: the flat `api_batch_operations` tool was removed;
+`unity_api(operation="batch_operations")` is its replacement name, but
+**it's scaffolded, not implemented** — always returns `{"success": false,
+"error": "Unity Editor API not yet implemented"}` regardless of input.)
 
 ## MCPBridge.cs Setup
 
@@ -639,21 +630,24 @@ The agentic workflow automatically:
 
 ## Unity Editor API Reference
 
-### execute_method Parameters
-The core method for Unity batch operations:
+**Corrected 2026-07-18**: there used to be two competing `execute_method`
+paths — `unity_core(operation="execute_method")` (real, CLI-backed) and
+the flat `api_execute_method` tool (removed; superseded by
+`unity_api(operation="execute_method")`, which is a stub — see below).
+They are not interchangeable; know which one you're calling.
+
+### `unity_core(operation="execute_method")` — real, CLI-backed
 - `class_name`: Unity C# class (e.g., "MCP.MCPBridge", "VbotSpawner")
 - `method_name`: Method to execute
-- `parameters`: Dictionary of parameters (logged but may not be passed directly)
+- `parameters`: Dictionary of parameters
 - `project_path`: Path to Unity project
-- `scene_path`: Optional scene file path
-- `wait_for_completion`: Wait for execution to finish (default: True)
+- Runs Unity in `-batchmode -executeMethod`; this genuinely invokes Unity.
 
-### api_execute_method vs execute_method
-The API variant supports complex parameter passing through the Unity Editor API plugin, ideal for:
-- Spawning robots with full parameter sets
-- Scene manipulation with nested objects
-- Batch operations across multiple objects
-- Physics simulation with data recording
+### `unity_api(operation="execute_method")` — scaffolded, not implemented
+Delegates to the live bridge if connected and returns "not yet
+implemented" either way; the error message itself suggests falling back
+to `unity_core(operation="execute_method")` above. Do not rely on this
+one for anything real yet.
 
 ## Troubleshooting
 
@@ -675,7 +669,7 @@ If UniVRM packages don't install:
 #### VRChat Upload Fails
 If avatar upload fails:
 1. Verify VRChat SDK is installed (both avatars and worlds packages)
-2. Check authentication status with check_vrchat_authentication()
+2. Check authentication status with `vrchat(operation="check_auth")`
 3. Ensure avatar meets VRChat performance requirements
 4. Check Unity Editor version compatibility (2022.3 LTS recommended)
 5. Look for specific errors in the Unity build output
@@ -697,52 +691,42 @@ orchestrator.mount(osc_mcp, prefix="osc")
 
 ## API Tool Reference
 
-### Path Operations
-The path movement tools provide complete control for robotics and animation:
+**Corrected 2026-07-18**: all the flat `api_*` names below (`api_move_along_path`,
+`api_follow_path_2d`, `api_follow_path_3d`, `api_stop_path_movement`,
+`api_create_path_visualization`, `api_get_scene_objects`,
+`api_batch_operations`) were removed as standalone tools — they're now
+`unity_api(operation=...)` calls. But their real implementation status
+varies a lot, so don't assume "renamed" means "working":
 
-**api_move_along_path** moves an object along a predefined path with easing:
-- Supports straight, bezier, spline, and catmull_rom path types
-- Configurable duration, looping, and easing (linear, ease_in, ease_out, ease_in_out)
-- Returns animation ID for tracking
+### Path Operations — scaffolded, not implemented
+`unity_api(operation="move_along_path"/"follow_path_2d"/"follow_path_3d"/"stop_path_movement")`
+all unconditionally return `{"success": false, "error": "Unity Editor API
+not yet implemented"}`. The descriptions below (straight/bezier/spline
+path types, look_ahead, bank_angle, deceleration) describe the intended
+design, not current behavior.
 
-**api_follow_path_2d** is optimized for ground-based robots:
-- Y-axis is ignored, only XZ plane movement
-- look_ahead parameter for smooth rotation toward path direction
-- Supports speed control instead of fixed duration
-
-**api_follow_path_3d** provides full spatial movement:
-- Bank angle for aircraft-style turning
-- Works with any 3D path in world space
-- Speed-based movement with look_ahead orientation
-
-**api_stop_path_movement** halts active path following:
-- Smooth deceleration option (default 0.5 seconds)
-- Immediate stop for emergencies
-- Returns final velocity and position
-
-### Path Visualization
-Create visual guides for debugging path planning:
+### Path Visualization — scaffolded, not implemented
 ```python
-await api_create_path_visualization(
+await unity_api(
+    operation="create_path_visualization",
     path_points=[{"x": 0, "y": 0, "z": 0}, {"x": 10, "y": 0, "z": 0}],
     path_type="straight",
     visualization_type="line",
     color={"r": 1.0, "g": 0.0, "b": 0.0, "a": 1.0}
 )
 ```
+Same caveat — always returns "not yet implemented".
 
-### Scene Query Tools
-**api_get_scene_objects** retrieves the full scene hierarchy:
-- Returns object names, positions, rotations, and scales
-- Optional filter pattern for targeted queries (e.g., "*Robot*")
-- Works with both Hands-In and Hands-Off modes
+### Scene Query Tools — real, works via live bridge
+`unity_api(operation="get_scene_objects")` **actually works** (unlike the
+rest of `unity_api`) when the Editor bridge is connected — it calls
+`get_hierarchy` on the live bridge and returns real object names,
+positions, and an optional name filter. Hands-Off mode (no bridge) is not
+supported for this operation despite what the old docs implied.
 
-### Batch Operations
-**api_batch_operations** executes multiple operations atomically:
-- All operations succeed or fail together
-- Returns individual results for each operation
-- Great for complex scene setup workflows
-- Supports mixed operation types in single call
+### Batch Operations — scaffolded, not implemented
+`unity_api(operation="batch_operations")` always returns "not yet
+implemented" regardless of what operations you pass.
 
 ## Unity Version Compatibility Matrix
 
@@ -855,7 +839,7 @@ Create efficient workflows by chaining operations:
 - Always check package compatibility with the target Unity version before starting a project.
 
 ### VRChat Upload Pipeline Best Practices
-1. **Always validate** before uploading using vrchat_validate_avatar
+1. **Always validate** before uploading using `vrchat(operation="validate_avatar")`
 2. **Test in Unity** Play mode before building
 3. **Build with development** options for debugging
 4. **Check performance rank** before public upload (Excellent or Good recommended)
@@ -872,35 +856,33 @@ Create efficient workflows by chaining operations:
 ## Scene Management Guide
 
 ### Creating Lights
-Unity3D-MCP supports three light types with full parameter control:
+Unity3D-MCP supports four light types (`Spot`, `Directional`, `Point`, `Area`) via `unity_scene`.
 
 ```python
 # Directional light (sun)
-await api_execute_method(
-    class_name="MCP.MCPBridge",
-    method_name="CreateLight",
-    parameters={
-        "name": "Sun",
-        "type": "Directional",
-        "color": [1.0, 0.95, 0.8, 1.0],
-        "intensity": 1.2,
-        "position": {"x": 10, "y": 20, "z": -10},
-        "rotation": {"x": 50, "y": -30, "z": 0}
-    }
+await unity_scene(
+    operation="create_light",
+    light_name="Sun",
+    light_type="Directional",
+    color=[1.0, 0.95, 0.8, 1.0],
+    intensity=1.2,
+    position={"x": 10, "y": 20, "z": -10}
 )
 
 # Spot light
-await api_execute_method(
-    class_name="MCP.MCPBridge",
-    method_name="CreateLight",
-    parameters={
-        "name": "Flashlight",
-        "type": "Spot",
-        "intensity": 2.0,
-        "position": {"x": 0, "y": 2, "z": 0}
-    }
+await unity_scene(
+    operation="create_light",
+    light_name="Flashlight",
+    light_type="Spot",
+    intensity=2.0,
+    position={"x": 0, "y": 2, "z": 0}
 )
 ```
+(Corrected 2026-07-18: the old `api_execute_method(class_name="MCP.MCPBridge",
+method_name="CreateLight", ...)` no longer works — `api_execute_method`
+was removed. `unity_scene(operation="create_light")` is the real tool.
+Note it has no `rotation` parameter — only `light_name`, `light_type`,
+`color`, `intensity`, `position`.)
 
 ### Creating GameObjects
 ```python
@@ -1101,7 +1083,7 @@ This enables workflows like:
 Use World Labs Marble with Gaussian Splatting for photorealistic environments:
 1. Generate a 3D world with worldlabs-mcp
 2. Export as mesh and splat files
-3. Import mesh into Unity via import_marble_world
+3. Import mesh into Unity via `worldlabs(operation="import_marble")`
 4. Install Gaussian Splatting renderer
 5. Import .ply/.splat files for volumetric rendering
 6. Combine with traditional geometry for hybrid scenes
@@ -1115,13 +1097,14 @@ Chain multiple MCP servers for a complete game development pipeline:
 5. **aiwatcher-mcp**: Monitor feedback and bug reports
 
 ### Physics Simulation
-Run Unity physics simulations via the API:
 ```python
-# Set up scene with objects
-await api_batch_operations(operations=[...])
+# Set up scene with objects — scaffolded, not implemented (see "Batch
+# Operations" above), skip this step until it's real
+await unity_api(operation="batch_operations", operations=[...])
 
-# Run simulation
-result = await api_run_simulation(
+# Run simulation — this one is REAL, unlike most of unity_api
+result = await unity_api(
+    operation="run_simulation",
     duration=5.0,
     record_data=True
 )
@@ -1130,6 +1113,11 @@ result = await api_run_simulation(
 for frame in result.get("recorded_data", []):
     print(f"Frame {frame['time']}: {frame['positions']}")
 ```
+(Corrected 2026-07-18: the flat `api_batch_operations`/`api_run_simulation`
+tools were removed — both are now `unity_api` operations. Worth knowing
+`run_simulation` is genuinely implemented (calls
+`run_bridge_simulation`, drives real Unity play-mode physics via the
+bridge) even though most of `unity_api`'s other operations are stubs.)
 
 Use simulations for:
 - Testing robot movements and collisions
