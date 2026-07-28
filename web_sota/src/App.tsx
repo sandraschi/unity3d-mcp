@@ -1,19 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/app-layout';
-import { Dashboard } from '@/pages/dashboard';
-import Hierarchy from '@/pages/hierarchy';
-import ScriptConsole from '@/pages/script-console';
-import AvatarPipeline from '@/pages/avatar-pipeline';
-import PluginManager from '@/pages/plugin-manager';
-import { Chat } from '@/pages/chat';
-import { Settings } from '@/pages/settings';
-import FleetMesh from '@/pages/mesh';
-import { Tools } from '@/pages/tools';
-import { Status } from '@/pages/status';
-import { Apps } from '@/pages/apps';
-import { AgentTools } from '@/pages/agent-tools';
-import { Help } from '@/pages/help';
-import Logging from '@/pages/Logging';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import { AppLayout } from "@/components/layout/app-layout";
+import { AgentTools } from "@/pages/agent-tools";
+import { Apps } from "@/pages/apps";
+import AvatarPipeline from "@/pages/avatar-pipeline";
+import { Chat } from "@/pages/chat";
+import { Dashboard } from "@/pages/dashboard";
+import { Help } from "@/pages/help";
+import Hierarchy from "@/pages/hierarchy";
+import Logging from "@/pages/Logging";
+import FleetMesh from "@/pages/mesh";
+import PluginManager from "@/pages/plugin-manager";
+import ScriptConsole from "@/pages/script-console";
+import { Settings } from "@/pages/settings";
+import { Status } from "@/pages/status";
+import { Tools } from "@/pages/tools";
 
 function App() {
   return (

@@ -17,7 +17,7 @@ class TestPackageImport:
         import unity3d_mcp
 
         assert hasattr(unity3d_mcp, "__version__")
-        assert unity3d_mcp.__version__ == "1.0.0"
+        assert unity3d_mcp.__version__ == "1.5.0"
 
     def test_package_author(self):
         """Test that package has author."""

@@ -1,8 +1,22 @@
-import { Activity, Box, Camera, Cpu, GitPullRequest, ScanEye, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  Box,
+  type Camera,
+  Cpu,
+  GitPullRequest,
+  ScanEye,
+  ShieldCheck,
+} from "lucide-react";
 import { useState } from "react";
 import { callTool, getBackendHealth } from "@/api/mcp";
 
-type TabId = "bridge" | "import" | "vision" | "validation" | "jobs" | "platform";
+type TabId =
+  | "bridge"
+  | "import"
+  | "vision"
+  | "validation"
+  | "jobs"
+  | "platform";
 
 function ResultBox({ text }: { text: string | null }) {
   if (!text) return null;
@@ -21,7 +35,9 @@ export function AgentTools() {
 
   const [projectPath, setProjectPath] = useState("D:/Unity/MyProject");
   const [modelPath, setModelPath] = useState("D:/exports/avatar.glb");
-  const [avatarPrefab, setAvatarPrefab] = useState("Assets/Avatars/MyAvatar.prefab");
+  const [avatarPrefab, setAvatarPrefab] = useState(
+    "Assets/Avatars/MyAvatar.prefab",
+  );
   const [outputPath, setOutputPath] = useState("D:/Temp/unity_review.png");
   const [outputDir] = useState("D:/Temp/unity_angles");
   const [platform, setPlatform] = useState("vrchat");
@@ -52,9 +68,12 @@ export function AgentTools() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-100">Agent Tools</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-100">
+            Agent Tools
+          </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Phase 4 (v1.4): bridge, fleet import, vision refine, validation, jobs, unified platform audit.
+            Phase 4 (v1.4): bridge, fleet import, vision refine, validation,
+            jobs, unified platform audit.
           </p>
         </div>
         <button
@@ -67,8 +86,11 @@ export function AgentTools() {
       </div>
 
       {backendOk !== null && (
-        <p className={`text-sm ${backendOk ? "text-green-500" : "text-red-500"}`}>
-          Backend {backendOk ? "online" : "offline"} — run web_sota/start.ps1 or uvicorn on 10831.
+        <p
+          className={`text-sm ${backendOk ? "text-green-500" : "text-red-500"}`}
+        >
+          Backend {backendOk ? "online" : "offline"} — run web_sota/start.ps1 or
+          uvicorn on 10831.
         </p>
       )}
 
@@ -106,7 +128,9 @@ export function AgentTools() {
               setResult(null);
             }}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
-              tab === t.id ? "bg-blue-600 text-white" : "bg-slate-900 text-slate-400 hover:text-white"
+              tab === t.id
+                ? "bg-blue-600 text-white"
+                : "bg-slate-900 text-slate-400 hover:text-white"
             }`}
           >
             <t.icon className="h-4 w-4" />
@@ -177,7 +201,10 @@ export function AgentTools() {
             type="button"
             disabled={loading}
             onClick={() =>
-              run("unity_render", { operation: "capture_game_view", output_path: outputPath })
+              run("unity_render", {
+                operation: "capture_game_view",
+                output_path: outputPath,
+              })
             }
             className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm disabled:opacity-50"
           >
@@ -206,7 +233,10 @@ export function AgentTools() {
             type="button"
             disabled={loading}
             onClick={() =>
-              run("unity_validation", { operation: "validate_scene", target_platform: platform })
+              run("unity_validation", {
+                operation: "validate_scene",
+                target_platform: platform,
+              })
             }
             className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm disabled:opacity-50"
           >
@@ -216,7 +246,10 @@ export function AgentTools() {
             type="button"
             disabled={loading}
             onClick={() =>
-              run("unity_validation", { operation: "check_missing_scripts", target_platform: platform })
+              run("unity_validation", {
+                operation: "check_missing_scripts",
+                target_platform: platform,
+              })
             }
             className="ml-2 px-4 py-2 rounded-md bg-slate-800 text-slate-200 text-sm disabled:opacity-50"
           >

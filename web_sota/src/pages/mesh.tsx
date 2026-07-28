@@ -3,11 +3,36 @@ import { useState } from "react";
 const BACKEND = "http://127.0.0.1:10831";
 
 const FLEET_SOURCES = [
-  { id: "gazebo",  label: "Gazebo",  desc: "Physics simulation",        defaultFile: "gazebo_models/scout.fbx" },
-  { id: "freecad", label: "FreeCAD", desc: "CAD model export",         defaultFile: "freecad_models/part.step" },
-  { id: "resonite",label: "Resonite",desc: "VR spatial sync",          defaultFile: "resonite_models/avatar.vrm" },
-  { id: "blender", label: "Blender", desc: "3D modeling",              defaultFile: "blender_models/scene.fbx" },
-  { id: "worldlabs",label: "WorldLabs",desc: "AI-generated 3D worlds", defaultFile: "worldlabs_models/world.obj" },
+  {
+    id: "gazebo",
+    label: "Gazebo",
+    desc: "Physics simulation",
+    defaultFile: "gazebo_models/scout.fbx",
+  },
+  {
+    id: "freecad",
+    label: "FreeCAD",
+    desc: "CAD model export",
+    defaultFile: "freecad_models/part.step",
+  },
+  {
+    id: "resonite",
+    label: "Resonite",
+    desc: "VR spatial sync",
+    defaultFile: "resonite_models/avatar.vrm",
+  },
+  {
+    id: "blender",
+    label: "Blender",
+    desc: "3D modeling",
+    defaultFile: "blender_models/scene.fbx",
+  },
+  {
+    id: "worldlabs",
+    label: "WorldLabs",
+    desc: "AI-generated 3D worlds",
+    defaultFile: "worldlabs_models/world.obj",
+  },
 ];
 
 export default function FleetMesh() {
@@ -22,7 +47,10 @@ export default function FleetMesh() {
   const activeSrc = FLEET_SOURCES.find((s) => s.id === source)!;
 
   async function doImport() {
-    const modelList = models.split("\n").map((s) => s.trim()).filter(Boolean);
+    const modelList = models
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (!modelList.length) return;
     setLoading(true);
     setResult(null);
@@ -67,7 +95,8 @@ export default function FleetMesh() {
     <div className="space-y-8 p-6">
       <h1 className="text-2xl font-bold">Fleet Mesh — Import / Export</h1>
       <p className="text-muted-foreground">
-        Bridge models between the fleet repos and Unity 3D. Select a source, enter model names, and import.
+        Bridge models between the fleet repos and Unity 3D. Select a source,
+        enter model names, and import.
       </p>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -92,7 +121,9 @@ export default function FleetMesh() {
           <p className="text-xs text-muted-foreground">{activeSrc.desc}</p>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium">Model names (one per line)</label>
+            <label className="text-xs font-medium">
+              Model names (one per line)
+            </label>
             <textarea
               value={models}
               onChange={(e) => setModels(e.target.value)}
@@ -101,7 +132,9 @@ export default function FleetMesh() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-medium">File path template (optional)</label>
+            <label className="text-xs font-medium">
+              File path template (optional)
+            </label>
             <input
               value={filePath}
               onChange={(e) => setFilePath(e.target.value)}

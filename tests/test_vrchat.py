@@ -179,16 +179,16 @@ class TestAvatarUpload:
     @pytest.mark.asyncio
     async def test_upload_not_authenticated(self, vrchat_manager, mock_vrchat_project, mock_avatar_prefab, clean_env):
         """Test upload fails when not authenticated."""
-        result = await vrchat_manager.upload_avatar(
-            avatar_prefab="Assets/Prefabs/TestAvatar.prefab",
-            avatar_name="Test Avatar",
-            project_path=str(mock_vrchat_project),
-        )
+        with patch.object(vrchat_manager, "check_authentication", new_callable=AsyncMock) as mock_auth:
+            mock_auth.return_value = {"authenticated": False, "solutions": ["set credentials"]}
+            result = await vrchat_manager.upload_avatar(
+                avatar_prefab="Assets/Prefabs/TestAvatar.prefab",
+                avatar_name="Test Avatar",
+                project_path=str(mock_vrchat_project),
+            )
 
-        assert result["status"] == "error"
-        # May fail at auth check or validation depending on order
-        error_msg = result.get("message", "").lower()
-        assert "auth" in error_msg or "valid" in error_msg or "solutions" in result
+            assert result["status"] == "error"
+            assert "solutions" in result
 
 
 # TestOSCManager removed - OSC moved to oscmcp

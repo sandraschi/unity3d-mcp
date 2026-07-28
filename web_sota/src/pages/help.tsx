@@ -1,6 +1,14 @@
 import { useState } from "react";
 
-type TabId = "agent-lab" | "import" | "vision" | "validation" | "jobs" | "worldlabs" | "fleet" | "monitoring";
+type TabId =
+  | "agent-lab"
+  | "import"
+  | "vision"
+  | "validation"
+  | "jobs"
+  | "worldlabs"
+  | "fleet"
+  | "monitoring";
 
 const tabs: { id: TabId; label: string }[] = [
   { id: "agent-lab", label: "Agent Lab (v1.5)" },
@@ -50,7 +58,7 @@ const content: Record<TabId, { title: string; lines: string[] }> = {
       "unity_render(operation='capture_game_view', output_path='D:/Temp/review.png', include_base64=True)",
       "unity_render(operation='capture_multi_angle', output_dir='D:/Temp/angles', angles=4)",
       "unity_vision_refine(operation='review_bundle', output_dir='D:/Temp/review', goal='Improve lighting')",
-      "unity_vision_refine(operation='apply_bridge_commands', commands_json='[{\"action\":\"transform_object\",\"target\":\"Cube\",\"position\":[0,2,0]}]')",
+      'unity_vision_refine(operation=\'apply_bridge_commands\', commands_json=\'[{"action":"transform_object","target":"Cube","position":[0,2,0]}]\')',
     ],
   },
   jobs: {
@@ -100,7 +108,8 @@ export function Help() {
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-bold">Help & Reference</h1>
       <p className="text-sm text-muted-foreground">
-        Unity3D MCP Agent Lab — bridge, fleet import, vision loops, async jobs. See docs/ROADMAP.md in repo.
+        Unity3D MCP Agent Lab — bridge, fleet import, vision loops, async jobs.
+        See docs/ROADMAP.md in repo.
       </p>
 
       <div className="flex flex-wrap gap-2 border-b border-border/40 pb-2">
@@ -110,7 +119,9 @@ export function Help() {
             type="button"
             onClick={() => setTab(t.id)}
             className={`px-3 py-1.5 rounded-md text-sm font-medium ${
-              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              tab === t.id
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             {t.label}
@@ -123,8 +134,12 @@ export function Help() {
         <ul className="space-y-2 text-sm text-muted-foreground">
           {section.lines.map((line) => (
             <li key={line}>
-              {line.startsWith("unity_") || line.startsWith("worldlabs") || line.startsWith("POST") ? (
-                <code className="text-xs bg-muted px-1.5 py-0.5 rounded block overflow-x-auto">{line}</code>
+              {line.startsWith("unity_") ||
+              line.startsWith("worldlabs") ||
+              line.startsWith("POST") ? (
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded block overflow-x-auto">
+                  {line}
+                </code>
               ) : (
                 line
               )}

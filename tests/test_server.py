@@ -66,7 +66,7 @@ class TestConfig:
         assert config.project_path == ""
         assert config.auto_detect_unity is True
         assert config.enable_http is True
-        assert config.http_port == 8080
+        assert config.http_port == 10831
         assert config.log_level == "INFO"
 
     def test_config_custom_values(self):
