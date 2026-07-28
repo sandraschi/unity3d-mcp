@@ -1,4 +1,4 @@
-[build-system]
+﻿[build-system]
 requires = ["hatchling", "uv-dynamic-versioning>=0.7.0"]
 build-backend = "hatchling.build"
 
@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [
-    { name = "Sandra Schipal", email = "sandra@schipal.at" }
+    { name = "Sandra Schipal", email = "sandraschipal@gmail.com" }
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -42,12 +42,14 @@ dependencies = [
     "UnityPy>=1.20.0",
     "prefab-ui>=0.14.0",
     "fastapi>=0.136.1",
+    "psutil>=7.2.2",
 ]
 
 
 
 [project.optional-dependencies]
 dev = [
+    "pre-commit>=4.6.1",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
@@ -169,3 +171,4 @@ ignore = ["S101", "B008"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
