@@ -142,9 +142,7 @@ class UnityValidationToolManager:
                             "missing_script_count": bridge_report["metrics"].get("missing_scripts", 0),
                             "mesh_count": bridge_report["metrics"].get("mesh_count", 0),
                             "object_count": bridge_report["metrics"].get("object_count", 0),
-                            "objects_with_missing_scripts": bridge_report.get(
-                                "objects_with_missing_scripts", []
-                            ),
+                            "objects_with_missing_scripts": bridge_report.get("objects_with_missing_scripts", []),
                         }
                     return await run_unified_audit(
                         platforms=self.platforms,

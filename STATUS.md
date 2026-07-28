@@ -1,7 +1,7 @@
 # unity3d-mcp — Status
 
 **Version:** 0.1.0
-**Updated:** 2026-07-04
+**Updated:** 2026-07-25
 
 ## Fleet Standards Compliance
 
@@ -22,7 +22,11 @@
 | `.pre-commit-config.yaml` | ✅ | New |
 | `mcpb/manifest.json` | ✅ | New |
 | `STATUS.md` / `TODO.md` | ✅ | New |
-| Dashboard API fetch | ✅ | New — uses `/api/v1/health` |
+| Dashboard API fetch | ✅ | Uses `/api/v1/health` + `/api/v1/status` |
+| REST API endpoints | ✅ | 8 endpoints: health, status, llm/providers, scene, avatar/status, packages, editor/scripts, apps |
+| Frontend pages wired to backend | ✅ | Dashboard, Status, Script Console, Hierarchy, Avatar Pipeline, Plugin Manager, Apps, Settings |
+| Hierarchy interactive tree | ✅ | Clickable objects, inspector with transforms/components |
+| Scene /api/v1/scene | ✅ | Returns full hierarchy with transforms and components |
 | `zustand` / `framer-motion` | ❌ | Missing from package.json |
 | Chat personality selector | ❌ | Static placeholder |
 | GitHub CI workflow | ❌ | Missing |

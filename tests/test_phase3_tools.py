@@ -67,12 +67,15 @@ class TestVisionRefine:
         from unity3d_mcp.utils.vision_refine import apply_bridge_commands
 
         bridge = MagicMock()
-        with patch(
-            "unity3d_mcp.utils.vision_refine.bridge_available",
-            new=AsyncMock(return_value=True),
-        ), patch(
-            "unity3d_mcp.utils.vision_refine.execute_bridge_action",
-            new=AsyncMock(return_value={"success": True, "mode": "bridge"}),
+        with (
+            patch(
+                "unity3d_mcp.utils.vision_refine.bridge_available",
+                new=AsyncMock(return_value=True),
+            ),
+            patch(
+                "unity3d_mcp.utils.vision_refine.execute_bridge_action",
+                new=AsyncMock(return_value={"success": True, "mode": "bridge"}),
+            ),
         ):
             result = await apply_bridge_commands(
                 [{"action": "transform_object", "target": "Cube", "position": [0, 1, 0]}],

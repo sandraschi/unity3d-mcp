@@ -113,6 +113,24 @@ Note: API tools are currently scaffolded as "not yet implemented" — they requi
 | `import_marble` | Import Marble 3D world into Unity |
 | `assemble_review` | AI-driven review loop for imported worlds |
 
+## HTTP REST API
+
+Served by FastAPI on port 10831 alongside MCP. All endpoints return JSON.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/v1/health` | Server version, uptime, tool_count, capabilities |
+| GET | `/api/v1/status` | Uptime, tool count, Unity Editor detection (running processes, installed versions, project configured) |
+| GET | `/api/v1/llm/providers` | Probes Ollama :11434 and LM Studio :1234, returns detected model lists |
+| GET | `/api/v1/scene` | Active scenes, full GameObject hierarchy with transforms, components, tags, layers |
+| GET | `/api/v1/avatar/status` | VRChat auth status, avatar metrics (polygons, VRAM, draw calls, skinned meshes, dynamic bones, particles), optimization suggestions |
+| GET | `/api/v1/packages` | Installed UPM packages with versions, publisher, update status, custom count |
+| GET | `/api/v1/editor/scripts` | Available C# snippet library and recent execution history |
+| GET | `/api/v1/apps` | Connected app catalog |
+| POST | `/api/v1/fleet/launch` | Launch another MCP app via its start.ps1 |
+| GET | `/api/v1/workflows` | List available Arazzo mission descriptors |
+| GET | `/docs` | FastAPI Swagger UI |
+
 ## Config
 
 ### Env Vars

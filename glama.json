@@ -5,7 +5,7 @@
   "description": "Unity 3D automation server with VRM avatar pipeline and VRChat integration. Unity Editor management, scene manipulation, and build pipeline automation. Beta status.",
   "type": "mcp_server",
   "status": "beta",
-  "framework": "FastMCP 2.13+",
+  "framework": "FastMCP 3.2+",
   "tools": 60,
   "transport": ["stdio", "http"],
   "keywords": [

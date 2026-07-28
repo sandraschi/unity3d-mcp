@@ -19,9 +19,7 @@ def setup_logging(log_level: str | None = None) -> None:
     for handler in root.handlers[:]:
         root.removeHandler(handler)
 
-    fmt = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
-    )
+    fmt = logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s")
 
     stderr = logging.StreamHandler(sys.stderr)
     stderr.setLevel(level)

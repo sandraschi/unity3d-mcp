@@ -19,9 +19,9 @@ function LLMSettings() {
             setSelectedModel(savedM && models.some((m:{name:string}) => m.name === savedM) ? savedM : (models[0]?.name || ""));
             setStatus(models.length > 0 ? "ready" : "error");
         }).catch(() => {
-            setProviders({ ollama: [{name:"llama3.2:3b"}] });
-            setSelectedModel(localStorage.getItem("llm_model") || "llama3.2:3b");
-            setStatus("ready");
+            setProviders({});
+            setSelectedModel("");
+            setStatus("error");
         });
     }, []);
     const save = (p:string, m:string) => { localStorage.setItem("llm_provider", p); localStorage.setItem("llm_model", m); };

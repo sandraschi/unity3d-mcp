@@ -105,9 +105,11 @@ class TestErrorHandling:
 
         manager = VRChatSDKManager(mock_config)
 
-        with patch.dict("os.environ", {}, clear=True), patch.object(
-            manager, "_check_unity_editorprefs", return_value={"authenticated": False}
-        ), patch("pathlib.Path.exists", return_value=False):
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch.object(manager, "_check_unity_editorprefs", return_value={"authenticated": False}),
+            patch("pathlib.Path.exists", return_value=False),
+        ):
             result = await manager.check_authentication()
 
         assert result["authenticated"] is False

@@ -240,9 +240,7 @@ class TestSetupAnimatorReal:
         from unity3d_mcp.avatar import AnimationManager
 
         manager = AnimationManager(config=None)
-        result = await manager.setup_animator(
-            "avatar.vrm", project_path=str(tmp_path)
-        )
+        result = await manager.setup_animator("avatar.vrm", project_path=str(tmp_path))
 
         assert result["status"] == "success"
         assert str(tmp_path) in result["controller_path"]

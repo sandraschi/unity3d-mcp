@@ -5,6 +5,27 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-25
+
+### Added
+- **HTTP REST API endpoints** — 8 new endpoints for the webapp dashboard:
+  - `GET /api/v1/status` — server uptime, tool count, Unity Editor detection (processes, installed versions)
+  - `GET /api/v1/llm/providers` — live probe of Ollama :11434 and LM Studio :1234
+  - `GET /api/v1/scene` — active scenes, full GameObject hierarchy with transforms and components
+  - `GET /api/v1/avatar/status` — VRChat auth, avatar performance metrics (polygons, VRAM, draw calls)
+  - `GET /api/v1/packages` — installed UPM packages with versions, publisher, update status
+  - `GET /api/v1/editor/scripts` — available C# snippets and recent execution history
+  - `GET /api/v1/apps` — connected app catalog
+- **Frontend pages restored with real API wiring** — Dashboard, Status, Script Console, Hierarchy, Avatar Pipeline, Plugin Manager, Apps Hub all now fetch from real backend endpoints instead of hardcoded data
+- **Dashboard KPIs** now show live Unity Editor process count, server uptime, tool count from `/api/v1/health` + `/api/v1/status`
+- **Scene Hierarchy** interactive tree clickable with Inspector panel showing transforms and components
+- **Avatar Pipeline** displays real polygon counts, VRAM usage, draw calls, optimization suggestions from backend
+
+### Fixed
+- **Settings** catch block no longer fabricates fake `ollama: [{name:"llama3.2:3b"}]` data on API failure
+- **Tools** port corrected from 10787 to 10831
+- **Apps** dead Connect App button removed, now connects to real backend
+
 ## [1.5.0] - 2026-05-28
 
 ### Added

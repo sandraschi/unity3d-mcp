@@ -45,9 +45,7 @@ class PipelineReport:
             "project_path": self.project_path,
             "build_output_path": self.build_output_path,
             "execution_mode": self.execution_mode,
-            "steps": [
-                {"name": s.name, "success": s.success, "detail": s.detail} for s in self.steps
-            ],
+            "steps": [{"name": s.name, "success": s.success, "detail": s.detail} for s in self.steps],
         }
 
 
@@ -134,7 +132,8 @@ async def import_gazebo_via_unity(
 
     models_map = body.get("models", {})
     failed = [
-        name for name, status in models_map.items()
+        name
+        for name, status in models_map.items()
         if "not found" in str(status).lower() or "error" in str(status).lower()
     ]
     success = body.get("success", True) and not failed
@@ -258,9 +257,7 @@ async def run_fleet_pipeline(
     report = PipelineReport(success=False, project_path=project_path)
     project = Path(project_path)
     if not project.is_dir():
-        report.steps.append(
-            PipelineStep("precheck", False, {"error": f"Unity project not found: {project_path}"})
-        )
+        report.steps.append(PipelineStep("precheck", False, {"error": f"Unity project not found: {project_path}"}))
         return report
 
     mode = await describe_execution_mode()
@@ -410,9 +407,7 @@ async def run_fleet_pipeline(
         if validate_model_path:
             audit_params["model_path"] = validate_model_path
         audit = parse_tool_payload(await app.call_tool("unity_validation", audit_params))
-        report.steps.append(
-            PipelineStep("unified_audit", bool(audit.get("valid", audit.get("success"))), audit)
-        )
+        report.steps.append(PipelineStep("unified_audit", bool(audit.get("valid", audit.get("success"))), audit))
 
     if skip_build:
         report.success = all(s.success for s in report.steps)
@@ -430,9 +425,7 @@ async def run_fleet_pipeline(
             "development_build": True,
         },
     )
-    report.steps.append(
-        PipelineStep("unity_jobs_submit", True, {"job_id": job_id, "build_target": build_target})
-    )
+    report.steps.append(PipelineStep("unity_jobs_submit", True, {"job_id": job_id, "build_target": build_target}))
 
     job_result = await wait_for_job(job_id, timeout=build_timeout)
     report.steps.append(PipelineStep("unity_build", bool(job_result.get("success")), job_result))

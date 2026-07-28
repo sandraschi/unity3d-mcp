@@ -85,17 +85,21 @@ class TestFleetPipelineHelpers:
         )
         mock_server.app = mock_app
 
-        with patch("unity3d_mcp.server.server_instance", mock_server), patch(
-            "unity3d_mcp.utils.execution_mode.describe_execution_mode",
-            new=AsyncMock(return_value={"mode": "hands_off"}),
-        ), patch(
-            "unity3d_mcp.utils.fleet_import.import_blender_asset",
-            new=AsyncMock(
-                return_value={
-                    "success": True,
-                    "file_path": str(model),
-                    "destination_path": str(project / "Assets/BlenderImports/prop.glb"),
-                }
+        with (
+            patch("unity3d_mcp.server.server_instance", mock_server),
+            patch(
+                "unity3d_mcp.utils.execution_mode.describe_execution_mode",
+                new=AsyncMock(return_value={"mode": "hands_off"}),
+            ),
+            patch(
+                "unity3d_mcp.utils.fleet_import.import_blender_asset",
+                new=AsyncMock(
+                    return_value={
+                        "success": True,
+                        "file_path": str(model),
+                        "destination_path": str(project / "Assets/BlenderImports/prop.glb"),
+                    }
+                ),
             ),
         ):
             report = await run_fleet_pipeline(

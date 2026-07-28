@@ -53,10 +53,7 @@ async def execute_bridge_action(
         return {
             "success": False,
             "mode": "bridge",
-            "error": (
-                "Unity Editor bridge not connected. "
-                "Install MCPBridge.cs under Assets/Editor and open Unity."
-            ),
+            "error": ("Unity Editor bridge not connected. Install MCPBridge.cs under Assets/Editor and open Unity."),
             "bridge_port": client.port if hasattr(client, "port") else 10835,
         }
 

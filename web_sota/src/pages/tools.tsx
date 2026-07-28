@@ -22,7 +22,7 @@ export function Tools() {
     const fetchTools = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:10787/api/v1/tools/');
+            const response = await fetch('http://localhost:10831/api/v1/tools/');
             if (!response.ok) throw new Error('Failed to fetch tools');
             const data = await response.json();
             setTools(data);

@@ -199,9 +199,7 @@ class Unity3DMCP:
         self.unity_build_manager = UnityBuildToolManager(self.app, self.build_manager)
         self.vrchat_manager = VRChatToolManager(self.app, self.vrchat_sdk, self.config)
         self.worldlabs_manager = WorldLabsToolManager(self.app, self.worldlabs)
-        self.platform_manager = PlatformToolManager(
-            self.app, self.platforms, self.vrchat_sdk, self.bridge_client
-        )
+        self.platform_manager = PlatformToolManager(self.app, self.platforms, self.vrchat_sdk, self.bridge_client)
         self.unity_bridge_manager = UnityBridgeToolManager(self.app, self.bridge_client)
         self.unity_render_manager = UnityRenderToolManager(self.app, self.bridge_client)
         self.unity_api_manager = UnityAPIToolManager(self.app, self.bridge_client)
@@ -258,7 +256,6 @@ class Unity3DMCP:
         # tools/portmanteau/unity_api.py, untouched. Use `multiplatform(operation=...)`
         # and `unity_api(operation=...)` instead. See TODO.md for the full record.
 
-
     async def run_stdio(self):
         """Run server in stdio mode."""
         # Updated for fastmcp 3.2.0+
@@ -278,14 +275,17 @@ class Unity3DMCP:
             # Quick health endpoint
             async def _health(request):
                 from starlette.responses import JSONResponse
+
                 return JSONResponse({"status": "ok", "server": "unity3d-mcp"})
 
-            combined = Starlette(routes=[
-                Mount("/mcp", app=mcp_asgi),
-                Mount("/api", app=_chat_app),
-                Route("/api/health", endpoint=_health, methods=["GET"]),
-                Route("/health", endpoint=_health, methods=["GET"]),
-            ])
+            combined = Starlette(
+                routes=[
+                    Mount("/mcp", app=mcp_asgi),
+                    Mount("/api", app=_chat_app),
+                    Route("/api/health", endpoint=_health, methods=["GET"]),
+                    Route("/health", endpoint=_health, methods=["GET"]),
+                ]
+            )
 
             logger.info(f"Starting Unity3D MCP + Chat on http://{host}:{port}")
             config = uvicorn.Config(combined, host=host, port=port, log_level="info")
