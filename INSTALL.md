@@ -47,7 +47,7 @@ If you prefer not to use `just`:
    uv run python -m unity3d_mcp.server
 
    # HTTP mode (for web dashboard)
-   uv run uvicorn unity3d_mcp.server:app --port 10831
+   uv run uvicorn unity3d_mcp.server:asgi_app --port 10831
    ```
 5. Open `http://localhost:10831` or the frontend URL.
 

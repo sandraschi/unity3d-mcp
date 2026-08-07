@@ -1,4 +1,4 @@
-﻿# Per-repo fleet start config for unity3d-mcp
+# Per-repo fleet start config for unity3d-mcp
 # Edit ports/backend target here - start.ps1 is fleet-standard.
 @{
     Name         = 'unity3d-mcp'
@@ -8,7 +8,7 @@
     WebRoot      = 'D:\Dev\repos\unity3d-mcp\web_sota'
     Backend = @{
         Kind          = 'uvicorn'
-        UvicornTarget = 'unity3d_mcp.server:app'
+        UvicornTarget = 'unity3d_mcp.server:asgi_app'
         SyncExtras    = @('dev')
         Env           = @{ WEB_PORT = '10831' }
     }

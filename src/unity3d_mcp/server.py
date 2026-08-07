@@ -481,5 +481,32 @@ def main():
     run_server(server_instance.app, server_name="unity3d-mcp")
 
 
+# ASGI app for uvicorn (fleet standard: serve mcp.http_app(), never the raw
+# FastMCP object - the module-level `app` above stays the FastMCP instance for
+# the @app.* decorators). Mirrors Unity3DMCP.run_http: MCP at /mcp, chat at /api.
+def _build_asgi_app():
+    from starlette.applications import Starlette
+    from starlette.routing import Mount, Route
+
+    from unity3d_mcp.chat_api import chat_app as _chat_app
+
+    async def _health(request):
+        from starlette.responses import JSONResponse
+
+        return JSONResponse({"status": "ok", "server": "unity3d-mcp"})
+
+    return Starlette(
+        routes=[
+            Mount("/mcp", app=server_instance.app.http_app()),
+            Mount("/api", app=_chat_app),
+            Route("/api/health", endpoint=_health, methods=["GET"]),
+            Route("/health", endpoint=_health, methods=["GET"]),
+        ]
+    )
+
+
+asgi_app = _build_asgi_app()
+
+
 if __name__ == "__main__":
     main()
