@@ -477,6 +477,12 @@ async def async_main():
 
 def main():
     """Synchronous entry point."""
+    # Tauri spawn passes UNITY3D_MCP_TAURI + UNITY3D_MCP_PORT (no MCP_TRANSPORT/--http).
+    # Map them onto the transport runner's env so the frozen backend serves HTTP on
+    # the port the webview polls instead of falling back to stdio.
+    if os.getenv("UNITY3D_MCP_TAURI") == "1":
+        os.environ.setdefault("MCP_TRANSPORT", "http")
+        os.environ.setdefault("MCP_PORT", os.getenv("UNITY3D_MCP_PORT", "10700"))
     # Use standardized transport runner
     run_server(server_instance.app, server_name="unity3d-mcp")
 
