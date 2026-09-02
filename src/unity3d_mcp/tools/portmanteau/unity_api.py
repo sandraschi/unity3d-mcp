@@ -58,6 +58,12 @@ class UnityAPIToolManager:
             decelerate: bool = True,
             deceleration_time: float = 0.5,
             object_filter: str | None = None,
+            position: list[float] | None = None,
+            fixture: str | None = None,
+            anim_mode: str = "spin",
+            axis: list[float] | None = None,
+            amplitude: float = 0.1,
+            damping: float = 0.6,
         ) -> dict[str, Any]:
             """Unity API operations portmanteau tool.
 
@@ -84,16 +90,37 @@ class UnityAPIToolManager:
                     - "follow_path_2d": Move object along 2D path with forward-looking behavior
                     - "follow_path_3d": Move object along 3D path with banking
                     - "stop_path_movement": Stop object path movement
+                    - "animate_object": Loop-animate an object in place - spin (continuous
+                      rotation), bob (sinusoidal oscillation), or bounce (real drop-and-rebound
+                      physics, not a sine wave - the identical closed-form function already
+                      shipped in overte-mcp/resonite-mcp, ported to C# unchanged). Fire-and-
+                      forget: ticks inside the Editor's Update() loop and keeps running after
+                      this call returns; use "stop_animation" to end it, or pass duration>0 to
+                      auto-stop. Requires MCPBridge.cs 2026-09-03+ (adds animate_object/
+                      stop_animation actions) - older copies of the bridge script will 404 with
+                      "Unknown action".
+                    - "stop_animation": Stop an in-progress animate_object animation
+                    - "fixture_spawn": Spawn a preset test fixture (box/cup/ball/table/chair)
+                      for gripper/manipulation testing - same preset dimensions as overte-mcp/
+                      resonite-mcp's equivalent, built from Unity's native Cube/Sphere
+                      primitives (no custom mesh generation needed, unlike resonite-mcp's
+                      icosahedron ball). Multi-part fixtures (table/chair) spawn as several
+                      independent same-colored objects. Also requires MCPBridge.cs 2026-09-03+
+                      (uses create_object's new dimensions/color fields).
                 class_name: Unity class name containing the method (for execute_method)
                 method_name: Method name to execute (for execute_method)
                 parameters: Parameters for method execution
                 project_path: Unity project path (auto-detected if not provided)
                 scene_path: Scene file path (current scene if not provided)
                 wait_for_completion: Wait for method completion before returning
-                object_name: Name of object to modify/move (for object operations)
+                object_name: Name of object to modify/move (for object operations); also the
+                    target to animate/stop for animate_object/stop_animation, and the base
+                    name for the new fixture in fixture_spawn (defaults to the fixture name)
                 modifications: Dictionary of modifications to apply (for modify_object)
                 prefab_name: Name for the new prefab (for create_prefab)
-                duration: Simulation or movement duration in seconds
+                duration: Simulation or movement duration in seconds; for animate_object,
+                    <=0 (the default) means run until stop_animation is called instead of
+                    auto-stopping
                 record_data: Record object positions during simulation
                 operations: List of operation dictionaries for batch execution
                 path_type: Path type ("straight", "bezier", "spline", "catmull_rom")
@@ -101,15 +128,31 @@ class UnityAPIToolManager:
                 loop: Whether to loop the path animation
                 ease_type: Easing function ("linear", "ease_in", "ease_out", "ease_in_out")
                 visualization_type: How to visualize ("line", "dotted", "waypoints", "full")
-                color: Path color {"r": 1.0, "g": 0.0, "b": 0.0, "a": 1.0}
+                color: Path color {"r": 1.0, "g": 0.0, "b": 0.0, "a": 1.0}; also fixture_spawn's
+                    color, applied uniformly to every part of a multi-part fixture (defaults
+                    to Unity's default material color if omitted, not white)
                 thickness: Line thickness
-                speed: Movement speed (units per second)
+                speed: Movement speed (units per second); for animate_object, "spin" is
+                    degrees/second (Unity's native Quaternion.AngleAxis convention - NOT
+                    radians/second like overte-mcp/resonite-mcp's animate tools), "bob" is
+                    oscillations/second, "bounce" scales effective gravity
                 look_ahead: Distance to look ahead for rotation
                 smooth_rotation: Whether to smoothly rotate towards movement direction
                 bank_angle: Maximum banking angle in degrees
                 decelerate: Whether to decelerate smoothly when stopping
                 deceleration_time: Time to decelerate in seconds
                 object_filter: Optional filter pattern for scene objects
+                position: [x, y, z] world position (fixture_spawn - where to place it,
+                    defaults to the world origin if omitted; Unity Editor has no concept of
+                    "the user's" viewpoint to default to instead, unlike overte-mcp/
+                    resonite-mcp's live-VR equivalents)
+                fixture: Fixture preset name for fixture_spawn: "box", "cup", "ball",
+                    "table", or "chair"
+                anim_mode: animate_object mode: "spin", "bob", or "bounce"
+                axis: [x, y, z] rotation axis for animate_object's "spin" mode (normalized)
+                amplitude: animate_object "bob"/"bounce": peak height above the rest
+                    position, in meters
+                damping: animate_object "bounce" only: energy retained per bounce, 0-1
 
             Returns:
                 Operation-specific result dictionary
@@ -160,6 +203,17 @@ class UnityAPIToolManager:
                     object_name, decelerate, deceleration_time, project_path, scene_path
                 )
 
+            elif operation == "animate_object":
+                return await self._api_animate_object(
+                    object_name, anim_mode, axis, speed, amplitude, damping, duration, project_path, scene_path
+                )
+
+            elif operation == "stop_animation":
+                return await self._api_stop_animation(object_name, project_path, scene_path)
+
+            elif operation == "fixture_spawn":
+                return await self._api_fixture_spawn(fixture, position, object_name, color, project_path, scene_path)
+
             else:
                 return {
                     "success": False,
@@ -176,6 +230,9 @@ class UnityAPIToolManager:
                         "follow_path_2d",
                         "follow_path_3d",
                         "stop_path_movement",
+                        "animate_object",
+                        "stop_animation",
+                        "fixture_spawn",
                     ],
                 }
 
@@ -513,3 +570,150 @@ class UnityAPIToolManager:
             result["project_path"] = project_path
             result["scene_path"] = scene_path
         return result
+
+    # -- Backport from overte-mcp/resonite-mcp (2026-09-03): loop-animate + fixture spawn --
+
+    async def _api_animate_object(
+        self,
+        object_name: str | None,
+        anim_mode: str,
+        axis: list[float] | None,
+        speed: float,
+        amplitude: float,
+        damping: float,
+        duration: float,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
+        """Start a loop animation (spin/bob/bounce) on an object via the Editor bridge.
+
+        Unlike overte-mcp/resonite-mcp's Python-side blocking loop (repeated WebSocket
+        updates for duration_s), this is fire-and-forget: MCPBridge.cs ticks the animation
+        itself inside the Editor's own Update() loop and this call returns immediately once
+        the animation has started - a better fit for Unity's architecture (there's already a
+        proven precedent for this exact pattern in move_along_path/stop_path_movement) than
+        porting the blocking-call shape unchanged. duration<=0 (the default) means it runs
+        until stop_animation is called; duration>0 auto-stops after that many seconds.
+        """
+        if not object_name:
+            return {"success": False, "error": "object_name required for animate_object"}
+        if anim_mode not in ("spin", "bob", "bounce"):
+            return {"success": False, "error": "anim_mode must be 'spin', 'bob', or 'bounce'"}
+
+        kwargs: dict[str, Any] = {
+            "target": object_name,
+            "anim_mode": anim_mode,
+            "speed": speed,
+            "amplitude": amplitude,
+            "damping": damping,
+            "duration": duration,
+        }
+        if axis is not None and len(axis) == 3:
+            kwargs["axis"] = axis
+
+        result = await execute_bridge_action("animate_object", bridge=self.bridge, **kwargs)
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
+
+    async def _api_stop_animation(
+        self,
+        object_name: str | None,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
+        """Stop an in-progress animate_object animation via the Editor bridge."""
+        if not object_name:
+            return {"success": False, "error": "object_name required for stop_animation"}
+
+        result = await execute_bridge_action("stop_animation", bridge=self.bridge, target=object_name)
+        if result.get("success"):
+            result["project_path"] = project_path
+            result["scene_path"] = scene_path
+        return result
+
+    # Same preset dimensions (meters) as overte-mcp's FIXTURE_PRESETS/resonite-mcp's
+    # FIXTURE_PRESETS, built from Unity's own primitives - Unity's Cube/Sphere primitive
+    # meshes are exactly 1x1x1/diameter-1 at scale (1,1,1), so `dims` maps straight onto
+    # create_object's `dimensions` field with no per-primitive conversion, unlike
+    # resonite-mcp's port (which had to hand-build box/icosahedron mesh JSON because
+    # ResoniteLink has no built-in primitive-mesh components to call instead).
+    _FIXTURE_PRESETS: dict[str, list[dict[str, Any]]] = {
+        "box": [
+            {"type": "Box", "offset": (0.0, 0.05, 0.0), "dims": (0.1, 0.1, 0.1)},
+        ],
+        "cup": [
+            {"type": "Box", "offset": (0.0, 0.05, 0.0), "dims": (0.08, 0.10, 0.08)},
+        ],
+        "ball": [
+            {"type": "Sphere", "offset": (0.0, 0.035, 0.0), "dims": (0.07, 0.07, 0.07)},
+        ],
+        "table": [
+            {"type": "Box", "offset": (0.0, 0.715, 0.0), "dims": (1.2, 0.05, 0.6)},
+            {"type": "Box", "offset": (0.0, 0.35, 0.0), "dims": (0.08, 0.70, 0.08)},
+        ],
+        "chair": [
+            {"type": "Box", "offset": (0.0, 0.45, 0.0), "dims": (0.4, 0.05, 0.4)},
+            {"type": "Box", "offset": (0.0, 0.70, -0.18), "dims": (0.4, 0.5, 0.05)},
+            {"type": "Box", "offset": (0.0, 0.225, 0.0), "dims": (0.35, 0.45, 0.35)},
+        ],
+    }
+
+    async def _api_fixture_spawn(
+        self,
+        fixture: str | None,
+        position: list[float] | None,
+        object_name: str | None,
+        color: dict[str, float] | None,
+        project_path: str | None,
+        scene_path: str | None,
+    ) -> dict[str, Any]:
+        """Spawn a preset test fixture (box/cup/ball/table/chair) via repeated create_object
+        calls. Multi-part fixtures (table/chair) spawn as several independent same-colored
+        objects, not parented - static set-dressing that never needs to move as a unit.
+
+        No avatar-relative default placement exists here (unlike overte-mcp's version) -
+        there's no "the user's viewpoint" concept in the Unity Editor to default to, so
+        `position` defaults to the world origin if omitted, not somewhere near a person.
+        """
+        if not fixture or fixture not in self._FIXTURE_PRESETS:
+            return {
+                "success": False,
+                "error": f"Unknown fixture {fixture!r}. Known: {sorted(self._FIXTURE_PRESETS)}",
+            }
+        parts = self._FIXTURE_PRESETS[fixture]
+        base = position if position and len(position) == 3 else [0.0, 0.0, 0.0]
+        base_name = object_name or fixture
+
+        instance_ids = []
+        for i, part in enumerate(parts):
+            ox, oy, oz = part["offset"]
+            kwargs: dict[str, Any] = {
+                "name": f"{base_name}_{i}" if len(parts) > 1 else base_name,
+                "type": part["type"],
+                "position": [base[0] + ox, base[1] + oy, base[2] + oz],
+                "dimensions": list(part["dims"]),
+            }
+            if color is not None:
+                kwargs["color"] = color
+
+            result = await execute_bridge_action("create_object", bridge=self.bridge, **kwargs)
+            if not result.get("success"):
+                return {
+                    "success": False,
+                    "error": f"Fixture part {i} failed: {result.get('error', 'unknown error')}",
+                    "fixture": fixture,
+                    "instance_ids": instance_ids,
+                }
+            instance_ids.append(result.get("result", {}).get("instanceID"))
+
+        return {
+            "success": True,
+            "mode": "bridge",
+            "fixture": fixture,
+            "instance_ids": instance_ids,
+            "position": {"x": base[0], "y": base[1], "z": base[2]},
+            "project_path": project_path,
+            "scene_path": scene_path,
+        }

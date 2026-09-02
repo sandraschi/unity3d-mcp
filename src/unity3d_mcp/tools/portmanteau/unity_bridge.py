@@ -32,6 +32,8 @@ class UnityBridgeToolManager:
             position: list[float] | None = None,
             rotation: list[float] | None = None,
             scale: float | None = None,
+            dimensions: list[float] | None = None,
+            color: dict[str, float] | None = None,
             output_path: str | None = None,
             width: int | None = None,
             height: int | None = None,
@@ -49,6 +51,12 @@ class UnityBridgeToolManager:
                 position: [x, y, z] world position
                 rotation: [x, y, z] euler rotation
                 scale: uniform localScale multiplier (create_object, transform_object)
+                dimensions: [x, y, z] per-axis localScale for create_object - takes priority
+                    over `scale` when both are given (2026-09-03, needs MCPBridge.cs
+                    2026-09-03+; older bridge copies ignore this field silently)
+                color: {"r","g","b","a"} 0.0-1.0 for create_object, applied to the primitive's
+                    Renderer if it has one (Light/Camera/GameObject have none - silently
+                    ignored) (2026-09-03, needs MCPBridge.cs 2026-09-03+)
                 output_path: PNG path for capture_game_view
                 width: Capture width for capture_game_view
                 height: Capture height for capture_game_view
@@ -97,6 +105,10 @@ class UnityBridgeToolManager:
                 kwargs["rotation"] = rotation
             if scale is not None:
                 kwargs["scale"] = scale
+            if dimensions is not None:
+                kwargs["dimensions"] = dimensions
+            if color is not None:
+                kwargs["color"] = color
             if output_path is not None:
                 kwargs["output_path"] = output_path
             if width is not None:

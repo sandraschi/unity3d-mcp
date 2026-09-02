@@ -5,6 +5,48 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-03
+
+### Added (backport from overte-mcp/resonite-mcp: animate + fixture spawner)
+- `MCPBridge.cs`: `animate_object`/`stop_animation` actions - loop-animate an object in place
+  (spin/bob/bounce) via a new `_activeAnimations` dict ticked from `Update()`, following the
+  exact same pattern as the existing `move_along_path`/`stop_path_movement` path-movement
+  system (`_activeMovements`/`TickPathMovements`) rather than porting overte-mcp/resonite-mcp's
+  Python-side blocking-loop shape unchanged - Unity already had the right architecture for
+  this, a blocking call would have been a worse fit. `bounce` mode is a direct C# port of the
+  identical closed-form drop-physics function already shipped in overte-mcp's `http_server.py`
+  and resonite-mcp's `tools/resonite_link.py` - third platform, same math, not a
+  reimplementation. Note: `spin` speed is **degrees/second** here (Unity's native
+  `Quaternion.AngleAxis` convention), not radians/second like the other two ports - a real,
+  documented unit difference between platforms.
+- `CreateObject` gained `dimensions` (per-axis, alternative to the existing uniform `scale`)
+  and `color` (applies to any primitive with a `Renderer`) - both needed for the fixture
+  spawner, both additive/backward-compatible (existing callers passing only `scale` are
+  unaffected).
+- `unity_api(operation="fixture_spawn", fixture=..., position=..., ...)`: preset test fixtures
+  (box/cup/ball/table/chair), same dimensions as overte-mcp/resonite-mcp's presets, built
+  purely from Unity's own `Cube`/`Sphere` primitives via repeated `create_object` calls - no
+  custom mesh generation needed (unlike resonite-mcp's port, which had to hand-build an
+  icosahedron since ResoniteLink has no primitive-mesh components). No avatar-relative default
+  placement - the Unity Editor has no "the user's viewpoint" concept to default to, so
+  `position` defaults to the world origin if omitted.
+- `unity_api(operation="animate_object"/"stop_animation", ...)`: Python-side wiring for the
+  new bridge actions.
+- `unity_bridge(operation="create_object", dimensions=..., color=...)`: exposed the new
+  `create_object` fields directly too, not just internally via `fixture_spawn` - a caller who
+  wants one non-uniformly-scaled or colored primitive without a whole fixture preset can now
+  do that in one call.
+- **Verification**: no live Unity Editor was running during this change (confirmed: no
+  `Unity.exe` process, port 10835 unresponsive). C# changes were reviewed carefully (brace
+  balance checked: 215/215 across the file) but NOT compiled - no .NET SDK with a C# compiler
+  is available on this machine, only a runtime, and Unity's own DLLs aren't available outside
+  a Unity install. Python composition logic (`_api_fixture_spawn`/`_api_animate_object`/
+  `_api_stop_animation`) was verified offline against a mocked bridge (position/dimensions/
+  color/naming all confirmed correct per fixture part, error paths for unknown fixture and
+  invalid anim_mode confirmed). Existing test suite still passes unchanged (175 passed, 9
+  skipped - same skip count as before, all needing a live Editor). **First real in-Editor
+  test is still pending** - flag this before relying on it.
+
 ## [Unreleased] - 2026-09-02
 
 ### Fixed

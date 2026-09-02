@@ -63,6 +63,7 @@ namespace MCP {
                 }
             }
             TickPathMovements();
+            TickAnimations();
         }
 
         private static void TickPathMovements() {
@@ -107,6 +108,115 @@ namespace MCP {
             foreach (var key in finished) {
                 _activeMovements.Remove(key);
             }
+        }
+
+        private static void TickAnimations() {
+            if (_activeAnimations.Count == 0) return;
+
+            var finished = new List<int>();
+            double now = EditorApplication.timeSinceStartup;
+
+            foreach (var kvp in _activeAnimations) {
+                var state = kvp.Value;
+                if (state.target == null) {
+                    finished.Add(kvp.Key);
+                    continue;
+                }
+
+                float t = (float)(now - state.startTime);
+
+                if (state.mode == "spin") {
+                    // speed is degrees/second here (Unity's native Quaternion.AngleAxis
+                    // convention), unlike overte-mcp/resonite-mcp's Python ports of this same
+                    // feature, which use radians/second - a real, deliberate unit difference
+                    // between platforms, not a bug. Document this for callers crossing platforms.
+                    Quaternion delta = Quaternion.AngleAxis(state.speed * t, state.axis);
+                    state.target.transform.rotation = state.restRotation * delta;
+                } else {
+                    float offset = state.mode == "bob"
+                        ? state.amplitude * Mathf.Sin(2f * Mathf.PI * state.speed * t)
+                        : BounceHeight(t, state.amplitude, state.damping, state.speed);
+                    state.target.transform.position = state.restPosition + Vector3.up * offset;
+                }
+
+                if (state.durationS > 0 && t >= state.durationS) {
+                    finished.Add(kvp.Key);
+                }
+            }
+
+            foreach (var key in finished) {
+                _activeAnimations.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Real drop-and-rebound physics, not a repeating sine wave - direct C# port of the
+        /// identical closed-form function already shipped in overte-mcp's http_server.py and
+        /// resonite-mcp's tools/resonite_link.py (third platform, same math, so behavior is
+        /// provably consistent across all three ports rather than three independent guesses).
+        /// t=0 starts on the ground with upward velocity, rises to `amplitude`, falls under
+        /// effective gravity g=9.8*speed, and each landing's velocity *= sqrt(damping) so
+        /// bounces visibly shorten and settle to 0 instead of repeating forever.
+        /// </summary>
+        private static float BounceHeight(float t, float amplitude, float damping, float speed) {
+            float g = 9.8f * Mathf.Max(speed, 0.05f);
+            float v = amplitude > 0f ? Mathf.Sqrt(2f * g * amplitude) : 0f;
+            float remaining = t;
+            float clampedDamping = Mathf.Clamp01(damping);
+            while (v > 1e-4f) {
+                float duration = 2f * v / g;
+                if (remaining <= duration) {
+                    return Mathf.Max(v * remaining - 0.5f * g * remaining * remaining, 0f);
+                }
+                remaining -= duration;
+                v *= Mathf.Sqrt(clampedDamping);
+            }
+            return 0f;
+        }
+
+        private static string AnimateObject(CommandRequest cmd) {
+            GameObject target = FindGameObject(cmd.target);
+            if (target == null) return "{\"error\": \"Target not found: " + cmd.target + "\"}";
+            if (cmd.anim_mode != "spin" && cmd.anim_mode != "bob" && cmd.anim_mode != "bounce") {
+                return "{\"error\": \"anim_mode must be 'spin', 'bob', or 'bounce'\"}";
+            }
+
+            Vector3 axis = (cmd.axis != null && cmd.axis.Length == 3)
+                ? new Vector3(cmd.axis[0], cmd.axis[1], cmd.axis[2])
+                : Vector3.up;
+
+            var state = new AnimationState {
+                target = target,
+                mode = cmd.anim_mode,
+                axis = axis,
+                speed = cmd.speed,
+                amplitude = cmd.amplitude,
+                damping = cmd.damping,
+                startTime = EditorApplication.timeSinceStartup,
+                durationS = cmd.duration,
+                restPosition = target.transform.position,
+                restRotation = target.transform.rotation,
+            };
+            _activeAnimations[target.GetInstanceID()] = state;
+
+            return "{\"status\": \"started\", \"animation_id\": " + target.GetInstanceID() +
+                ", \"mode\": \"" + cmd.anim_mode + "\"" +
+                (cmd.duration > 0 ? "" : ", \"note\": \"duration<=0: runs until stop_animation is called\"") + "}";
+        }
+
+        private static string StopAnimation(CommandRequest cmd) {
+            GameObject target = FindGameObject(cmd.target);
+            if (target == null) return "{\"error\": \"Target not found: " + cmd.target + "\"}";
+
+            int id = target.GetInstanceID();
+            if (!_activeAnimations.ContainsKey(id)) {
+                return "{\"status\": \"not_animating\", \"target\": \"" + cmd.target + "\"}";
+            }
+
+            _activeAnimations.Remove(id);
+            Vector3 finalPos = target.transform.position;
+            return "{\"status\": \"stopped\", \"final_position\": {\"x\": " + finalPos.x +
+                ", \"y\": " + finalPos.y + ", \"z\": " + finalPos.z + "}}";
         }
 
         /// <summary>
@@ -260,6 +370,12 @@ namespace MCP {
                 case "create_path_visualization":
                     return CreatePathVisualization(cmd);
 
+                case "animate_object":
+                    return AnimateObject(cmd);
+
+                case "stop_animation":
+                    return StopAnimation(cmd);
+
                 default:
                     return "{\"error\": \"Unknown action: " + cmd.action + "\"}";
             }
@@ -327,8 +443,21 @@ namespace MCP {
             if (cmd.rotation != null && cmd.rotation.Length == 3)
                 go.transform.rotation = Quaternion.Euler(cmd.rotation[0], cmd.rotation[1], cmd.rotation[2]);
 
-            if (cmd.scale > 0f)
+            // dimensions (per-axis) takes priority over scale (uniform) when both are given -
+            // dimensions is the newer, more flexible field added for the fixture spawner.
+            if (cmd.dimensions != null && cmd.dimensions.Length == 3)
+                go.transform.localScale = new Vector3(cmd.dimensions[0], cmd.dimensions[1], cmd.dimensions[2]);
+            else if (cmd.scale > 0f)
                 go.transform.localScale = Vector3.one * cmd.scale;
+
+            if (cmd.color != null) {
+                var renderer = go.GetComponent<Renderer>();
+                if (renderer != null) {
+                    // sharedMaterial would edit the built-in Default-Material asset itself -
+                    // .material instantiates a per-object copy first.
+                    renderer.material.color = new Color(cmd.color.r, cmd.color.g, cmd.color.b, cmd.color.a);
+                }
+            }
 
             return "{\"status\": \"created\", \"instanceID\": " + go.GetInstanceID() + "}";
         }
@@ -918,6 +1047,17 @@ namespace MCP {
             public string visualization_type = "line";
             public ColorRGBA color;
             public float thickness = 0.1f;
+
+            // create_object extras: dimensions is a per-axis alternative to the uniform
+            // `scale` above (used by the fixture spawner, where a table top and its legs
+            // need different width/height/depth, not a single multiplier).
+            public float[] dimensions;
+
+            // animate_object / stop_animation.
+            public string anim_mode = "spin";
+            public float[] axis = new float[] { 0f, 1f, 0f };
+            public float amplitude = 0.1f;
+            public float damping = 0.6f;
         }
 
         // Active path-movement state, ticked from Update(). Keyed by
@@ -942,6 +1082,26 @@ namespace MCP {
 
         private static readonly Dictionary<int, PathMovementState> _activeMovements =
             new Dictionary<int, PathMovementState>();
+
+        // Active in-place animation state (spin/bob/bounce), ticked from Update() alongside
+        // path movement. Keyed by GameObject instance ID, same pattern as _activeMovements -
+        // one animation per object, starting a new one on an already-animating object
+        // replaces it.
+        private class AnimationState {
+            public GameObject target;
+            public string mode;
+            public Vector3 axis;
+            public float speed;
+            public float amplitude;
+            public float damping;
+            public double startTime;
+            public double durationS;  // <= 0 means run until stop_animation is called
+            public Vector3 restPosition;
+            public Quaternion restRotation;
+        }
+
+        private static readonly Dictionary<int, AnimationState> _activeAnimations =
+            new Dictionary<int, AnimationState>();
 
         [MenuItem("MCP/Start Bridge")]
         public static void ForceStart() => StartServer();
