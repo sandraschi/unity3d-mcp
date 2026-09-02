@@ -5,6 +5,19 @@ All notable changes to Unity3D-MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-02
+
+### Fixed
+- `MCPBridge.cs`'s `CreateObject` ignored `position`/`rotation` entirely and only special-cased
+  `Light`/`Camera` types (no mesh at all for anything else) — found while fixing
+  `robotics-mcp`'s broken vbot-spawn integration, which called a nonexistent
+  `VbotSpawner.SpawnRobot` C# method via the (genuinely parameterless) `execute_unity_method`
+  dispatch. `CreateObject`/`TransformObject` now apply position/rotation/scale, and support
+  `Capsule`/`Sphere`/`Box` primitive mesh types for spawning a labeled placeholder when no real
+  3D model exists yet. `unity_bridge(operation=...)` exposes the new `scale` parameter.
+- Not yet verified against a live Unity Editor (none running during this pass) — existing test
+  suite (175 passed, 9 skipped — the skips need a live Editor) is unaffected.
+
 ## [1.6.0] - 2026-07-25
 
 ### Added

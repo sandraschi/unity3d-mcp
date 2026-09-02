@@ -284,14 +284,52 @@ namespace MCP {
             if (cmd.rotation != null && cmd.rotation.Length == 3)
                 target.transform.rotation = Quaternion.Euler(cmd.rotation[0], cmd.rotation[1], cmd.rotation[2]);
 
+            if (cmd.scale > 0f)
+                target.transform.localScale = Vector3.one * cmd.scale;
+
             return "{\"status\": \"success\"}";
         }
 
         private static string CreateObject(CommandRequest cmd) {
-            GameObject go = new GameObject(cmd.name ?? "New Object");
-            if (cmd.type == "Light") go.AddComponent<Light>();
-            else if (cmd.type == "Camera") go.AddComponent<Camera>();
-            
+            GameObject go;
+            switch (cmd.type) {
+                case "Light":
+                    go = new GameObject(cmd.name ?? "New Object");
+                    go.AddComponent<Light>();
+                    break;
+                case "Camera":
+                    go = new GameObject(cmd.name ?? "New Object");
+                    go.AddComponent<Camera>();
+                    break;
+                // Placeholder primitives — used for objects with no real 3D model/mesh yet
+                // (e.g. spawning a labeled vbot for a robot that only exists as a spec).
+                case "Capsule":
+                    go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                    go.name = cmd.name ?? "New Object";
+                    break;
+                case "Sphere":
+                    go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    go.name = cmd.name ?? "New Object";
+                    break;
+                case "Box":
+                case "Cube":
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    go.name = cmd.name ?? "New Object";
+                    break;
+                default:
+                    go = new GameObject(cmd.name ?? "New Object");
+                    break;
+            }
+
+            if (cmd.position != null && cmd.position.Length == 3)
+                go.transform.position = new Vector3(cmd.position[0], cmd.position[1], cmd.position[2]);
+
+            if (cmd.rotation != null && cmd.rotation.Length == 3)
+                go.transform.rotation = Quaternion.Euler(cmd.rotation[0], cmd.rotation[1], cmd.rotation[2]);
+
+            if (cmd.scale > 0f)
+                go.transform.localScale = Vector3.one * cmd.scale;
+
             return "{\"status\": \"created\", \"instanceID\": " + go.GetInstanceID() + "}";
         }
 
@@ -845,6 +883,7 @@ namespace MCP {
             public string type;
             public float[] position;
             public float[] rotation;
+            public float scale = 0f;  // 0 = not set (leave localScale untouched)
             public string output_path;
             public string output_dir;
             public int width;

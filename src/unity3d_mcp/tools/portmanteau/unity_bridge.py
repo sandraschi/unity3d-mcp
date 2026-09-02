@@ -31,6 +31,7 @@ class UnityBridgeToolManager:
             object_type: str = "GameObject",
             position: list[float] | None = None,
             rotation: list[float] | None = None,
+            scale: float | None = None,
             output_path: str | None = None,
             width: int | None = None,
             height: int | None = None,
@@ -42,9 +43,12 @@ class UnityBridgeToolManager:
                     | create_object | delete_object | transform_object | capture_game_view
                 target: GameObject name or instance ID
                 name: Name for create_object
-                object_type: GameObject | Light | Camera
+                object_type: GameObject | Light | Camera | Capsule | Sphere | Box
+                    (Capsule/Sphere/Box are primitive meshes — for spawning a labeled
+                    placeholder when no real 3D model exists yet, e.g. a vbot)
                 position: [x, y, z] world position
                 rotation: [x, y, z] euler rotation
+                scale: uniform localScale multiplier (create_object, transform_object)
                 output_path: PNG path for capture_game_view
                 width: Capture width for capture_game_view
                 height: Capture height for capture_game_view
@@ -91,6 +95,8 @@ class UnityBridgeToolManager:
                 kwargs["position"] = position
             if rotation is not None:
                 kwargs["rotation"] = rotation
+            if scale is not None:
+                kwargs["scale"] = scale
             if output_path is not None:
                 kwargs["output_path"] = output_path
             if width is not None:

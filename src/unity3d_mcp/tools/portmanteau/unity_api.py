@@ -71,7 +71,7 @@ class UnityAPIToolManager:
                 operation: Operation to perform
                     - "execute_method": Invoke a public static PARAMETERLESS Unity
                       method by name (same constraint as Unity's -executeMethod CLI
-                      flag — parameterized calls are not supported)
+                      flag - parameterized calls are not supported)
                     - "get_scene_objects": Get all objects in Unity scene
                     - "modify_object": Modify Unity scene object properties
                     - "create_prefab": Create Unity prefab from scene object
@@ -332,7 +332,7 @@ class UnityAPIToolManager:
         """Execute a list of sub-commands sequentially via the Editor bridge.
 
         Each entry in `operations` must use the same flat command shape as a
-        top-level bridge action (action/target/name/...) — Unity's
+        top-level bridge action (action/target/name/...) - Unity's
         JsonUtility can't deserialize free-form heterogeneous dicts, so the
         bridge reuses one schema recursively rather than a per-op schema.
         """
@@ -363,7 +363,7 @@ class UnityAPIToolManager:
         """Move object along a path via the Editor bridge.
 
         Curve `path_type`s (bezier/spline/catmull_rom) are approximated as
-        straight multi-segment linear interpolation on the C# side — real
+        straight multi-segment linear interpolation on the C# side - real
         curve math is not implemented, and the bridge response says so.
         """
         if not object_name:
@@ -400,7 +400,7 @@ class UnityAPIToolManager:
 
         `visualization_type` values other than "line" ("dotted", "waypoints",
         "full") are accepted but the bridge currently only draws a plain
-        LineRenderer — not yet a distinct rendering per type.
+        LineRenderer - not yet a distinct rendering per type.
         """
         if not path_points or len(path_points) < 2:
             return {"success": False, "error": "path_points must contain at least 2 points"}
@@ -420,7 +420,7 @@ class UnityAPIToolManager:
             if visualization_type != "line":
                 result["note"] = (
                     f"visualization_type='{visualization_type}' requested, but the bridge "
-                    "only draws a plain LineRenderer today — 'dotted'/'waypoints'/'full' "
+                    "only draws a plain LineRenderer today - 'dotted'/'waypoints'/'full' "
                     "rendering variants are not yet implemented."
                 )
         return result

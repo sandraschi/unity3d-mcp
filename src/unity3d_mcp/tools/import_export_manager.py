@@ -292,7 +292,7 @@ class ImportExportManager:
     ) -> dict[str, Any]:
         """Export Unity objects to glTF format.
 
-        glTF (GL Transmission Format) is the open standard for 3D content —
+        glTF (GL Transmission Format) is the open standard for 3D content -
         compact, web-native, PBR-ready. Use this for Resonite import,
         browser viewing, or mobile applications.
 
@@ -788,7 +788,7 @@ class ImportExportToolManager:
         ) -> dict[str, Any]:
             """Export Unity objects to glTF format (open standard for 3D).
 
-            glTF is the "JPEG of 3D" — compact, web-native, PBR-ready.
+            glTF is the "JPEG of 3D" - compact, web-native, PBR-ready.
             Ideal for Resonite import, browser viewers, and mobile apps.
             Use .glb extension for binary format (single file).
 

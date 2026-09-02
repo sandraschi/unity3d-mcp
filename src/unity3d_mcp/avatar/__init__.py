@@ -25,7 +25,7 @@ def parse_vrm_gltf_json(vrm_path: str) -> dict[str, Any]:
     (b"glTF" magic, uint32 version, uint32 total length) followed by
     chunks of (uint32 length, 4-byte type, data). The first chunk is
     always type b"JSON" and holds the glTF scene document as UTF-8 text
-    (materials, textures, images, meshes, nodes, etc.) — this is real,
+    (materials, textures, images, meshes, nodes, etc.) - this is real,
     documented glTF 2.0 binary container structure (the ".glb"/".vrm"
     format), not Unity-specific. No third-party library needed; only
     stdlib `struct` for the binary header parsing.
@@ -60,7 +60,7 @@ def summarize_vrm_materials(gltf: dict[str, Any]) -> dict[str, Any]:
     """Extract real material/texture counts and per-material shape from a parsed glTF document.
 
     Every field here is read directly from the file's actual JSON
-    structure — nothing here is guessed, hardcoded, or estimated.
+    structure - nothing here is guessed, hardcoded, or estimated.
     """
     materials = gltf.get("materials", [])
     images = gltf.get("images", [])
@@ -157,7 +157,7 @@ class VRMAvatarManager:
 
         Rewritten 2026-07-18: this used to return a hardcoded dict
         ("Standard to VRChat compatible", "Good (estimated)", etc.)
-        regardless of what was actually imported — a lie, flagged in
+        regardless of what was actually imported - a lie, flagged in
         TODO.md and now fixed.
 
         What this genuinely does: parses the VRM's own binary glTF JSON
@@ -167,10 +167,10 @@ class VRMAvatarManager:
 
         What this deliberately does NOT do: rewrite any Unity .mat asset's
         shader reference, or claim texture compression/polygon reduction
-        happened. At this point in the pipeline (Hands-Off import — the
+        happened. At this point in the pipeline (Hands-Off import - the
         VRM file was just copied into Assets/Models/) Unity/UniVRM has not
         yet run its own importer, so there ARE NO .mat/.png assets on disk
-        to convert or compress — claiming otherwise would just be a
+        to convert or compress - claiming otherwise would just be a
         different flavor of the same lie. Rewriting a Unity shader
         reference safely requires Unity's own AssetDatabase to resolve
         the shader GUID; doing that blind, outside Unity, risks writing a
@@ -204,7 +204,7 @@ class VRMAvatarManager:
             "materials": summary["materials"],
             "recommended_shader": (
                 "VRChat/Mobile/Toon Lit or lilToon (set manually in the Unity Inspector "
-                "after import — this tool does not rewrite shader GUIDs outside Unity)"
+                "after import - this tool does not rewrite shader GUIDs outside Unity)"
             ),
             "still_manual_steps": [
                 "Open the project in Unity so UniVRM actually imports the VRM into real .mat/.png/.prefab assets",
@@ -231,24 +231,24 @@ class VRMAvatarManager:
             "materials_found": summary["materials"],
             "manifest_written": manifest_written,
             "material_conversion": (
-                "NOT performed here — real material data extracted above and written to the "
+                "NOT performed here - real material data extracted above and written to the "
                 "manifest; shader conversion requires a Unity-side step"
             ),
             "texture_compression": (
-                "NOT performed — no texture assets exist on disk yet in Hands-Off mode "
+                "NOT performed - no texture assets exist on disk yet in Hands-Off mode "
                 "(Unity/UniVRM hasn't imported them)"
             ),
-            "polygon_reduction": "NOT performed — not implemented; would require real mesh decimation logic",
+            "polygon_reduction": "NOT performed - not implemented; would require real mesh decimation logic",
             "performance_rank": (
-                "not estimated here — use vrchat(operation='validate_avatar') after opening "
+                "not estimated here - use vrchat(operation='validate_avatar') after opening "
                 "the project in Unity for a real rank"
             ),
-            "sdk_components": "NOT added — no Unity project state was modified by this call",
+            "sdk_components": "NOT added - no Unity project state was modified by this call",
         }
 
 
 def _unity_guid() -> str:
-    """A Unity-shaped 32-hex-char GUID (Unity itself just uses uuid4().hex — no dashes)."""
+    """A Unity-shaped 32-hex-char GUID (Unity itself just uses uuid4().hex - no dashes)."""
     return uuid.uuid4().hex
 
 
@@ -345,7 +345,7 @@ def build_animator_controller_yaml(
     .anim clips exist on disk to reference (attaching a motion reference
     to a clip that doesn't exist would be a broken PPtr, worse than none).
 
-    UNVERIFIED against a live Unity Editor — this repo has no Unity
+    UNVERIFIED against a live Unity Editor - this repo has no Unity
     installation to compile/import-test against. If Unity rejects this
     file, it will show as an import error in the Console (not silent
     corruption of other assets), and the fix is to hand-correct this
@@ -416,7 +416,7 @@ class AnimationManager:
     def _derive_project_root(avatar_path: str, project_path: str | None) -> Path | None:
         """Find the Unity project root (the folder containing Assets/) from either
         an explicit project_path or by locating the 'Assets' segment inside avatar_path.
-        Returns None if neither yields a usable root — callers must not silently
+        Returns None if neither yields a usable root - callers must not silently
         write files to the wrong place or fabricate a fake path.
         """
         if project_path:
@@ -436,17 +436,17 @@ class AnimationManager:
         include_facial: bool = True,
         project_path: str | None = None,
     ) -> dict[str, Any]:
-        """Setup animator controller for avatar — writes a real .controller asset to disk.
+        """Setup animator controller for avatar - writes a real .controller asset to disk.
 
         Rewritten 2026-07-18: this used to return a templated config dict
-        and write nothing to disk at all — a lie by omission, flagged in
+        and write nothing to disk at all - a lie by omission, flagged in
         TODO.md and now fixed. This version actually writes a
         `.controller` YAML asset (and its `.meta` file with a real GUID)
         to `Assets/Animators/` under the Unity project root.
 
         Honesty caveats, returned in the response, not hidden:
         - No motion clips are attached to any state (none exist on disk
-          in Hands-Off mode) — states are structurally real but empty.
+          in Hands-Off mode) - states are structurally real but empty.
         - This has not been validated by actually opening the file in a
           live Unity Editor (none available in this environment). If
           Unity's importer rejects it, that will show as a Console error
@@ -481,7 +481,7 @@ class AnimationManager:
                     "message": (
                         "Could not determine the Unity project root from avatar_path "
                         f"({avatar_path!r}) and no project_path was given. Nothing was "
-                        "written to disk — pass project_path explicitly."
+                        "written to disk - pass project_path explicitly."
                     ),
                     "animator_type": animator_type,
                     "facial_animations": include_facial,
@@ -516,7 +516,7 @@ class AnimationManager:
                 "states_per_layer": {layer["name"]: layer["states"] for layer in layers},
                 "parameters": parameters,
                 "caveats": [
-                    "No motion clips attached to any state — none exist on disk yet.",
+                    "No motion clips attached to any state - none exist on disk yet.",
                     "NOT validated against a live Unity Editor in this environment; "
                     "open the project in Unity and check the Console for import errors "
                     "on this asset before relying on it.",
@@ -534,11 +534,11 @@ class AnimationManager:
 
         NOTE (2026-07-18): this method is real code but is not registered
         as an MCP tool anywhere (`unity_avatar` only exposes `import_vrm`
-        and `setup_animator` — see tools/portmanteau/unity_avatar.py). It
+        and `setup_animator` - see tools/portmanteau/unity_avatar.py). It
         is also still a hardcoded/in-memory stub itself: it builds a
         plausible-looking curve dict but writes nothing to disk. Unlike
         `setup_animator` above, this was NOT rewritten to write a real
-        Unity AnimationClip (.anim) asset — that's a different, even more
+        Unity AnimationClip (.anim) asset - that's a different, even more
         complex serialized format (class ID 74, with curve bindings per
         property path), and since nothing can call this method via MCP
         today, the effort wasn't justified in this pass. Left flagged

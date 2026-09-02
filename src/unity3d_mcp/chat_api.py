@@ -1,5 +1,5 @@
 """
-LLM Chat API — streaming + non-streaming endpoints for the webapp chat.
+LLM Chat API - streaming + non-streaming endpoints for the webapp chat.
 
 Mounted alongside the MCP ASGI app via Starlette routing.
 """
