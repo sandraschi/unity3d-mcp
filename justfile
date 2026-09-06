@@ -1,6 +1,8 @@
 set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 import 'scripts/just/fleet.just'
 
+REPO := justfile_directory()
+
 # --- Dashboard ---
 
 # Open the interactive recipe dashboard in the browser
