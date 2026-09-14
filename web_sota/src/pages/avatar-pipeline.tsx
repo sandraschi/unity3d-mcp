@@ -1,11 +1,9 @@
 import {
-  Activity,
   CheckCircle2,
   Monitor,
   Scale,
   ShieldCheck,
   Smartphone,
-  Upload,
   User,
   Zap,
 } from "lucide-react";
