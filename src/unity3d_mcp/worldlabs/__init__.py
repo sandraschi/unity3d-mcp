@@ -5,6 +5,7 @@ Import and optimize 3D environments from World Labs' Marble and Chisel tools.
 Supports mesh imports (OBJ, FBX, GLB) and Gaussian Splat rendering.
 """
 
+import asyncio
 import json
 import logging
 import shutil
@@ -118,23 +119,23 @@ class WorldLabsManager:
                 if "collider" in file.stem.lower() or "collision" in file.stem.lower():
                     if include_colliders:
                         dest = dest_colliders / file.name
-                        shutil.copy2(file, dest)
+                        await asyncio.to_thread(shutil.copy2, file, dest)
                         imported["colliders"].append(str(dest))
                 else:
                     dest = dest_visuals / file.name
-                    shutil.copy2(file, dest)
+                    await asyncio.to_thread(shutil.copy2, file, dest)
                     imported["meshes"].append(str(dest))
 
             # Gaussian splats
             elif suffix in self.splat_formats:
                 dest = dest_splats / file.name
-                shutil.copy2(file, dest)
+                await asyncio.to_thread(shutil.copy2, file, dest)
                 imported["splats"].append(str(dest))
 
             # Textures
             elif suffix in [".png", ".jpg", ".jpeg", ".tga", ".exr"]:
                 dest = dest_visuals / file.name
-                shutil.copy2(file, dest)
+                await asyncio.to_thread(shutil.copy2, file, dest)
                 imported["textures"].append(str(dest))
 
         # Check if Gaussian Splatting is needed
@@ -178,7 +179,7 @@ class WorldLabsManager:
         dest_folder.mkdir(parents=True, exist_ok=True)
 
         dest_file = dest_folder / source.name
-        shutil.copy2(source, dest_file)
+        await asyncio.to_thread(shutil.copy2, source, dest_file)
 
         result = {
             "status": "success",
@@ -214,7 +215,7 @@ class WorldLabsManager:
         dest_folder.mkdir(parents=True, exist_ok=True)
 
         dest_file = dest_folder / source.name
-        shutil.copy2(source, dest_file)
+        await asyncio.to_thread(shutil.copy2, source, dest_file)
 
         result = {
             "status": "success",

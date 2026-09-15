@@ -129,7 +129,7 @@ class ImportExportManager:
                         project_assets.mkdir(parents=True, exist_ok=True)
 
                     destination_path = project_assets / model_path.name
-                    shutil.copy2(model_path, destination_path)
+                    await asyncio.to_thread(shutil.copy2, model_path, destination_path)
                     logger.info(f"Copied model to {destination_path}")
                 except Exception as e:
                     logger.error(f"Failed to copy model to project: {e}")

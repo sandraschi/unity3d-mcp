@@ -4,6 +4,7 @@ Avatar and VRM Management
 VRM avatar import, configuration, and animation setup for Unity.
 """
 
+import asyncio
 import json
 import logging
 import struct
@@ -127,7 +128,7 @@ class VRMAvatarManager:
             # Copy file (simplified)
             import shutil
 
-            shutil.copy2(vrm_path, target_path)
+            await asyncio.to_thread(shutil.copy2, vrm_path, target_path)
 
             result = {
                 "status": "success",
