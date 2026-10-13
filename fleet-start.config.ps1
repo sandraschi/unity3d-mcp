@@ -5,11 +5,12 @@
     BackendPort  = 10831
     FrontendPort = 10830
     HealthPath   = '/health'
-    WebRoot      = 'D:\Dev\repos\unity3d-mcp\web_sota'
+    WebRoot      = 'web_sota'
     Backend = @{
         Kind          = 'uvicorn'
-        UvicornTarget = 'unity3d_mcp.server:asgi_app'
+        UvicornTarget = 'unity3d_mcp.server:app'
         SyncExtras    = @('dev')
+        SyncOnStart  = $true
         Env           = @{ WEB_PORT = '10831' }
     }
     Frontend = @{
