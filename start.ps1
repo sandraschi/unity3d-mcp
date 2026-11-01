@@ -8,14 +8,13 @@ $WindowStyle = if ($Headless) { 'Hidden' } else { 'Normal' }
 
 $WebPort = 10830
 $BackendPort = 10831
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $FleetStartPath = Join-Path $ProjectRoot "scripts\FleetStartMode.ps1"
 if (-not (Test-Path -LiteralPath $FleetStartPath)) {
     Write-Host "ERROR: Missing vendored launcher helper: $FleetStartPath" -ForegroundColor Red
     exit 1
 }
 . $FleetStartPath
-
-$ProjectRoot = Split-Path -Parent $PSScriptRoot
 
 function Clear-Port {
     param([int]$Port)
@@ -40,7 +39,7 @@ Set-Location $ProjectRoot
 if (Test-Path "web_sota") { Push-Location web_sota; if (-not (Test-Path "node_modules")) { npm install }; Pop-Location }
 
 Write-Host "Backend: starting on :$BackendPort ..." -ForegroundColor Cyan
-Start-Process pwsh -ArgumentList '-NoProfile', '-NoExit', '-Command', 'uv run uvicorn unity3d_mcp.app:app --host 127.0.0.1 --port 10831 --log-level info' -WindowStyle $WindowStyle
+Start-Process pwsh -ArgumentList '-NoProfile', '-NoExit', '-Command', 'uv run uvicorn unity3d_mcp.server:asgi_app --host 127.0.0.1 --port 10831 --log-level info' -WindowStyle $WindowStyle
 
 Start-Sleep 3
 

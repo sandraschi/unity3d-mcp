@@ -8,7 +8,7 @@
     WebRoot      = 'web_sota'
     Backend = @{
         Kind          = 'uvicorn'
-        UvicornTarget = 'unity3d_mcp.server:app'
+        UvicornTarget = 'unity3d_mcp.server:asgi_app'
         SyncExtras    = @('dev')
         SyncOnStart  = $true
         Env           = @{ WEB_PORT = '10831' }
