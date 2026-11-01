@@ -309,7 +309,9 @@ def create_app(config: Unity3DConfig | None = None) -> Unity3DMCP:
 
 
 # --- SOTA Global App Exposure for Uvicorn (FastMCP 3.2.0+) ---
-# This allows 'uvicorn unity3d_mcp.server:app' to work out of the box.
+# `app` below is the raw FastMCP instance (NOT ASGI - uvicorn cannot serve it
+# directly, it raises "TypeError: 'FastMCP' object is not callable").
+# Fleet/uvicorn MUST target `asgi_app` (Starlette: /mcp + /api + /health).
 server_instance = create_app()
 app = server_instance.app  # The FastMCP instance is an ASGI-compatible app
 
